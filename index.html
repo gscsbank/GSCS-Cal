@@ -433,10 +433,16 @@
             </div>
           </div>
 
-          <button id="btn-apply-veh-loan" class="btn-action btn-gold" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.95rem; font-weight: 700; gap: 10px;">
-            <i class="fa-solid fa-arrow-right-to-bracket"></i>
-            <span data-i18n="btnApplyLoan">මෙම ණය මුදල වාරික ගණකයට යොදන්න</span>
-          </button>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button id="btn-apply-veh-loan" class="btn-action btn-gold" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.95rem; font-weight: 700; gap: 10px;">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i>
+              <span data-i18n="btnApplyLoan">මෙම ණය මුදල වාරික ගණකයට යොදන්න</span>
+            </button>
+            <button id="btn-print-veh-slip" class="btn-action btn-emerald" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.9rem; font-weight: 700; gap: 10px;">
+              <i class="fa-solid fa-print"></i>
+              <span>A4 Print Slip (A5 පිටපත් 2)</span>
+            </button>
+          </div>
         </div>
 
       </div>
@@ -584,6 +590,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Hidden Vehicle Loan Print Area (populated by JS, visible only when printing) -->
+    <div id="veh-print-area"></div>
 
     <!-- Footer -->
     <footer>

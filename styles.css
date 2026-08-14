@@ -728,6 +728,21 @@ footer {
     color: #000000 !important;
   }
 
+  /* When vehicle print is active, hide everything except the print area */
+  body.printing-vehicle-slip > *:not(#veh-print-area) {
+    display: none !important;
+  }
+
+  body.printing-vehicle-slip #veh-print-area {
+    display: block !important;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+  }
+
+  /* Normal print (amortization schedule) */
   .navbar, .method-tabs-wrapper, .schedule-actions, .range-slider, .presets-row, .btn-toggle-theme, .btn-toggle-lang {
     display: none !important;
   }
@@ -746,7 +761,12 @@ footer {
   .table-responsive {
     overflow: visible !important;
   }
+
+  #veh-print-area {
+    display: none;
+  }
 }
+
 
 /* ============================================
    MOBILE RESPONSIVE - Tablet (≤ 900px)
