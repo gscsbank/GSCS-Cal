@@ -1914,6 +1914,20 @@ function printVehicleLoanSlip(customData = null) {
       margin-bottom: 2px;
     }
 
+    /* ── SIGNATURE ROW ── */
+    .slip-sign-row {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 2.5mm;
+      padding-top: 1mm;
+    }
+    .sign-box { width: 46%; }
+    .sign-line { border-bottom: 1.2px dotted #000; width: 44mm; min-height: 4.5mm; }
+    .sign-lbl { font-size: 7pt; font-weight: 700; color: #000; margin-top: 0.8mm; line-height: 1.2; }
+    .sign-sub { font-size: 6pt; color: #555; }
+
     /* CUT LINE */
     .cut-line {
       width: 100%;
@@ -2036,6 +2050,20 @@ function printVehicleLoanSlip(customData = null) {
           </td>
 
         </tr></tbody></table>
+
+        <!-- Footer Signatures Row -->
+        <div class="slip-sign-row">
+          <div class="sign-box" style="text-align: left;">
+            <div class="sign-line"></div>
+            <div class="sign-lbl">පරීක්ෂා කළ නිලධාරියාගේ අත්සන</div>
+            <div class="sign-sub">Checked by Officer</div>
+          </div>
+          <div class="sign-box" style="text-align: right;">
+            <div class="sign-line" style="margin-left: auto;"></div>
+            <div class="sign-lbl">සකස් කළ නිලධාරියාගේ අත්සන</div>
+            <div class="sign-sub">Prepared by Officer Signature</div>
+          </div>
+        </div>
 
       </div>
     </div>
