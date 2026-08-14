@@ -140,18 +140,18 @@ const i18n = {
     headerVariableFees: "වාහන තොරතුරු & වෙනස්වන ගාස්තු",
     headerFixedFees: "පරිපාලන & අරමුදල් ගාස්තු",
     headerVehSummary: "ගණනය කිරීමේ සාරාංශය",
-    lblVehPrice: "වාහනයේ මිල (Vehicle Price)",
-    lblRegFee: "වාහන ලියාපදිංචි ගාස්තු (Reg Fee)",
-    lblVehInsurance: "වාහන රක්ෂණ ගාස්තු (Vehicle Insurance)",
-    lblDownPayment: "වාහනයේ මූලික ගෙවීම (Down Payment)",
+    lblVehPrice: "වාහනයේ මිල",
+    lblRegFee: "ලියාපදිංචි ගාස්තු",
+    lblVehInsurance: "වාහන රක්ෂණ ගාස්තු",
+    lblDownPayment: "වාහනයේ මූලික ගෙවීම",
     lblBorrowerShares: "ණයකරු කොටස්",
     lblGuarantor1Shares: "ඇපකරු 1 කොටස්",
     lblGuarantor2Shares: "ඇපකරු 2 කොටස්",
+    lblBuildingFund: "ගොඩනැගිලි අරමුදල",
+    lblSwashakthiFund: "සමිති දායකත්වය",
     lblDocFee: "ලිපි ගාස්තු",
     lblServiceFund: "සේවා අරමුදල",
     lblLoanInsurance: "ණය රක්ෂණය",
-    lblSwashakthiFund: "ස්වශක්ති අරමුදල",
-    lblBuildingFund: "ගොඩනැගිලි අරමුදල",
     lblTotalDocFees: "ලිපි ලේඛන ගාස්තු එකතුව",
     lblTotalVehCost: "සම්පූර්ණ පිරිවැය (මිල + ගාස්තු)",
     lblDownPaymentSummary: "මූලික ගෙවීම (Down Payment)",
@@ -195,11 +195,11 @@ const i18n = {
     lblBorrowerShares: "Borrower Shares",
     lblGuarantor1Shares: "Guarantor 1 Shares",
     lblGuarantor2Shares: "Guarantor 2 Shares",
+    lblBuildingFund: "Building Fund",
+    lblSwashakthiFund: "Society Contribution",
     lblDocFee: "Doc / Form Fee",
     lblServiceFund: "Service Fund",
     lblLoanInsurance: "Loan Insurance Fee",
-    lblSwashakthiFund: "Swashakthi Fund",
-    lblBuildingFund: "Building Fund",
     lblTotalDocFees: "Total Documentation Fees",
     lblTotalVehCost: "Total Vehicle Cost (Price + Fees)",
     lblDownPaymentSummary: "Down Payment",
@@ -996,7 +996,21 @@ function initVehicleCalculator() {
 
   // Attach event listeners to all vehicle inputs
   document.querySelectorAll(".veh-input").forEach(input => {
-    input.addEventListener("input", updateVehicleCalculation);
+    input.addEventListener("input", () => {
+      // If user edits price/fees, switch select to custom
+      const select = document.getElementById("vehicle-select");
+      if (select && select.value !== "custom") {
+        const curVeh = vehicleDatabase.find(v => v.id === select.value);
+        const p = parseInputNumber("veh-price", 0);
+        const r = parseInputNumber("veh-reg-fee", 0);
+        const ins = parseInputNumber("veh-insurance-fee", 0);
+        const dp = parseInputNumber("veh-down-payment", 0);
+        if (curVeh && (curVeh.price !== p || curVeh.regFee !== r || curVeh.vehicleInsurance !== ins || curVeh.downPayment !== dp)) {
+          select.value = "custom";
+        }
+      }
+      updateVehicleCalculation();
+    });
   });
 
   // Vehicle selector change
@@ -1223,7 +1237,8 @@ function updateVehicleCalculation() {
   // Formula matching Excel sheet exact rows
   const totalDocFees = borrowerShares + g1Shares + g2Shares + docFee + serviceFund + loanInsurance + swashakthiFund + buildingFund + regFee + vehInsurance;
   const totalVehCost = price + totalDocFees;
-  const requiredLoanAmount = Math.max(0, totalVehCost - downPayment);
+  const rawLoanAmount = totalVehCost - downPayment;
+  const requiredLoanAmount = Math.max(0, rawLoanAmount);
 
   lastCalculatedVehicleLoanAmount = requiredLoanAmount;
 
@@ -1233,11 +1248,23 @@ function updateVehicleCalculation() {
   const elDownPayment = document.getElementById("veh-metric-down-payment");
   const elRequiredLoan = document.getElementById("veh-metric-required-loan");
   const btnApply = document.getElementById("btn-apply-veh-loan");
+  const warningEl = document.getElementById("veh-downpayment-warning");
+  const warningTextEl = document.getElementById("veh-downpayment-warning-text");
 
   if (elDocFees) elDocFees.textContent = formatCurrency(totalDocFees);
   if (elTotalCost) elTotalCost.textContent = formatCurrency(totalVehCost);
   if (elDownPayment) elDownPayment.textContent = formatCurrency(downPayment);
   if (elRequiredLoan) elRequiredLoan.textContent = formatCurrency(requiredLoanAmount);
+
+  // Warning when Down Payment exceeds Total Cost
+  if (warningEl && warningTextEl) {
+    if (downPayment > totalVehCost && totalVehCost > 0) {
+      warningEl.style.display = "block";
+      warningTextEl.textContent = `මූලික ගෙවීම (${formatCurrency(downPayment)}) සම්පූර්ණ පිරිවැයට (${formatCurrency(totalVehCost)}) වඩා වැඩි බැවින් ණය මුදලක් අවශ්‍ය නොවේ. කරුණාකර මූලික ගෙවීම පරීක්ෂා කරන්න.`;
+    } else {
+      warningEl.style.display = "none";
+    }
+  }
 
   if (btnApply) {
     btnApply.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> ${dict.btnApplyLoan || 'මෙම ණය මුදල වාරික ගණකයට යොදන්න'} (${formatCurrency(requiredLoanAmount)})`;
@@ -1276,46 +1303,55 @@ function renderVehicleComparisonMatrix(borrowerShares, g1Shares, g2Shares, docFe
   });
   html += `</tr>`;
 
-  // Standard fee rows
-  const feeRows = [
-    { name: dict.lblBorrowerShares || "ණයකරු කොටස්", val: borrowerShares },
-    { name: dict.lblGuarantor1Shares || "ඇපකරු 1 කොටස්", val: g1Shares },
-    { name: dict.lblGuarantor2Shares || "ඇපකරු 2 කොටස්", val: g2Shares },
-    { name: dict.lblDocFee || "ලිපි ගාස්තු", val: docFee },
-    { name: dict.lblServiceFund || "සේවා අරමුදල", val: serviceFund },
-    { name: dict.lblLoanInsurance || "ණය රක්ෂණය", val: loanInsurance },
-    { name: dict.lblSwashakthiFund || "ස්වශක්ති අරමුදල", val: swashakthiFund },
-    { name: dict.lblBuildingFund || "ගොඩනැගිලි අරමුදල", val: buildingFund }
-  ];
-
-  feeRows.forEach(r => {
-    html += `
-      <tr>
-        <td style="text-align: left; color: var(--text-muted);">${r.name}</td>
-    `;
-    vehicleDatabase.forEach(() => {
-      html += `<td>${formatCurrency(r.val)}</td>`;
-    });
-    html += `</tr>`;
-  });
-
-  // Variable rows (Reg & Insurance fees)
-  html += `
-    <tr>
-      <td style="text-align: left;"><strong>${dict.lblRegFee || 'වාහන ලියාපදිංචි ගාස්තු'}</strong></td>
-  `;
-  vehicleDatabase.forEach(v => {
-    html += `<td style="color: var(--accent-rose);">${formatCurrency(v.regFee)}</td>`;
-  });
+  // Standard fee rows in exact requested order
+  // 1. ණයකරු කොටස්
+  html += `<tr><td style="text-align: left; color: var(--text-muted);">${dict.lblBorrowerShares || "ණයකරු කොටස්"}</td>`;
+  vehicleDatabase.forEach(() => { html += `<td>${formatCurrency(borrowerShares)}</td>`; });
   html += `</tr>`;
 
-  html += `
-    <tr>
-      <td style="text-align: left;"><strong>${dict.lblVehInsurance || 'වාහන රක්ෂණ ගාස්තු'}</strong></td>
-  `;
-  vehicleDatabase.forEach(v => {
-    html += `<td style="color: var(--accent-rose);">${formatCurrency(v.vehicleInsurance)}</td>`;
-  });
+  // 2. ඇපකරු 1 කොටස්
+  html += `<tr><td style="text-align: left; color: var(--text-muted);">${dict.lblGuarantor1Shares || "ඇපකරු 1 කොටස්"}</td>`;
+  vehicleDatabase.forEach(() => { html += `<td>${formatCurrency(g1Shares)}</td>`; });
+  html += `</tr>`;
+
+  // 3. ඇපකරු 2 කොටස්
+  html += `<tr><td style="text-align: left; color: var(--text-muted);">${dict.lblGuarantor2Shares || "ඇපකරු 2 කොටස්"}</td>`;
+  vehicleDatabase.forEach(() => { html += `<td>${formatCurrency(g2Shares)}</td>`; });
+  html += `</tr>`;
+
+  // 4. ගොඩනැගිලි අරමුදල
+  html += `<tr><td style="text-align: left; color: var(--text-muted);">${dict.lblBuildingFund || "ගොඩනැගිලි අරමුදල"}</td>`;
+  vehicleDatabase.forEach(() => { html += `<td>${formatCurrency(buildingFund)}</td>`; });
+  html += `</tr>`;
+
+  // 5. ලියාපදිංචි ගාස්තු (variable by vehicle)
+  html += `<tr><td style="text-align: left; font-weight: 600;">${dict.lblRegFee || 'ලියාපදිංචි ගාස්තු'}</td>`;
+  vehicleDatabase.forEach(v => { html += `<td style="color: var(--accent-rose);">${formatCurrency(v.regFee)}</td>`; });
+  html += `</tr>`;
+
+  // 6. වාහන රක්ෂණ ගාස්තු (variable by vehicle)
+  html += `<tr><td style="text-align: left; font-weight: 600;">${dict.lblVehInsurance || 'වාහන රක්ෂණ ගාස්තු'}</td>`;
+  vehicleDatabase.forEach(v => { html += `<td style="color: var(--accent-rose);">${formatCurrency(v.vehicleInsurance)}</td>`; });
+  html += `</tr>`;
+
+  // 7. සමිති දායකත්වය
+  html += `<tr><td style="text-align: left; color: var(--text-muted);">${dict.lblSwashakthiFund || "සමිති දායකත්වය"}</td>`;
+  vehicleDatabase.forEach(() => { html += `<td>${formatCurrency(swashakthiFund)}</td>`; });
+  html += `</tr>`;
+
+  // 8. ලිපි ගාස්තු
+  html += `<tr><td style="text-align: left; color: var(--text-muted);">${dict.lblDocFee || "ලිපි ගාස්තු"}</td>`;
+  vehicleDatabase.forEach(() => { html += `<td>${formatCurrency(docFee)}</td>`; });
+  html += `</tr>`;
+
+  // 9. සේවා අරමුදල
+  html += `<tr><td style="text-align: left; color: var(--text-muted);">${dict.lblServiceFund || "සේවා අරමුදල"}</td>`;
+  vehicleDatabase.forEach(() => { html += `<td>${formatCurrency(serviceFund)}</td>`; });
+  html += `</tr>`;
+
+  // 10. ණය රක්ෂණය
+  html += `<tr><td style="text-align: left; color: var(--text-muted);">${dict.lblLoanInsurance || "ණය රක්ෂණය"}</td>`;
+  vehicleDatabase.forEach(() => { html += `<td>${formatCurrency(loanInsurance)}</td>`; });
   html += `</tr>`;
 
   // Total Documentation fees
@@ -1478,6 +1514,8 @@ function initSavedVehicleLoans() {
     const memberName  = document.getElementById("save-member-name")?.value.trim() || "";
     const loanType    = document.getElementById("save-loan-type")?.value.trim() || "ස්වශක්ති වාහන ණය";
     const accountNo   = document.getElementById("save-loan-account")?.value.trim() || "";
+    const g1Acc       = document.getElementById("save-g1-account")?.value.trim() || "";
+    const g2Acc       = document.getElementById("save-g2-account")?.value.trim() || "";
     const period      = parseInt(document.getElementById("save-loan-period")?.value) || 24;
     const rate        = parseFloat(document.getElementById("save-loan-rate")?.value) || 18;
 
@@ -1506,6 +1544,8 @@ function initSavedVehicleLoans() {
       memberName,
       loanType,
       accountNo,
+      g1Acc,
+      g2Acc,
       period,
       rate,
       vehicleName: selectedVehName,
@@ -1704,7 +1744,7 @@ function printVehicleLoanSlip(customData = null) {
   let selectedVehName, vehPrice, regFee, vehIns, downPayment;
   let borrowerShares, g1, g2, docFee, serviceFund, loanIns, swashakthi, building;
   let totalDocFees, totalVehCost, requiredLoan, today;
-  let memberId = "", memberName = "", loanType = "ස්වශක්ති වාහන ණය", accountNo = "", period = 24, rate = 18;
+  let memberId = "", memberName = "", loanType = "ස්වශක්ති වාහන ණය", accountNo = "", g1Acc = "", g2Acc = "", period = 24, rate = 18;
 
   if (customData) {
     selectedVehName = customData.vehicleName || "–";
@@ -1728,6 +1768,8 @@ function printVehicleLoanSlip(customData = null) {
     memberName     = customData.memberName || "";
     loanType       = customData.loanType || "ස්වශක්ති වාහන ණය";
     accountNo      = customData.accountNo || "";
+    g1Acc          = customData.g1Acc || "";
+    g2Acc          = customData.g2Acc || "";
     period         = customData.period || 24;
     rate           = customData.rate || 18;
   } else {
@@ -1749,6 +1791,8 @@ function printVehicleLoanSlip(customData = null) {
     totalVehCost   = vehPrice + totalDocFees;
     requiredLoan   = Math.max(0, totalVehCost - downPayment);
     today          = new Date().toLocaleDateString('si-LK', { year:'numeric', month:'long', day:'numeric' });
+    g1Acc          = document.getElementById("save-g1-account")?.value.trim() || "";
+    g2Acc          = document.getElementById("save-g2-account")?.value.trim() || "";
   }
 
   // Format rupees helper
@@ -1825,10 +1869,12 @@ function printVehicleLoanSlip(customData = null) {
     .col-divider { width: 4mm; }
 
     /* ── MANUAL FIELDS ── */
-    .fields-block { margin-bottom: 2mm; }
-    .field-row { margin-bottom: 2.8mm; }
-    .field-lbl { font-size: 7.5pt; color: #000; font-weight: 700; display: block; margin-bottom: 0.8mm; }
-    .field-line { border-bottom: 1.2px solid #000; min-height: 5.5mm; width: 100%; display: block; font-size: 8pt; font-weight: 700; color: #000; line-height: 5.5mm; }
+    .fields-block { margin-bottom: 1.5mm; }
+    .field-row { margin-bottom: 2mm; }
+    .field-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-bottom: 2mm; }
+    .field-lbl { font-size: 7pt; color: #000; font-weight: 700; display: block; margin-bottom: 0.5mm; }
+    .field-line { border-bottom: 1.2px solid #000; min-height: 4.8mm; width: 100%; display: block; font-size: 7.5pt; font-weight: 700; color: #000; line-height: 4.8mm; }
+    .check-box { display: inline-block; width: 3.4mm; height: 3.4mm; border: 1.2px solid #000; border-radius: 1.5px; vertical-align: -0.5mm; margin-right: 3px; background: #fff; }
 
     /* ── FEE TABLE ── */
     .fee-tbl { width: 100%; border-collapse: collapse; font-size: 8pt; color: #000; }
@@ -1884,12 +1930,6 @@ function printVehicleLoanSlip(customData = null) {
   `;
 
   function createSlipHTML(copyName) {
-    const memberDisplay = memberId ? `${memberId} - ${memberName}` : '';
-    const typeDisplay   = loanType || '';
-    const accDisplay    = accountNo || '';
-    const periodDisplay = period ? `${period} Months (මාස)` : '';
-    const rateDisplay   = rate ? `${rate}%` : '';
-
     return `
     <div class="slip">
       <div class="slip-inner">
@@ -1916,33 +1956,47 @@ function printVehicleLoanSlip(customData = null) {
         <!-- Two column layout: manual fields LEFT | fee table RIGHT -->
         <table class="content-grid"><tbody><tr>
 
-          <!-- LEFT: Manual fill-in fields -->
+          <!-- LEFT: Manual fill-in fields (all blank for pen handwriting) -->
           <td style="width:42%;">
             <div class="fields-block">
 
               <div class="field-row">
-                <span class="field-lbl">සාමාජිකයා / Member:</span>
-                <span class="field-line">${memberDisplay}</span>
+                <span class="field-lbl">ස්වශක්ති ණය වර්ගය / Loan Type:</span>
+                <div style="display: flex; gap: 10px; margin-top: 2px; font-size: 7.2pt; font-weight: 700;">
+                  <span style="display: inline-flex; align-items: center;"><span class="check-box"></span> ස්වශක්ති ණය 01</span>
+                  <span style="display: inline-flex; align-items: center;"><span class="check-box"></span> ස්වශක්ති ණය 02</span>
+                </div>
               </div>
 
               <div class="field-row">
-                <span class="field-lbl">ස්වශක්ති ණය වර්ගය / Loan Type:</span>
-                <span class="field-line">${typeDisplay}</span>
+                <span class="field-lbl">සාමාජිකයා / Member:</span>
+                <span class="field-line"></span>
               </div>
 
               <div class="field-row">
                 <span class="field-lbl">ණය ගිණුම් අංකය / Loan A/C No:</span>
-                <span class="field-line">${accDisplay}</span>
+                <span class="field-line"></span>
               </div>
 
               <div class="field-row">
-                <span class="field-lbl">කාලය / Period (Months):</span>
-                <span class="field-line">${periodDisplay}</span>
+                <span class="field-lbl">ඇපකරු 1 ගිණුම් අංකය / Guarantor 1 A/C:</span>
+                <span class="field-line"></span>
               </div>
 
               <div class="field-row">
-                <span class="field-lbl">පොලී ප්‍රතිශතය / Interest Rate (%):</span>
-                <span class="field-line">${rateDisplay}</span>
+                <span class="field-lbl">ඇපකරු 2 ගිණුම් අංකය / Guarantor 2 A/C:</span>
+                <span class="field-line"></span>
+              </div>
+
+              <div class="field-row-grid">
+                <div>
+                  <span class="field-lbl">කාලය / Period:</span>
+                  <span class="field-line"></span>
+                </div>
+                <div>
+                  <span class="field-lbl">පොලී / Rate:</span>
+                  <span class="field-line"></span>
+                </div>
               </div>
 
             </div>
@@ -1966,16 +2020,16 @@ function printVehicleLoanSlip(customData = null) {
               </thead>
               <tbody>
                 <tr><td>වාහනයේ මිල</td><td class="r">${fmtR(vehPrice)}</td></tr>
-                <tr><td>ලියාපදිංචි ගාස්තු</td><td class="r">${fmtR(regFee)}</td></tr>
-                <tr><td>වාහන රක්ෂණ</td><td class="r">${fmtR(vehIns)}</td></tr>
                 <tr><td>ණයකරු කොටස්</td><td class="r">${fmtR(borrowerShares)}</td></tr>
                 <tr><td>ඇපකරු 1 කොටස්</td><td class="r">${fmtR(g1)}</td></tr>
                 <tr><td>ඇපකරු 2 කොටස්</td><td class="r">${fmtR(g2)}</td></tr>
+                <tr><td>ගොඩනැගිලි අරමුදල</td><td class="r">${fmtR(building)}</td></tr>
+                <tr><td>ලියාපදිංචි ගාස්තු</td><td class="r">${fmtR(regFee)}</td></tr>
+                <tr><td>වාහන රක්ෂණ ගාස්තු</td><td class="r">${fmtR(vehIns)}</td></tr>
+                <tr><td>සමිති දායකත්වය</td><td class="r">${fmtR(swashakthi)}</td></tr>
                 <tr><td>ලිපි ගාස්තු</td><td class="r">${fmtR(docFee)}</td></tr>
                 <tr><td>සේවා අරමුදල</td><td class="r">${fmtR(serviceFund)}</td></tr>
                 <tr><td>ණය රක්ෂණය</td><td class="r">${fmtR(loanIns)}</td></tr>
-                <tr><td>ස්වශක්ති අරමුදල</td><td class="r">${fmtR(swashakthi)}</td></tr>
-                <tr><td>ගොඩනැගිලි අරමුදල</td><td class="r">${fmtR(building)}</td></tr>
                 <tr><td>මූලික ගෙවීම</td><td class="r">(${fmtR(downPayment)})</td></tr>
               </tbody>
             </table>

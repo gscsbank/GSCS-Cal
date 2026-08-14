@@ -376,6 +376,16 @@
             </div>
 
             <div class="input-group">
+              <label for="fee-building-fund" class="input-label" style="font-size: 0.8rem;" data-i18n="lblBuildingFund">ගොඩනැගිලි අරමුදල</label>
+              <input type="number" id="fee-building-fund" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="1000">
+            </div>
+
+            <div class="input-group">
+              <label for="fee-swashakthi-fund" class="input-label" style="font-size: 0.8rem;" data-i18n="lblSwashakthiFund">සමිති දායකත්වය</label>
+              <input type="number" id="fee-swashakthi-fund" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="5000">
+            </div>
+
+            <div class="input-group">
               <label for="fee-doc" class="input-label" style="font-size: 0.8rem;" data-i18n="lblDocFee">ලිපි ගාස්තු</label>
               <input type="number" id="fee-doc" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="350">
             </div>
@@ -388,16 +398,6 @@
             <div class="input-group">
               <label for="fee-loan-insurance" class="input-label" style="font-size: 0.8rem;" data-i18n="lblLoanInsurance">ණය රක්ෂණය</label>
               <input type="number" id="fee-loan-insurance" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="300">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-swashakthi-fund" class="input-label" style="font-size: 0.8rem;" data-i18n="lblSwashakthiFund">ස්වශක්ති අරමුදල</label>
-              <input type="number" id="fee-swashakthi-fund" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="5000">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-building-fund" class="input-label" style="font-size: 0.8rem;" data-i18n="lblBuildingFund">ගොඩනැගිලි අරමුදල</label>
-              <input type="number" id="fee-building-fund" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="1000">
             </div>
           </div>
         </div>
@@ -426,9 +426,12 @@
                 <div id="veh-metric-down-payment" class="metric-value" style="font-size: 1.15rem; color: var(--accent-rose);">Rs. 350,000.00</div>
               </div>
 
-              <div class="metric-card emerald-border" style="background: rgba(16, 185, 129, 0.1);">
+              <div class="metric-card emerald-border" id="veh-metric-loan-card" style="background: rgba(16, 185, 129, 0.1);">
                 <span class="metric-title" style="color: var(--accent-emerald);" data-i18n="lblRequiredLoan">අවශ්‍ය ණය මුදල (Required Loan Amount)</span>
                 <div id="veh-metric-required-loan" class="metric-value" style="font-size: 1.6rem; color: var(--accent-emerald);">Rs. 499,523.00</div>
+                <div id="veh-downpayment-warning" style="display:none; font-size: 0.75rem; color: var(--accent-rose); font-weight: 600; margin-top: 4px; line-height: 1.3;">
+                  <i class="fa-solid fa-triangle-exclamation"></i> <span id="veh-downpayment-warning-text">මූලික ගෙවීම සම්පූර්ණ පිරිවැයට වඩා වැඩියි. කරුණාකර මූලික ගෙවීම අඩු කරන්න.</span>
+                </div>
               </div>
             </div>
           </div>
@@ -516,6 +519,17 @@
             <div class="input-group">
               <label class="input-label" style="font-size: 0.82rem;">ණය ගිණුම් අංකය (A/C No.)</label>
               <input type="text" id="save-loan-account" class="input-field" placeholder="විකල්පයි (Optional)">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="input-group">
+              <label class="input-label" style="font-size: 0.82rem;">ඇපකරු 1 ගිණුම් අංකය (A/C No.)</label>
+              <input type="text" id="save-g1-account" class="input-field" placeholder="විකල්පයි (හෝ අතින් ලියන්න)">
+            </div>
+            <div class="input-group">
+              <label class="input-label" style="font-size: 0.82rem;">ඇපකරු 2 ගිණුම් අංකය (A/C No.)</label>
+              <input type="text" id="save-g2-account" class="input-field" placeholder="විකල්පයි (හෝ අතින් ලියන්න)">
             </div>
           </div>
 
