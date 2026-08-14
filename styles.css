@@ -747,3 +747,321 @@ footer {
     overflow: visible !important;
   }
 }
+
+/* ============================================
+   MOBILE RESPONSIVE - Tablet (≤ 900px)
+   ============================================ */
+@media (max-width: 900px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  /* Navbar */
+  .brand-text p {
+    display: none;
+  }
+
+  .brand-text h1 {
+    font-size: 1rem;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .brand-logo {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .btn-toggle-lang span {
+    display: none;
+  }
+
+  .btn-toggle-lang,
+  .btn-toggle-theme {
+    padding: 8px 12px;
+  }
+
+  /* Tabs - Scrollable horizontal strip */
+  .method-tabs-wrapper {
+    margin: 18px 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 0 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .method-tabs {
+    border-radius: 20px;
+    padding: 4px;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .tab-btn {
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Main Grid - single column */
+  .calculator-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  /* Charts */
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .chart-container {
+    height: 220px;
+  }
+
+  /* Summary cards */
+  .summary-cards-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .metric-value {
+    font-size: 1.1rem;
+  }
+
+  /* Vehicle calculator grid */
+  .veh-calc-grid {
+    grid-template-columns: 1fr !important;
+    gap: 18px;
+  }
+
+  .veh-summary-card {
+    grid-column: 1 !important;
+  }
+
+  /* Comparison grid */
+  .comparison-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE - Phone (≤ 600px)
+   ============================================ */
+@media (max-width: 600px) {
+  body {
+    padding-bottom: 30px;
+  }
+
+  .container {
+    padding: 0 12px;
+  }
+
+  /* Navbar - compact */
+  .navbar {
+    padding: 10px 0;
+  }
+
+  .brand {
+    gap: 10px;
+  }
+
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .brand-text h1 {
+    font-size: 0.88rem;
+    letter-spacing: -0.01em;
+  }
+
+  .brand-badge.staff-badge {
+    font-size: 0.55rem;
+    padding: 2px 7px;
+  }
+
+  /* Nav buttons - icon only */
+  .btn-toggle-lang,
+  .btn-toggle-theme {
+    padding: 7px 11px;
+    font-size: 0.8rem;
+  }
+
+  /* Tabs - scroll horizontal */
+  .method-tabs-wrapper {
+    margin: 14px 0;
+  }
+
+  .method-tabs {
+    padding: 3px;
+    border-radius: 16px;
+    gap: 2px;
+  }
+
+  .tab-btn {
+    padding: 9px 13px;
+    font-size: 0.75rem;
+    gap: 6px;
+  }
+
+  .tab-btn i {
+    font-size: 0.85rem;
+  }
+
+  /* Cards */
+  .glass-card {
+    padding: 16px;
+    border-radius: var(--border-radius-md);
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  /* Input fields */
+  .input-field {
+    font-size: 0.95rem;
+    padding: 10px 14px;
+  }
+
+  .input-field.has-prefix {
+    padding-left: 48px;
+  }
+
+  .input-group {
+    margin-bottom: 18px;
+  }
+
+  /* Summary cards - stacked */
+  .summary-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .metric-card {
+    padding: 14px;
+  }
+
+  .metric-title {
+    font-size: 0.72rem;
+  }
+
+  .metric-value {
+    font-size: 1.2rem;
+  }
+
+  /* Charts */
+  .chart-container {
+    height: 190px;
+  }
+
+  /* Section header */
+  .section-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .schedule-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .btn-action {
+    font-size: 0.78rem;
+    padding: 7px 12px;
+  }
+
+  /* Schedule table - smaller font */
+  .schedule-table th,
+  .schedule-table td {
+    padding: 10px 10px;
+    font-size: 0.75rem;
+  }
+
+  .schedule-table th {
+    font-size: 0.65rem;
+  }
+
+  /* Pagination */
+  .table-pagination {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.78rem;
+    padding: 10px 12px;
+  }
+
+  /* Vehicle section title */
+  .veh-section-title {
+    font-size: 1.2rem !important;
+  }
+
+  .veh-section-subtitle {
+    font-size: 0.8rem !important;
+  }
+
+  /* Vehicle comparison table */
+  #veh-comparison-table th,
+  #veh-comparison-table td {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+  }
+
+  #veh-comparison-table th {
+    font-size: 0.7rem;
+  }
+
+  /* Apply button full width */
+  #btn-apply-veh-loan {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+
+  /* Modal */
+  .modal-content {
+    width: 95vw !important;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px !important;
+    border-radius: var(--border-radius-lg) !important;
+    margin: 10px;
+  }
+
+  /* Vehicle add button */
+  #btn-add-vehicle-modal {
+    font-size: 0.78rem;
+    padding: 7px 12px;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 30px;
+    font-size: 0.78rem;
+  }
+
+  /* Formula box */
+  .formula-box {
+    font-size: 0.78rem;
+    padding: 12px 14px;
+  }
+
+  /* Select dropdown */
+  #vehicle-select {
+    font-size: 0.85rem !important;
+  }
+
+  /* Fee inputs grid on mobile */
+  .fee-inputs-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+}
+

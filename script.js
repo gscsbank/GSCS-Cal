@@ -895,6 +895,26 @@ function exportCSV() {
 
 // Swashakthi Vehicle Loan Calculator Logic
 function initVehicleCalculator() {
+  // Load saved edits to default vehicles (Bajaj, Risk, Yamaha) from localStorage
+  const savedDefaults = localStorage.getItem("gscs_default_vehicles");
+  if (savedDefaults) {
+    try {
+      const parsed = JSON.parse(savedDefaults);
+      if (Array.isArray(parsed)) {
+        parsed.forEach(saved => {
+          const existing = vehicleDatabase.find(v => v.id === saved.id);
+          if (existing) {
+            existing.name = saved.name;
+            existing.price = saved.price;
+            existing.regFee = saved.regFee;
+            existing.vehicleInsurance = saved.vehicleInsurance;
+            existing.downPayment = saved.downPayment;
+          }
+        });
+      }
+    } catch(e) {}
+  }
+
   // Load saved custom vehicles from localStorage
   const savedVehicles = localStorage.getItem("gscs_custom_vehicles");
   if (savedVehicles) {
@@ -908,6 +928,7 @@ function initVehicleCalculator() {
         });
       }
     } catch(e) {}
+
   }
 
   populateVehicleDropdown();
@@ -939,11 +960,54 @@ function initVehicleCalculator() {
     applyVehicleLoanAmount(lastCalculatedVehicleLoanAmount);
   });
 
-  // Modal open/close
-  document.getElementById("btn-add-vehicle-modal")?.addEventListener("click", () => {
+  // Helper: open modal in ADD mode
+  function openModalAdd() {
+    document.getElementById("m-veh-edit-id").value = "";
+    document.getElementById("m-veh-name").value = "";
+    document.getElementById("m-veh-price").value = "";
+    document.getElementById("m-veh-reg").value = 15000;
+    document.getElementById("m-veh-insurance").value = 18000;
+    document.getElementById("m-veh-down").value = 200000;
+    document.getElementById("modal-title-text").textContent = "නව වාහනයක් ඇතුළත් කරන්න";
+    document.getElementById("btn-save-label").textContent = "සුරකින්න";
+    document.getElementById("btn-delete-vehicle").style.display = "none";
     document.getElementById("modal-add-vehicle").style.display = "flex";
+    document.getElementById("m-veh-name").focus();
+  }
+
+  // Helper: open modal in EDIT mode with vehicle data pre-filled
+  function openModalEdit(vehId) {
+    const veh = vehicleDatabase.find(v => v.id === vehId);
+    if (!veh) return;
+    document.getElementById("m-veh-edit-id").value = veh.id;
+    document.getElementById("m-veh-name").value = veh.name;
+    document.getElementById("m-veh-price").value = veh.price;
+    document.getElementById("m-veh-reg").value = veh.regFee;
+    document.getElementById("m-veh-insurance").value = veh.vehicleInsurance;
+    document.getElementById("m-veh-down").value = veh.downPayment;
+    document.getElementById("modal-title-text").textContent = `"${veh.name}" සංස්කරණය`;
+    document.getElementById("btn-save-label").textContent = "යාවත්කාලීන කරන්න";
+    document.getElementById("btn-delete-vehicle").style.display = "flex";
+    document.getElementById("modal-add-vehicle").style.display = "flex";
+    document.getElementById("m-veh-name").focus();
+  }
+
+  // + Add New button → Add mode
+  document.getElementById("btn-add-vehicle-modal")?.addEventListener("click", () => {
+    openModalAdd();
   });
 
+  // ✏️ Edit button → Edit mode with currently selected vehicle
+  document.getElementById("btn-edit-vehicle-modal")?.addEventListener("click", () => {
+    const selectedId = document.getElementById("vehicle-select")?.value;
+    if (selectedId && selectedId !== "custom") {
+      openModalEdit(selectedId);
+    } else {
+      openModalAdd();
+    }
+  });
+
+  // Close / Cancel
   document.getElementById("btn-close-modal")?.addEventListener("click", () => {
     document.getElementById("modal-add-vehicle").style.display = "none";
   });
@@ -952,7 +1016,45 @@ function initVehicleCalculator() {
     document.getElementById("modal-add-vehicle").style.display = "none";
   });
 
-  // Save new custom vehicle form submission
+  // Click outside modal to close
+  document.getElementById("modal-add-vehicle")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("modal-add-vehicle")) {
+      document.getElementById("modal-add-vehicle").style.display = "none";
+    }
+  });
+
+  // 🗑️ Delete Vehicle
+  document.getElementById("btn-delete-vehicle")?.addEventListener("click", () => {
+    const editId = document.getElementById("m-veh-edit-id").value;
+    if (!editId) return;
+    const veh = vehicleDatabase.find(v => v.id === editId);
+    if (!veh) return;
+    if (!confirm(`"${veh.name}" ඉවත් කිරීමට කැමතිද?`)) return;
+
+    const idx = vehicleDatabase.findIndex(v => v.id === editId);
+    if (idx !== -1) vehicleDatabase.splice(idx, 1);
+
+    // Re-save to localStorage (only custom ones)
+    const customOnly = vehicleDatabase.filter(v => v.id.startsWith("veh_"));
+    localStorage.setItem("gscs_custom_vehicles", JSON.stringify(customOnly));
+
+    document.getElementById("modal-add-vehicle").style.display = "none";
+    populateVehicleDropdown();
+
+    // Select first available vehicle
+    const firstId = vehicleDatabase[0]?.id;
+    if (firstId) {
+      document.getElementById("vehicle-select").value = firstId;
+      const firstVeh = vehicleDatabase[0];
+      document.getElementById("veh-price").value = firstVeh.price;
+      document.getElementById("veh-reg-fee").value = firstVeh.regFee;
+      document.getElementById("veh-insurance-fee").value = firstVeh.vehicleInsurance;
+      document.getElementById("veh-down-payment").value = firstVeh.downPayment;
+    }
+    updateVehicleCalculation();
+  });
+
+  // 💾 Save (Add or Update)
   document.getElementById("form-add-vehicle")?.addEventListener("submit", (e) => {
     e.preventDefault();
     const name = document.getElementById("m-veh-name").value.trim();
@@ -960,38 +1062,55 @@ function initVehicleCalculator() {
     const regFee = parseFloat(document.getElementById("m-veh-reg").value) || 0;
     const vehicleInsurance = parseFloat(document.getElementById("m-veh-insurance").value) || 0;
     const downPayment = parseFloat(document.getElementById("m-veh-down").value) || 0;
+    const editId = document.getElementById("m-veh-edit-id").value;
 
     if (!name || price <= 0) return;
 
-    const newVeh = {
-      id: "veh_" + Date.now(),
-      name: name,
-      price: price,
-      regFee: regFee,
-      vehicleInsurance: vehicleInsurance,
-      downPayment: downPayment
-    };
+    if (editId) {
+      // EDIT MODE: update existing entry in vehicleDatabase
+      const veh = vehicleDatabase.find(v => v.id === editId);
+      if (veh) {
+        veh.name = name;
+        veh.price = price;
+        veh.regFee = regFee;
+        veh.vehicleInsurance = vehicleInsurance;
+        veh.downPayment = downPayment;
+      }
+    } else {
+      // ADD MODE: create new entry
+      const newVeh = {
+        id: "veh_" + Date.now(),
+        name, price, regFee, vehicleInsurance, downPayment
+      };
+      vehicleDatabase.push(newVeh);
+    }
 
-    vehicleDatabase.push(newVeh);
-
-    // Save custom vehicles to localStorage
+    // Persist ALL custom-id vehicles
     const customOnly = vehicleDatabase.filter(v => v.id.startsWith("veh_"));
     localStorage.setItem("gscs_custom_vehicles", JSON.stringify(customOnly));
 
-    populateVehicleDropdown();
-    document.getElementById("vehicle-select").value = newVeh.id;
+    // Also save default vehicles if they were edited
+    const defaultEdited = vehicleDatabase.filter(v => !v.id.startsWith("veh_"));
+    localStorage.setItem("gscs_default_vehicles", JSON.stringify(defaultEdited));
 
-    document.getElementById("veh-price").value = price;
-    document.getElementById("veh-reg-fee").value = regFee;
-    document.getElementById("veh-insurance-fee").value = vehicleInsurance;
-    document.getElementById("veh-down-payment").value = downPayment;
+    populateVehicleDropdown();
+    const savedId = editId || vehicleDatabase[vehicleDatabase.length - 1].id;
+    document.getElementById("vehicle-select").value = savedId;
+
+    const saved = vehicleDatabase.find(v => v.id === savedId);
+    if (saved) {
+      document.getElementById("veh-price").value = saved.price;
+      document.getElementById("veh-reg-fee").value = saved.regFee;
+      document.getElementById("veh-insurance-fee").value = saved.vehicleInsurance;
+      document.getElementById("veh-down-payment").value = saved.downPayment;
+    }
 
     document.getElementById("modal-add-vehicle").style.display = "none";
     document.getElementById("form-add-vehicle").reset();
-
     updateVehicleCalculation();
   });
 }
+
 
 function populateVehicleDropdown() {
   const select = document.getElementById("vehicle-select");

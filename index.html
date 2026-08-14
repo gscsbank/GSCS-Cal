@@ -283,13 +283,18 @@
             </p>
           </div>
 
-          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <label for="vehicle-select" style="font-size: 0.85rem; font-weight: 600;" data-i18n="selectVehicleLabel">වාහනය තෝරන්න:</label>
-              <select id="vehicle-select" class="input-field" style="width: 220px; font-size: 0.95rem; padding: 8px 12px;">
+              <select id="vehicle-select" class="input-field" style="min-width: 200px; font-size: 0.95rem; padding: 8px 12px;">
                 <!-- Populated dynamically via JS -->
               </select>
             </div>
+
+            <button id="btn-edit-vehicle-modal" class="btn-action" title="තෝරාගත් වාහනය සංස්කරණය කරන්න" style="gap: 6px;">
+              <i class="fa-solid fa-pen-to-square" style="color: var(--accent-blue);"></i>
+              <span style="font-size: 0.82rem;">සංස්කරණය</span>
+            </button>
 
             <button id="btn-add-vehicle-modal" class="btn-action btn-gold">
               <i class="fa-solid fa-plus"></i>
@@ -300,7 +305,7 @@
       </div>
 
       <!-- Main Vehicle Inputs Grid -->
-      <div class="calculator-grid" style="grid-template-columns: 1fr 1fr 380px;">
+      <div class="calculator-grid veh-calc-grid" style="grid-template-columns: 1fr 1fr 380px;">
         
         <!-- Column 1: Variable & Vehicle Specific Fees (Red Values in Excel) -->
         <div class="glass-card">
@@ -354,7 +359,7 @@
             <span data-i18n="headerFixedFees">පරිපාලන &amp; අරමුදල් ගාස්තු</span>
           </h3>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="fee-inputs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="input-group">
               <label for="fee-borrower-shares" class="input-label" style="font-size: 0.8rem;" data-i18n="lblBorrowerShares">ණයකරු කොටස්</label>
               <input type="number" id="fee-borrower-shares" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="5000">
@@ -454,46 +459,60 @@
 
     </div>
 
-    <!-- Add Custom Vehicle Modal -->
+    <!-- Add / Edit Vehicle Modal -->
     <div id="modal-add-vehicle" class="modal-backdrop" style="display: none;">
       <div class="glass-card modal-content" style="max-width: 500px; width: 90%; margin: 60px auto;">
         <div class="card-header">
-          <h3 class="card-title">
+          <h3 class="card-title" id="modal-title">
             <i class="fa-solid fa-motorcycle" style="color: var(--accent-gold);"></i>
-            <span data-i18n="modalTitleAddVeh">නව වාහනයක් ඇතුළත් කරන්න</span>
+            <span id="modal-title-text">නව වාහනයක් ඇතුළත් කරන්න</span>
           </h3>
           <button id="btn-close-modal" class="btn-action" style="padding: 4px 10px;">&times;</button>
         </div>
 
+        <!-- Hidden field to track which vehicle is being edited (empty = new) -->
+        <input type="hidden" id="m-veh-edit-id" value="">
+
         <form id="form-add-vehicle">
           <div class="input-group">
-            <label class="input-label" data-i18n="lblModalVehName">වාහනයේ නම / මාදිලිය (e.g. TVS Apache)</label>
+            <label class="input-label">වාහනයේ නම / මාදිලිය</label>
             <input type="text" id="m-veh-name" class="input-field" required placeholder="උදා: TVS Apache 160">
           </div>
 
           <div class="input-group">
-            <label class="input-label" data-i18n="lblModalVehPrice">වාහනයේ මිල (Vehicle Price)</label>
+            <label class="input-label">වාහනයේ මිල (Vehicle Price) - Rs.</label>
             <input type="number" id="m-veh-price" class="input-field" required placeholder="650000">
           </div>
 
-          <div class="input-group">
-            <label class="input-label" data-i18n="lblModalRegFee">ලියාපදිංචි ගාස්තු (Reg Fee)</label>
-            <input type="number" id="m-veh-reg" class="input-field" value="15000">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="input-group">
+              <label class="input-label" style="font-size: 0.82rem;">ලියාපදිංචි ගාස්තු (Reg Fee)</label>
+              <input type="number" id="m-veh-reg" class="input-field" value="15000">
+            </div>
+            <div class="input-group">
+              <label class="input-label" style="font-size: 0.82rem;">වාහන රක්ෂණ ගාස්තු (Insurance)</label>
+              <input type="number" id="m-veh-insurance" class="input-field" value="18000">
+            </div>
           </div>
 
           <div class="input-group">
-            <label class="input-label" data-i18n="lblModalInsuranceFee">වාහන රක්ෂණ ගාස්තු (Vehicle Insurance)</label>
-            <input type="number" id="m-veh-insurance" class="input-field" value="18000">
-          </div>
-
-          <div class="input-group">
-            <label class="input-label" data-i18n="lblModalDownPayment">පෙරනිමි මූලික ගෙවීම (Default Down Payment)</label>
+            <label class="input-label">මූලික ගෙවීම (Down Payment) - Rs.</label>
             <input type="number" id="m-veh-down" class="input-field" value="200000">
           </div>
 
-          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-            <button type="button" id="btn-cancel-modal" class="btn-action" data-i18n="btnCancel">අවලංගු කරන්න</button>
-            <button type="submit" class="btn-action btn-gold" data-i18n="btnSaveVeh">සුරකින්න</button>
+          <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap;">
+            <!-- Delete button (shown only in edit mode) -->
+            <button type="button" id="btn-delete-vehicle" class="btn-action" style="color: var(--accent-rose); border-color: rgba(244,63,94,0.4); background: rgba(244,63,94,0.08); display: none;">
+              <i class="fa-solid fa-trash-can"></i>
+              <span>මකන්න</span>
+            </button>
+            <div style="display: flex; gap: 10px; margin-left: auto;">
+              <button type="button" id="btn-cancel-modal" class="btn-action">අවලංගු කරන්න</button>
+              <button type="submit" id="btn-save-vehicle" class="btn-action btn-gold">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span id="btn-save-label">සුරකින්න</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>
