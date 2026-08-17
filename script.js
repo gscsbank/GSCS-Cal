@@ -393,6 +393,57 @@ function initEventListeners() {
     }
   });
 
+  // Customer Service & Support Modal (පද්ධති සේවා සහ සහාය)
+  window.openCustomerSupportModal = function() {
+    const modal = document.getElementById("modal-customer-service");
+    if (modal) modal.style.display = "flex";
+  };
+
+  window.closeCustomerSupportModal = function() {
+    const modal = document.getElementById("modal-customer-service");
+    if (modal) modal.style.display = "none";
+  };
+
+  const supportModal = document.getElementById("modal-customer-service");
+  document.getElementById("btn-support")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.openCustomerSupportModal();
+  });
+
+  document.getElementById("btn-close-support-modal")?.addEventListener("click", () => {
+    window.closeCustomerSupportModal();
+  });
+
+  supportModal?.addEventListener("click", (e) => {
+    if (e.target === supportModal) {
+      window.closeCustomerSupportModal();
+    }
+  });
+
+  // Copy Phone Number
+  document.getElementById("channel-phone")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    const phone = "+94 75 289 5951";
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(phone).then(() => {
+        showToast("දුරකථන අංකය (+94 75 289 5951) Copy කරගන්නා ලදී.", "success", "Copied to Clipboard");
+      }).catch(() => {
+        showToast("Hotline: +94 75 289 5951", "info", "Hotline Support");
+      });
+    } else {
+      showToast("Hotline: +94 75 289 5951", "info", "Hotline Support");
+    }
+  });
+
+  // Close support modal on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (supportModal && supportModal.style.display === "flex") {
+        window.closeCustomerSupportModal();
+      }
+    }
+  });
+
   // Tabs
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {

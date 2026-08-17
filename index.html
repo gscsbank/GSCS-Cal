@@ -36,6 +36,10 @@
       </a>
 
       <div class="nav-actions">
+        <button id="btn-support" class="btn-toggle-support" onclick="openCustomerSupportModal()" title="System Services &amp; Customer Care Support">
+          <i class="fa-solid fa-headset"></i>
+          <span>System Services</span>
+        </button>
         <button id="btn-lang" class="btn-toggle-lang" title="Switch Language">
           <i class="fa-solid fa-language"></i>
           <span id="lang-name">English</span>
@@ -691,6 +695,187 @@
             </div>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Modal: Customer Service & Support (පද්ධති සේවා සහ සහාය) -->
+    <div id="modal-customer-service" class="modal-backdrop modal-overlay" style="display: none;">
+      <div class="glass-card modal-support-card">
+        
+        <!-- Modal Header -->
+        <div class="support-modal-header">
+          <div class="support-header-left">
+            <h2 class="support-main-title">පද්ධති සේවා සහ සහාය</h2>
+            <p class="support-sub-title">System Services &amp; Customer Care Support — Iraasoft Solution</p>
+          </div>
+          <div class="support-header-right">
+            <div class="support-status-badge">
+              <span class="status-pulse-dot"></span>
+              <span>SUPPORT DESK ONLINE</span>
+            </div>
+            <button type="button" id="btn-close-support-modal" class="btn-modal-close" title="වසන්න (Close)">&times;</button>
+          </div>
+        </div>
+
+        <!-- Top Quick Metrics Cards -->
+        <div class="support-metrics-grid">
+          <div class="support-metric-card">
+            <div class="support-metric-icon icon-purple">
+              <i class="fa-solid fa-phone-volume"></i>
+            </div>
+            <div class="support-metric-content">
+              <span class="support-metric-label">HOTLINE SUPPORT</span>
+              <span class="support-metric-val">+94 75 289 5951</span>
+            </div>
+          </div>
+
+          <div class="support-metric-card">
+            <div class="support-metric-icon icon-blue">
+              <i class="fa-regular fa-clock"></i>
+            </div>
+            <div class="support-metric-content">
+              <span class="support-metric-label">SERVICE AVAILABILITY</span>
+              <span class="support-metric-val">8:00 AM – 10:00 PM (Daily)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main 2-Column Content Grid -->
+        <div class="support-body-grid">
+          
+          <!-- Column 1: Contact Channels -->
+          <div class="support-channels-col">
+            <div class="support-section-heading">
+              <i class="fa-solid fa-shuffle" style="color: var(--accent-purple);"></i>
+              <span class="heading-si">සම්බන්ධීකරණ විස්තර</span>
+              <span class="heading-en">CONTACT CHANNELS</span>
+            </div>
+
+            <div class="support-channel-list">
+              <!-- Channel 1: Phone -->
+              <div class="support-channel-item" id="channel-phone" title="ක්ලික් කර දුරකථන අංකය Copy කරගන්න">
+                <div class="channel-icon icon-purple">
+                  <i class="fa-solid fa-phone"></i>
+                </div>
+                <div class="channel-info">
+                  <span class="channel-label">PHONE CALL</span>
+                  <strong class="channel-val">+94 75 289 5951</strong>
+                  <span class="channel-desc">Direct voice call support</span>
+                </div>
+                <button type="button" class="btn-channel-copy" title="Copy Number" aria-label="Copy phone number">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+
+              <!-- Channel 2: WhatsApp -->
+              <a href="https://wa.me/94752895951" target="_blank" rel="noopener noreferrer" class="support-channel-item" title="WhatsApp ඔස්සේ සම්බන්ධ වන්න">
+                <div class="channel-icon icon-green">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div class="channel-info">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="channel-label">WHATSAPP</span>
+                    <span class="badge-recommended">Recommended</span>
+                  </div>
+                  <strong class="channel-val">+94 75 289 5951</strong>
+                  <span class="channel-desc">Instant messaging &amp; screen sharing</span>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square channel-arrow"></i>
+              </a>
+
+              <!-- Channel 3: Telegram -->
+              <a href="https://t.me/INDUNILRATHNAYAKA" target="_blank" rel="noopener noreferrer" class="support-channel-item" title="Telegram ඔස්සේ සම්බන්ධ වන්න">
+                <div class="channel-icon icon-sky">
+                  <i class="fa-brands fa-telegram"></i>
+                </div>
+                <div class="channel-info">
+                  <span class="channel-label">TELEGRAM</span>
+                  <strong class="channel-val">@INDUNILRATHNAYAKA</strong>
+                  <span class="channel-desc">Direct developer telegram handle</span>
+                </div>
+                <i class="fa-solid fa-arrow-right channel-arrow"></i>
+              </a>
+
+              <!-- Channel 4: Email -->
+              <a href="mailto:iraafxtrading@gmail.com" class="support-channel-item" title="Email පණිවිඩයක් එවන්න">
+                <div class="channel-icon icon-rose">
+                  <i class="fa-regular fa-envelope"></i>
+                </div>
+                <div class="channel-info">
+                  <span class="channel-label">EMAIL ADDRESS</span>
+                  <strong class="channel-val">iraafxtrading@gmail.com</strong>
+                  <span class="channel-desc">Official support mail channel</span>
+                </div>
+                <i class="fa-solid fa-arrow-right channel-arrow"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Column 2: Service Developer & Quick Action -->
+          <div class="support-developer-col">
+            <div class="support-section-heading">
+              <i class="fa-solid fa-code" style="color: var(--accent-purple);"></i>
+              <span class="heading-si">පද්ධති සේවා සපයන්නා</span>
+              <span class="heading-en">SERVICE DEVELOPER</span>
+            </div>
+
+            <!-- Developer Banner Card -->
+            <div class="dev-banner-card">
+              <div class="dev-banner-top">
+                <div class="dev-avatar">I</div>
+                <div class="dev-meta">
+                  <div class="dev-name-row">
+                    <span class="dev-name">Iraasoft Solution</span>
+                    <span class="badge-verified"><i class="fa-solid fa-shield-check"></i> VERIFIED DEVELOPER</span>
+                  </div>
+                  <span class="dev-category">ENTERPRISE SOFTWARE DEVELOPMENT</span>
+                </div>
+              </div>
+              <p class="dev-description">
+                පද්ධතියේ කිසියම් ගැටළුවක්, නව විශේෂාංග එකතු කිරීමක් (Customizations) හෝ තාක්ෂණික සහාය සඳහා ඉහත සඳහන් කළ ඕනෑම මාධ්‍යයක් ඔස්සේ අප හා සම්බන්ධ විය හැක.
+              </p>
+            </div>
+
+            <!-- Available Services Tags -->
+            <div class="support-services-block">
+              <span class="services-block-label">AVAILABLE SUPPORT SERVICES</span>
+              <div class="services-chips-wrap">
+                <span class="service-chip"><i class="fa-solid fa-check"></i> Customizations</span>
+                <span class="service-chip"><i class="fa-solid fa-check"></i> Bug Fixes</span>
+                <span class="service-chip"><i class="fa-solid fa-check"></i> New Features</span>
+                <span class="service-chip"><i class="fa-solid fa-check"></i> Database Sync</span>
+                <span class="service-chip"><i class="fa-solid fa-check"></i> Data Backup</span>
+              </div>
+            </div>
+
+            <!-- Working Hours Info Box -->
+            <div class="working-hours-card">
+              <div class="working-hours-title">
+                <i class="fa-regular fa-clock"></i>
+                <span>WORKING HOURS / සේවා වේලාවන්</span>
+              </div>
+              <ul class="working-hours-list">
+                <li><i class="fa-solid fa-check"></i> <span>සෑම දිනකම පෙ.ව. 8:00 සිට ප.ව. 10:00 දක්වා සේවා සහාය ලබාගත හැක.</span></li>
+                <li><i class="fa-solid fa-check"></i> <span>WhatsApp හෝ Telegram පණිවිඩයක් ඔස්සේ ක්ෂණික පිළිතුරු ලබා ගත හැක.</span></li>
+              </ul>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="support-action-buttons">
+              <a href="https://wa.me/94752895951" target="_blank" rel="noopener noreferrer" class="btn-support-action btn-support-whatsapp">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span>WhatsApp Chat</span>
+              </a>
+              <a href="tel:+94752895951" class="btn-support-action btn-support-call">
+                <i class="fa-solid fa-phone"></i>
+                <span>Call Now</span>
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
     </div>
 
