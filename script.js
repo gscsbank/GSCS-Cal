@@ -137,6 +137,7 @@ const i18n = {
     vehicleCalcSubtitle: "වාහනයේ මිල, පරිපාලන ගාස්තු සහ මූලික ගෙවීම අනුව අදාළ ණය මුදල ස්වයංක්‍රීයව ගණනය කරගන්න",
     selectVehicleLabel: "වාහනය තෝරන්න:",
     btnAddVehicle: "නව වාහනයක් එකතු කරන්න",
+    btnBajajPrices: "Bajaj යතුරුපැදි සඳහා නවතම මිලගණන් බලන්න",
     headerVariableFees: "වාහන තොරතුරු & වෙනස්වන ගාස්තු",
     headerFixedFees: "පරිපාලන & අරමුදල් ගාස්තු",
     headerVehSummary: "ගණනය කිරීමේ සාරාංශය",
@@ -152,6 +153,7 @@ const i18n = {
     lblDocFee: "ලිපි ගාස්තු",
     lblServiceFund: "සේවා අරමුදල",
     lblLoanInsurance: "ණය රක්ෂණය",
+    lblBorrowerDeposit: "ණයකරු තැන්පතු",
     lblTotalDocFees: "ලිපි ලේඛන ගාස්තු එකතුව",
     lblTotalVehCost: "සම්පූර්ණ පිරිවැය (මිල + ගාස්තු)",
     lblDownPaymentSummary: "මූලික ගෙවීම (Down Payment)",
@@ -185,6 +187,7 @@ const i18n = {
     vehicleCalcSubtitle: "Calculate required loan amount based on vehicle price, documentation fees & down payment",
     selectVehicleLabel: "Select Vehicle Model:",
     btnAddVehicle: "Add New Vehicle",
+    btnBajajPrices: "Check Latest Bajaj Motorcycle Prices",
     headerVariableFees: "Vehicle Info & Variable Fees",
     headerFixedFees: "Standard Admin & Fund Fees",
     headerVehSummary: "Calculation Summary",
@@ -200,6 +203,7 @@ const i18n = {
     lblDocFee: "Doc / Form Fee",
     lblServiceFund: "Service Fund",
     lblLoanInsurance: "Loan Insurance Fee",
+    lblBorrowerDeposit: "Borrower Deposit",
     lblTotalDocFees: "Total Documentation Fees",
     lblTotalVehCost: "Total Vehicle Cost (Price + Fees)",
     lblDownPaymentSummary: "Down Payment",
@@ -1863,9 +1867,10 @@ function updateVehicleCalculation() {
   const loanInsurance = parseInputNumber("fee-loan-insurance", 300);
   const swashakthiFund = parseInputNumber("fee-swashakthi-fund", 5000);
   const buildingFund = parseInputNumber("fee-building-fund", 1000);
+  const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 1500);
 
   // Formula matching Excel sheet exact rows
-  const totalDocFees = borrowerShares + g1Shares + g2Shares + docFee + serviceFund + loanInsurance + swashakthiFund + buildingFund + regFee + vehInsurance;
+  const totalDocFees = borrowerShares + g1Shares + g2Shares + docFee + serviceFund + loanInsurance + swashakthiFund + buildingFund + borrowerDeposit + regFee + vehInsurance;
   const totalVehCost = price + totalDocFees;
   const rawLoanAmount = totalVehCost - downPayment;
   const requiredLoanAmount = Math.max(0, rawLoanAmount);
@@ -2015,8 +2020,9 @@ function initSavedVehicleLoans() {
     const loanIns        = parseInputNumber("fee-loan-insurance", 300);
     const swashakthi     = parseInputNumber("fee-swashakthi-fund", 5000);
     const building       = parseInputNumber("fee-building-fund", 1000);
+    const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 1500);
 
-    const totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + regFee + vehIns;
+    const totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns;
     const totalVehCost   = vehPrice + totalDocFees;
     const requiredLoan   = Math.max(0, totalVehCost - downPayment);
 
@@ -2043,6 +2049,7 @@ function initSavedVehicleLoans() {
       loanIns,
       swashakthi,
       building,
+      borrowerDeposit,
       totalDocFees,
       totalVehCost,
       requiredLoan
@@ -2185,6 +2192,7 @@ function renderSavedLoansTable(filterQuery = "") {
         document.getElementById("fee-loan-insurance").value = record.loanIns;
         document.getElementById("fee-swashakthi-fund").value = record.swashakthi;
         document.getElementById("fee-building-fund").value = record.building;
+        if (record.borrowerDeposit !== undefined) document.getElementById("fee-borrower-deposit").value = record.borrowerDeposit;
 
         if (record.memberId) document.getElementById("save-member-id").value = record.memberId;
         if (record.memberName) document.getElementById("save-member-name").value = record.memberName;
@@ -2218,7 +2226,7 @@ function renderSavedLoansTable(filterQuery = "") {
 function printVehicleLoanSlip(customData = null) {
   // Read values either from customData (saved record) or live inputs
   let selectedVehName, vehPrice, regFee, vehIns, downPayment;
-  let borrowerShares, g1, g2, docFee, serviceFund, loanIns, swashakthi, building;
+  let borrowerShares, g1, g2, docFee, serviceFund, loanIns, swashakthi, building, borrowerDeposit;
   let totalDocFees, totalVehCost, requiredLoan, today;
   let memberId = "", memberName = "", loanType = "ස්වශක්ති ණය 01", g1Acc = "", g2Acc = "", period = 24, rate = 18;
 
@@ -2236,7 +2244,8 @@ function printVehicleLoanSlip(customData = null) {
     loanIns        = customData.loanIns || 300;
     swashakthi     = customData.swashakthi || 5000;
     building       = customData.building || 1000;
-    totalDocFees   = customData.totalDocFees || (borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + regFee + vehIns);
+    borrowerDeposit = customData.borrowerDeposit !== undefined ? customData.borrowerDeposit : 1500;
+    totalDocFees   = customData.totalDocFees || (borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns);
     totalVehCost   = customData.totalVehCost || (vehPrice + totalDocFees);
     requiredLoan   = customData.requiredLoan || Math.max(0, totalVehCost - downPayment);
     today          = customData.date || new Date().toLocaleDateString('si-LK', { year:'numeric', month:'long', day:'numeric' });
@@ -2262,7 +2271,8 @@ function printVehicleLoanSlip(customData = null) {
     loanIns        = parseInputNumber("fee-loan-insurance", 300);
     swashakthi     = parseInputNumber("fee-swashakthi-fund", 5000);
     building       = parseInputNumber("fee-building-fund", 1000);
-    totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + regFee + vehIns;
+    borrowerDeposit = parseInputNumber("fee-borrower-deposit", 1500);
+    totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns;
     totalVehCost   = vehPrice + totalDocFees;
     requiredLoan   = Math.max(0, totalVehCost - downPayment);
     today          = new Date().toLocaleDateString('si-LK', { year:'numeric', month:'long', day:'numeric' });
@@ -2281,7 +2291,7 @@ function printVehicleLoanSlip(customData = null) {
   // ── Build full print HTML ──────────────────────────────────
   const printCSS = `
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap');
-    @page { size: A4 portrait; margin: 4mm 6mm; }
+    @page { size: A4 portrait; margin: 3mm 5mm; }
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body {
       width: 100%;
@@ -2299,46 +2309,52 @@ function printVehicleLoanSlip(customData = null) {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      height: 288mm;
+      height: 290mm;
+      box-sizing: border-box;
     }
     .slip {
       width: 100%;
-      height: 140mm;
-      border: 1.5px solid #000;
-      padding: 4mm 6mm;
+      height: 139mm;
+      max-height: 139mm;
+      border: 1.2px solid #000;
+      padding: 2.5mm 5mm;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       page-break-inside: avoid;
+      box-sizing: border-box;
+      overflow: hidden;
     }
     .slip-inner {
       width: 100%;
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+    }
+    .slip-body-top {
+      display: flex;
+      flex-direction: column;
     }
 
     /* ── HEADER ── */
-    .slip-head { border-bottom: 2px solid #000; padding-bottom: 2mm; margin-bottom: 2.5mm; }
+    .slip-head { border-bottom: 1.5px solid #000; padding-bottom: 1.5mm; margin-bottom: 1.5mm; }
     .slip-head table { width: 100%; border-collapse: collapse; }
     .slip-head td { padding: 0; vertical-align: middle; }
     .slip-head td:last-child { text-align: right; }
-    .slip-bank { font-size: 13.5pt; font-weight: 800; color: #000; letter-spacing: -0.02em; line-height: 1.1; margin-top: 1px; }
-    .slip-sub  { font-size: 8pt; color: #000; margin-top: 1px; }
-    .slip-sub-en { font-size: 7pt; color: #333; }
-    .slip-date { font-size: 8pt; color: #000; font-weight: 600; }
+    .slip-bank { font-size: 11.5pt; font-weight: 800; color: #000; letter-spacing: -0.02em; line-height: 1.1; margin-top: 1px; }
+    .slip-sub  { font-size: 7.2pt; color: #000; margin-top: 1px; }
+    .slip-sub-en { font-size: 6.2pt; color: #333; }
+    .slip-date { font-size: 7.5pt; color: #000; font-weight: 600; }
     .slip-staff {
-      font-size: 6.5pt; font-weight: 700; color: #000;
-      border: 1.5px solid #000; border-radius: 12px;
-      padding: 1.5px 6px; display: inline-block; margin-top: 2px;
+      font-size: 6pt; font-weight: 700; color: #000;
+      border: 1.2px solid #000; border-radius: 10px;
+      padding: 1px 5px; display: inline-block; margin-top: 2px;
     }
 
     /* ── VEHICLE BADGE ── */
     .slip-veh {
-      font-size: 10pt; font-weight: 700; color: #000;
-      border: 1.5px solid #000; display: inline-block;
-      padding: 2px 9px; margin-bottom: 2.5mm; align-self: flex-start;
+      font-size: 8.5pt; font-weight: 700; color: #000;
+      border: 1.2px solid #000; display: inline-block;
+      padding: 1.5px 7px; margin-bottom: 1.5mm; align-self: flex-start;
       background: #f4f4f4 !important;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
@@ -2346,88 +2362,88 @@ function printVehicleLoanSlip(customData = null) {
     /* ── MAIN CONTENT: 2 columns ── */
     .content-grid { width: 100%; border-collapse: collapse; flex: 1; }
     .content-grid > tbody > tr > td { vertical-align: top; padding: 0; }
-    .col-divider { width: 4mm; }
+    .col-divider { width: 3.5mm; }
 
     /* ── MANUAL & AUTO FIELDS ── */
-    .fields-block { margin-bottom: 1.5mm; }
-    .field-row { margin-bottom: 2mm; }
-    .field-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-bottom: 2mm; }
-    .field-lbl { font-size: 7pt; color: #000; font-weight: 700; display: block; margin-bottom: 0.5mm; }
+    .fields-block { margin-bottom: 1mm; }
+    .field-row { margin-bottom: 1.5mm; }
+    .field-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm; margin-bottom: 1.5mm; }
+    .field-lbl { font-size: 6.5pt; color: #000; font-weight: 700; display: block; margin-bottom: 0.3mm; }
     .field-line {
-      border-bottom: 1.2px solid #000;
-      min-height: 4.8mm;
+      border-bottom: 1px solid #000;
+      min-height: 4.2mm;
       width: 100%;
       display: block;
-      font-size: 7.5pt;
+      font-size: 7.2pt;
       font-weight: 700;
       color: #000;
-      line-height: 4.8mm;
+      line-height: 4.2mm;
       padding-left: 2px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     .val-text {
-      font-size: 7.8pt;
+      font-size: 7.2pt;
       font-weight: 700;
       color: #000;
     }
     .font-mono {
       font-family: 'Inter', Consolas, Monaco, monospace, sans-serif;
       font-weight: 800;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.3px;
     }
     .check-box {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 3.4mm;
-      height: 3.4mm;
-      border: 1.2px solid #000;
+      width: 3.2mm;
+      height: 3.2mm;
+      border: 1.1px solid #000;
       border-radius: 1.5px;
-      vertical-align: -0.5mm;
+      vertical-align: -0.4mm;
       margin-right: 3px;
       background: #fff;
-      font-size: 6.5pt;
+      font-size: 6pt;
       line-height: 1;
       font-weight: 900;
     }
 
     /* ── FEE TABLE ── */
-    .fee-tbl { width: 100%; border-collapse: collapse; font-size: 8pt; color: #000; }
+    .fee-tbl { width: 100%; border-collapse: collapse; font-size: 7.2pt; color: #000; }
     .fee-tbl thead th {
       background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
-      color: #fff !important; padding: 3px 6px; font-weight: 700; font-size: 7.5pt;
+      color: #fff !important; padding: 2px 5px; font-weight: 700; font-size: 6.8pt;
       border: 1px solid #000; text-align: left;
     }
     .fee-tbl tbody tr:nth-child(even) td {
-      background: #f2f2f2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      background: #f4f4f4 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
-    .fee-tbl td { padding: 2.2px 6px; border: 1px solid #ccc; color: #000; font-size: 8pt; }
+    .fee-tbl td { padding: 1.3px 5px; border: 1px solid #ccc; color: #000; font-size: 7.2pt; line-height: 1.2; }
     .fee-tbl td.r { text-align: right; font-weight: 700; }
 
     /* ── SUMMARY ── */
-    .sum-tbl { width: 100%; border-collapse: collapse; font-size: 8pt; margin-top: 2mm; }
-    .sum-tbl td { padding: 2.2px 6px; border: 1px solid #ccc; color: #000; }
+    .sum-tbl { width: 100%; border-collapse: collapse; font-size: 7.2pt; margin-top: 1.5mm; }
+    .sum-tbl td { padding: 1.5px 5px; border: 1px solid #ccc; color: #000; }
     .sum-tbl td.r { text-align: right; font-weight: 700; }
     .sum-tbl tr.hl td {
       background: #dcdcdc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
-      border-top: 2px solid #000; font-weight: 800; font-size: 9pt; padding: 3.5px 6px;
+      border-top: 1.5px solid #000; font-weight: 800; font-size: 7.8pt; padding: 2px 5px;
     }
-    .sum-tbl tr.hl td.r { font-size: 11pt; font-weight: 900; }
+    .sum-tbl tr.hl td.r { font-size: 9.8pt; font-weight: 900; }
 
     /* COPY TYPE BADGE */
     .slip-copy-badge {
       display: inline-block;
-      font-size: 7pt;
+      font-size: 6.5pt;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       color: #000;
       background: #e0e0e0 !important;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
-      border: 1.5px solid #000;
+      border: 1.2px solid #000;
       border-radius: 3px;
-      padding: 1px 7px;
+      padding: 1px 6px;
       margin-bottom: 2px;
     }
 
@@ -2437,27 +2453,28 @@ function printVehicleLoanSlip(customData = null) {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: 2.5mm;
-      padding-top: 1mm;
+      margin-top: auto;
+      padding-top: 3mm;
+      padding-bottom: 0.5mm;
     }
     .sign-box { width: 46%; }
-    .sign-line { border-bottom: 1.2px dotted #000; width: 44mm; min-height: 4.5mm; }
-    .sign-lbl { font-size: 7pt; font-weight: 700; color: #000; margin-top: 0.8mm; line-height: 1.2; }
-    .sign-sub { font-size: 6pt; color: #555; }
+    .sign-line { border-bottom: 1.1px dotted #000; width: 42mm; min-height: 8mm; }
+    .sign-lbl { font-size: 6.5pt; font-weight: 700; color: #000; margin-top: 0.8mm; line-height: 1.1; }
+    .sign-sub { font-size: 5.5pt; color: #555; }
 
     /* CUT LINE */
     .cut-line {
       width: 100%;
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin: 1.5mm 0;
+      gap: 6px;
+      margin: 1mm 0;
       color: #555;
-      font-size: 7pt;
+      font-size: 6.5pt;
       font-family: Arial, sans-serif;
     }
-    .cut-line hr { flex: 1; border: none; border-top: 1.2px dashed #555; }
-    .cut-label { font-size: 7pt; font-weight: 700; letter-spacing: 1px; }
+    .cut-line hr { flex: 1; border: none; border-top: 1.1px dashed #555; }
+    .cut-label { font-size: 6.5pt; font-weight: 700; letter-spacing: 1px; }
   `;
 
   function createSlipHTML(copyName) {
@@ -2472,109 +2489,121 @@ function printVehicleLoanSlip(customData = null) {
     return `
     <div class="slip">
       <div class="slip-inner">
+        <div class="slip-body-top">
 
-        <!-- Header -->
-        <div class="slip-head">
-          <table><tr>
-            <td>
-              <div class="slip-copy-badge">${copyName}</div>
-              <div class="slip-bank">GSCS BANK</div>
-              <div class="slip-sub">ස්වශක්ති වාහන ණය – ගාස්තු ගණනය කිරීමේ සටහන</div>
-              <div class="slip-sub-en">Swashakthi Vehicle Loan – Fee Calculation Slip</div>
+          <!-- Header -->
+          <div class="slip-head">
+            <table><tr>
+              <td>
+                <div class="slip-copy-badge">${copyName}</div>
+                <div class="slip-bank">GSCS BANK</div>
+                <div class="slip-sub">ස්වශක්ති වාහන ණය – ගාස්තු ගණනය කිරීමේ සටහන</div>
+                <div class="slip-sub-en">Swashakthi Vehicle Loan – Fee Calculation Slip</div>
+              </td>
+              <td>
+                <div class="slip-date">${today}</div>
+                <div class="slip-staff">FOR STAFF USE ONLY</div>
+              </td>
+            </tr></table>
+          </div>
+
+          <!-- Vehicle name badge -->
+          <div class="slip-veh">&#x1F3CD;&nbsp; ${selectedVehName}</div>
+
+          <!-- Two column layout: manual fields LEFT | fee table RIGHT -->
+          <table class="content-grid"><tbody><tr>
+
+            <!-- LEFT: Details fields -->
+            <td style="width:42%;">
+              <div class="fields-block">
+
+                <div class="field-row">
+                  <span class="field-lbl">ස්වශක්ති ණය වර්ගය / Loan Type:</span>
+                  <div style="display: flex; gap: 10px; margin-top: 2px; font-size: 7.2pt; font-weight: 700;">
+                    <span style="display: inline-flex; align-items: center;"><span class="check-box">${isType01 ? '&#10004;' : ''}</span> ස්වශක්ති ණය 01</span>
+                    <span style="display: inline-flex; align-items: center;"><span class="check-box">${isType02 ? '&#10004;' : ''}</span> ස්වශක්ති ණය 02</span>
+                  </div>
+                </div>
+
+                <div class="field-row">
+                  <span class="field-lbl">සාමාජිකයා / Member:</span>
+                  <span class="field-line">${memberDisplay ? `<span class="val-text">${memberDisplay}</span>` : ''}</span>
+                </div>
+
+                <div class="field-row">
+                  <span class="field-lbl">ණය ගිණුම් අංකය / Loan A/C No:</span>
+                  <span class="field-line"></span>
+                </div>
+
+                <div class="field-row">
+                  <span class="field-lbl">ඇපකරු 1 ගිණුම් අංකය / Guarantor 1 A/C:</span>
+                  <span class="field-line">${g1Acc ? `<span class="val-text font-mono">${g1Acc}</span>` : ''}</span>
+                </div>
+
+                <div class="field-row">
+                  <span class="field-lbl">ඇපකරු 2 ගිණුම් අංකය / Guarantor 2 A/C:</span>
+                  <span class="field-line">${g2Acc ? `<span class="val-text font-mono">${g2Acc}</span>` : ''}</span>
+                </div>
+
+                <div class="field-row-grid">
+                  <div>
+                    <span class="field-lbl">කාලය / Period:</span>
+                    <span class="field-line">${period ? `<span class="val-text">${period} මාස</span>` : ''}</span>
+                  </div>
+                  <div>
+                    <span class="field-lbl">පොලී / Rate:</span>
+                    <span class="field-line">${rate ? `<span class="val-text">${rate}%</span>` : ''}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Summary below fields -->
+              <table class="sum-tbl">
+                <tr><td>ලිපි ලේඛන ගාස්තු</td><td class="r">${fmtR(totalDocFees)}</td></tr>
+                <tr><td>සම්පූර්ණ පිරිවැය</td><td class="r">${fmtR(totalVehCost)}</td></tr>
+                <tr><td>මූලික ගෙවීම</td><td class="r">${fmtR(downPayment)}</td></tr>
+                <tr class="hl"><td>අවශ්‍ය ණය මුදල</td><td class="r">${fmtR(requiredLoan)}</td></tr>
+              </table>
             </td>
-            <td>
-              <div class="slip-date">${today}</div>
-              <div class="slip-staff">FOR STAFF USE ONLY</div>
+
+            <td class="col-divider"></td>
+
+            <!-- RIGHT: Fee breakdown table -->
+            <td style="width:54%;">
+              <table class="fee-tbl">
+                <thead>
+                  <tr><th>විස්තරය</th><th style="text-align:right;">මුදල (Rs.)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>වාහනයේ මිල</td><td class="r">${fmtR(vehPrice)}</td></tr>
+                  <tr><td>ණයකරු කොටස්</td><td class="r">${fmtR(borrowerShares)}</td></tr>
+                  <tr><td>ඇපකරු 1 කොටස්</td><td class="r">${fmtR(g1)}</td></tr>
+                  <tr><td>ඇපකරු 2 කොටස්</td><td class="r">${fmtR(g2)}</td></tr>
+                  <tr><td>ගොඩනැගිලි අරමුදල</td><td class="r">${fmtR(building)}</td></tr>
+                  <tr><td>ලියාපදිංචි ගාස්තු</td><td class="r">${fmtR(regFee)}</td></tr>
+                  <tr><td>වාහන රක්ෂණ ගාස්තු</td><td class="r">${fmtR(vehIns)}</td></tr>
+                  <tr><td>සමිති දායකත්වය</td><td class="r">${fmtR(swashakthi)}</td></tr>
+                  <tr><td>ලිපි ගාස්තු</td><td class="r">${fmtR(docFee)}</td></tr>
+                  <tr><td>සේවා අරමුදල</td><td class="r">${fmtR(serviceFund)}</td></tr>
+                  <tr><td>ණය රක්ෂණය</td><td class="r">${fmtR(loanIns)}</td></tr>
+                  <tr><td>ණයකරු තැන්පතු</td><td class="r">${fmtR(borrowerDeposit)}</td></tr>
+                  <tr><td>මූලික ගෙවීම</td><td class="r">(${fmtR(downPayment)})</td></tr>
+                </tbody>
+              </table>
             </td>
-          </tr></table>
-        </div>
 
-        <!-- Vehicle name badge -->
-        <div class="slip-veh">&#x1F3CD;&nbsp; ${selectedVehName}</div>
+          </tr></tbody></table>
 
-        <!-- Two column layout: manual fields LEFT | fee table RIGHT -->
-        <table class="content-grid"><tbody><tr>
-
-          <!-- LEFT: Details fields -->
-          <td style="width:42%;">
-            <div class="fields-block">
-
-              <div class="field-row">
-                <span class="field-lbl">ස්වශක්ති ණය වර්ගය / Loan Type:</span>
-                <div style="display: flex; gap: 10px; margin-top: 2px; font-size: 7.2pt; font-weight: 700;">
-                  <span style="display: inline-flex; align-items: center;"><span class="check-box">${isType01 ? '&#10004;' : ''}</span> ස්වශක්ති ණය 01</span>
-                  <span style="display: inline-flex; align-items: center;"><span class="check-box">${isType02 ? '&#10004;' : ''}</span> ස්වශක්ති ණය 02</span>
-                </div>
-              </div>
-
-              <div class="field-row">
-                <span class="field-lbl">සාමාජිකයා / Member:</span>
-                <span class="field-line">${memberDisplay ? `<span class="val-text">${memberDisplay}</span>` : ''}</span>
-              </div>
-
-              <div class="field-row">
-                <span class="field-lbl">ණය ගිණුම් අංකය / Loan A/C No:</span>
-                <span class="field-line"></span>
-              </div>
-
-              <div class="field-row">
-                <span class="field-lbl">ඇපකරු 1 ගිණුම් අංකය / Guarantor 1 A/C:</span>
-                <span class="field-line">${g1Acc ? `<span class="val-text font-mono">${g1Acc}</span>` : ''}</span>
-              </div>
-
-              <div class="field-row">
-                <span class="field-lbl">ඇපකරු 2 ගිණුම් අංකය / Guarantor 2 A/C:</span>
-                <span class="field-line">${g2Acc ? `<span class="val-text font-mono">${g2Acc}</span>` : ''}</span>
-              </div>
-
-              <div class="field-row-grid">
-                <div>
-                  <span class="field-lbl">කාලය / Period:</span>
-                  <span class="field-line">${period ? `<span class="val-text">${period} මාස</span>` : ''}</span>
-                </div>
-                <div>
-                  <span class="field-lbl">පොලී / Rate:</span>
-                  <span class="field-line">${rate ? `<span class="val-text">${rate}%</span>` : ''}</span>
-                </div>
-              </div>
-
+          <!-- SMS & Mobile App Note (directly beneath the tables) -->
+          <div style="margin-top: 1.5mm; padding: 1mm 2.2mm; border: 1px dashed #555; border-radius: 2px; background: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; display: flex; align-items: flex-start; gap: 2mm;">
+            <span style="font-size: 7pt; color: #000; flex-shrink: 0; margin-top: 0.1mm;">&#9432;</span>
+            <div style="font-size: 5.8pt; color: #000; line-height: 1.35;">
+              <strong>සටහන:</strong> ස්වයංක්රීය කෙටි පණිවිඩ සේවාව සහ Mobile App සක්රිය කිරීමට <strong>ණය අංශය</strong> වෙත එම අයදුම්පත්ර යොමු කරන්න.&ensp;<em style="color: #555; font-size: 5.2pt;">To activate Automatic SMS Service &amp; Mobile App, submit the relevant application to the Loan Department.</em>
             </div>
+          </div>
 
-            <!-- Summary below fields -->
-            <table class="sum-tbl">
-              <tr><td>ලිපි ලේඛන ගාස්තු</td><td class="r">${fmtR(totalDocFees)}</td></tr>
-              <tr><td>සම්පූර්ණ පිරිවැය</td><td class="r">${fmtR(totalVehCost)}</td></tr>
-              <tr><td>මූලික ගෙවීම</td><td class="r">${fmtR(downPayment)}</td></tr>
-              <tr class="hl"><td>අවශ්‍ය ණය මුදල</td><td class="r">${fmtR(requiredLoan)}</td></tr>
-            </table>
-          </td>
-
-          <td class="col-divider"></td>
-
-          <!-- RIGHT: Fee breakdown table -->
-          <td style="width:54%;">
-            <table class="fee-tbl">
-              <thead>
-                <tr><th>විස්තරය</th><th style="text-align:right;">මුදල (Rs.)</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>වාහනයේ මිල</td><td class="r">${fmtR(vehPrice)}</td></tr>
-                <tr><td>ණයකරු කොටස්</td><td class="r">${fmtR(borrowerShares)}</td></tr>
-                <tr><td>ඇපකරු 1 කොටස්</td><td class="r">${fmtR(g1)}</td></tr>
-                <tr><td>ඇපකරු 2 කොටස්</td><td class="r">${fmtR(g2)}</td></tr>
-                <tr><td>ගොඩනැගිලි අරමුදල</td><td class="r">${fmtR(building)}</td></tr>
-                <tr><td>ලියාපදිංචි ගාස්තු</td><td class="r">${fmtR(regFee)}</td></tr>
-                <tr><td>වාහන රක්ෂණ ගාස්තු</td><td class="r">${fmtR(vehIns)}</td></tr>
-                <tr><td>සමිති දායකත්වය</td><td class="r">${fmtR(swashakthi)}</td></tr>
-                <tr><td>ලිපි ගාස්තු</td><td class="r">${fmtR(docFee)}</td></tr>
-                <tr><td>සේවා අරමුදල</td><td class="r">${fmtR(serviceFund)}</td></tr>
-                <tr><td>ණය රක්ෂණය</td><td class="r">${fmtR(loanIns)}</td></tr>
-                <tr><td>මූලික ගෙවීම</td><td class="r">(${fmtR(downPayment)})</td></tr>
-              </tbody>
-            </table>
-          </td>
-
-        </tr></tbody></table>
+        </div>
 
         <!-- Footer Signatures Row -->
         <div class="slip-sign-row">
