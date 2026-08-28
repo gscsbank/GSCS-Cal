@@ -22,58 +22,168 @@
 </head>
 <body class="light-theme">
 
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="container nav-content">
-      <a href="#" class="brand">
-        <div class="brand-logo">
+  <!-- Dashboard App Wrapper -->
+  <div class="dashboard-app-wrapper">
+    
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- Left Purple Sidebar Navigation (Inspired by Modern Dashboard UI) -->
+    <aside class="dashboard-sidebar">
+      
+      <!-- Brand Logo Section -->
+      <div class="sidebar-brand">
+        <div class="brand-logo-circle">
           <i class="fa-solid fa-building-columns"></i>
         </div>
-        <div class="brand-text">
-          <h1 data-i18n="appTitle">GSCS BANK Loan Calculator <span class="brand-badge staff-badge" data-i18n="staffBadge">FOR STAFF USE ONLY</span></h1>
-          <p data-i18n="appSubtitle">iraasoft Solution මගින් බලගන්වන ලද GSCS BANK ණය ගණනය කිරීමේ පද්ධතිය</p>
+        <div class="brand-info">
+          <h2 class="brand-name">GSCS BANK</h2>
+          <span class="brand-tagline">Calculator Dashboard</span>
         </div>
-      </a>
+      </div>
 
-      <div class="nav-actions">
-        <button id="btn-support" class="btn-toggle-support" onclick="openCustomerSupportModal()" title="System Services &amp; Customer Care Support">
-          <i class="fa-solid fa-headset"></i>
-          <span>System Services</span>
+      <!-- Main Navigation Menu -->
+      <div class="sidebar-nav-group">
+        <div class="sidebar-group-title">MAIN MENU</div>
+
+        <button class="sidebar-nav-item tab-btn active" data-mode="vehicle">
+          <span class="nav-dot"></span>
+          <i class="fa-solid fa-motorcycle nav-icon"></i>
+          <span class="nav-label" data-i18n="tabVehicle">ස්වශක්ති වාහන ණය</span>
         </button>
-        <button id="btn-lang" class="btn-toggle-lang" title="Switch Language">
-          <i class="fa-solid fa-language"></i>
-          <span id="lang-name">English</span>
+
+        <button class="sidebar-nav-item tab-btn" data-mode="reducing">
+          <span class="nav-dot"></span>
+          <i class="fa-solid fa-chart-line nav-icon"></i>
+          <span class="nav-label" data-i18n="tabReducing">හීනවෙන ක්‍රමය</span>
         </button>
-        <button id="btn-theme" class="btn-toggle-theme" title="Toggle Theme">
-          <i class="fa-solid fa-sun"></i>
+
+        <button class="sidebar-nav-item tab-btn" data-mode="flat">
+          <span class="nav-dot"></span>
+          <i class="fa-solid fa-equals nav-icon"></i>
+          <span class="nav-label" data-i18n="tabFlat">සමාන වාරික ක්‍රමය</span>
+        </button>
+
+        <button class="sidebar-nav-item tab-btn" data-mode="compare">
+          <span class="nav-dot"></span>
+          <i class="fa-solid fa-scale-balanced nav-icon"></i>
+          <span class="nav-label" data-i18n="tabCompare">ක්‍රම දෙක සසඳන්න</span>
         </button>
       </div>
-    </div>
-  </nav>
 
-  <main class="container">
+      <!-- Services & Saved Records Section -->
+      <div class="sidebar-nav-group">
+        <div class="sidebar-group-title">RECORDS &amp; TOOLS</div>
 
-    <!-- Method Selection Tabs -->
-    <div class="method-tabs-wrapper">
-      <div class="method-tabs">
-        <button class="tab-btn active purple-tab" data-mode="vehicle">
-          <i class="fa-solid fa-motorcycle"></i>
-          <span data-i18n="tabVehicle">ස්වශක්ති වාහන ණය (Vehicle Loan)</span>
+        <button class="sidebar-nav-item" id="sidebar-btn-saved">
+          <span class="nav-dot"></span>
+          <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+          <span class="nav-label">සුරකින ලද වාර්තා</span>
+          <span class="sidebar-badge" id="sidebar-saved-count">0</span>
         </button>
-        <button class="tab-btn gold-tab" data-mode="reducing">
-          <i class="fa-solid fa-chart-line"></i>
-          <span data-i18n="tabReducing">හීනවෙන ක්‍රමය (Reducing Balance)</span>
-        </button>
-        <button class="tab-btn" data-mode="flat">
-          <i class="fa-solid fa-equals"></i>
-          <span data-i18n="tabFlat">සමාන වාරික ක්‍රමය (Flat Rate)</span>
-        </button>
-        <button class="tab-btn emerald-tab" data-mode="compare">
-          <i class="fa-solid fa-scale-balanced"></i>
-          <span data-i18n="tabCompare">ක්‍රම දෙක සසඳන්න (Comparison)</span>
+
+        <button class="sidebar-nav-item" id="sidebar-btn-support" onclick="openCustomerSupportModal()">
+          <span class="nav-dot"></span>
+          <i class="fa-solid fa-headset nav-icon"></i>
+          <span class="nav-label">පද්ධති සහාය</span>
         </button>
       </div>
-    </div>
+
+      <!-- Sidebar Footer Badge Card -->
+      <div class="sidebar-footer-card">
+        <div class="staff-pill">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span data-i18n="staffBadge">OFFICIAL STAFF ONLY</span>
+        </div>
+        <div class="dev-credits">Powered by iraasoft Solution</div>
+      </div>
+
+    </aside>
+
+    <!-- Main Dashboard Content Canvas -->
+    <main class="dashboard-main-canvas">
+
+      <!-- Top Header Bar -->
+      <header class="dashboard-topbar">
+        <div class="topbar-left">
+          <button id="btn-sidebar-toggle" class="btn-sidebar-toggle" title="Toggle Navigation Menu">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+          <div class="topbar-title-block">
+            <h1 class="topbar-title" data-i18n="appTitle">GSCS BANK Loan Calculator</h1>
+            <div class="topbar-status">
+              <span class="status-dot-live"></span>
+              <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Online System</span>
+              <span class="staff-badge-small" data-i18n="staffBadge">STAFF ONLY</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <button id="btn-support" class="btn-topbar-action btn-support-pill" onclick="openCustomerSupportModal()" title="System Services">
+            <i class="fa-solid fa-headset"></i>
+            <span>System Services</span>
+          </button>
+          <button id="btn-lang" class="btn-topbar-action btn-lang-pill" title="Switch Language">
+            <i class="fa-solid fa-language"></i>
+            <span id="lang-name">English</span>
+          </button>
+          <button id="btn-theme" class="btn-topbar-action btn-theme-pill" title="Toggle Theme">
+            <i class="fa-solid fa-sun"></i>
+          </button>
+          <div class="user-profile-pill">
+            <div class="user-avatar-circle">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <span class="user-name">Staff User</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- 4 Top Modern Stat Pills (Inspired by Reference Design Stat Cards) -->
+      <section class="hero-stats-row">
+        <div class="hero-stat-card stat-orange">
+          <span class="stat-card-label" id="stat-pill-1-title">වාහනයේ මිල (Price)</span>
+          <div class="stat-card-value text-orange" id="stat-pill-1-val">Rs. 789,950.00</div>
+        </div>
+
+        <div class="hero-stat-card stat-purple">
+          <span class="stat-card-label" id="stat-pill-2-title">ලිපි ලේඛන ගාස්තු</span>
+          <div class="stat-card-value text-purple" id="stat-pill-2-val">Rs. 59,573.00</div>
+        </div>
+
+        <div class="hero-stat-card stat-pink">
+          <span class="stat-card-label" id="stat-pill-3-title">මූලික ගෙවීම (Down)</span>
+          <div class="stat-card-value text-pink" id="stat-pill-3-val">Rs. 350,000.00</div>
+        </div>
+
+        <div class="hero-stat-card stat-blue">
+          <span class="stat-card-label" id="stat-pill-4-title">අවශ්‍ය ණය මුදල</span>
+          <div class="stat-card-value text-blue" id="stat-pill-4-val">Rs. 499,523.00</div>
+        </div>
+      </section>
+
+      <!-- Method Selection Tabs -->
+      <div class="method-tabs-wrapper">
+        <div class="method-tabs">
+          <button class="tab-btn active purple-tab" data-mode="vehicle">
+            <i class="fa-solid fa-motorcycle"></i>
+            <span data-i18n="tabVehicle">ස්වශක්ති වාහන ණය (Vehicle Loan)</span>
+          </button>
+          <button class="tab-btn gold-tab" data-mode="reducing">
+            <i class="fa-solid fa-chart-line"></i>
+            <span data-i18n="tabReducing">හීනවෙන ක්‍රමය (Reducing Balance)</span>
+          </button>
+          <button class="tab-btn" data-mode="flat">
+            <i class="fa-solid fa-equals"></i>
+            <span data-i18n="tabFlat">සමාන වාරික ක්‍රමය (Flat Rate)</span>
+          </button>
+          <button class="tab-btn emerald-tab" data-mode="compare">
+            <i class="fa-solid fa-scale-balanced"></i>
+            <span data-i18n="tabCompare">ක්‍රම දෙක සසඳන්න (Comparison)</span>
+          </button>
+        </div>
+      </div>
 
     <!-- Single Calculator Main Grid -->
     <div id="single-calc-view" class="calculator-grid" style="display: none;">
@@ -287,10 +397,13 @@
         
         <!-- Column 1: Variable & Vehicle Specific Fees (Red Values in Excel) -->
         <div class="glass-card">
-          <h3 class="card-title" style="font-size: 1.05rem; margin-bottom: 16px; color: var(--accent-rose);">
-            <i class="fa-solid fa-pen-to-square"></i>
-            <span data-i18n="headerVariableFees">වාහන තොරතුරු &amp; වෙනස්වන ගාස්තු</span>
-          </h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 class="card-title" style="font-size: 1.05rem; margin-bottom: 0; color: var(--accent-rose);">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span data-i18n="headerVariableFees">වාහන තොරතුරු &amp; වෙනස්වන ගාස්තු</span>
+            </h3>
+            <span class="badge-tag" style="background: rgba(244,63,94,0.12); color: var(--accent-rose); border: 1px solid rgba(244,63,94,0.25);">Variable</span>
+          </div>
 
           <!-- Vehicle Price -->
           <div class="input-group">
@@ -332,10 +445,13 @@
 
         <!-- Column 2: Standard Administrative & Fund Fees -->
         <div class="glass-card">
-          <h3 class="card-title" style="font-size: 1.05rem; margin-bottom: 16px; color: var(--accent-blue);">
-            <i class="fa-solid fa-list-check"></i>
-            <span data-i18n="headerFixedFees">පරිපාලන &amp; අරමුදල් ගාස්තු</span>
-          </h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 class="card-title" style="font-size: 1.05rem; margin-bottom: 0; color: var(--accent-blue);">
+              <i class="fa-solid fa-list-check"></i>
+              <span data-i18n="headerFixedFees">පරිපාලන &amp; අරමුදල් ගාස්තු</span>
+            </h3>
+            <span class="badge-tag" style="background: rgba(59,130,246,0.12); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.25);">Standard</span>
+          </div>
 
           <div class="fee-inputs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="input-group">
@@ -388,10 +504,13 @@
         <!-- Column 3: Live Results Summary Box -->
         <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
           <div>
-            <h3 class="card-title" style="font-size: 1.05rem; margin-bottom: 16px; color: var(--accent-emerald);">
-              <i class="fa-solid fa-calculator"></i>
-              <span data-i18n="headerVehSummary">ගණනය කිරීමේ සාරාංශය</span>
-            </h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 class="card-title" style="font-size: 1.05rem; margin-bottom: 0; color: var(--accent-emerald);">
+                <i class="fa-solid fa-calculator"></i>
+                <span data-i18n="headerVehSummary">ගණනය කිරීමේ සාරාංශය</span>
+              </h3>
+              <span class="badge-tag" style="background: rgba(16,185,129,0.12); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.25);">Realtime</span>
+            </div>
 
             <div class="summary-cards-grid" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px;">
               <div class="metric-card">
@@ -726,6 +845,37 @@
           </div>
         </div>
 
+        <!-- System Engine OS Banner (Enterprise Runtime) -->
+        <div class="system-engine-banner">
+          <div class="engine-watermark-icon">
+            <svg viewBox="0 0 100 100" fill="currentColor" width="95" height="95">
+              <rect x="22" y="22" width="56" height="56" rx="14" fill="none" stroke="currentColor" stroke-width="6"/>
+              <rect x="36" y="36" width="28" height="28" rx="6" fill="currentColor"/>
+              <line x1="32" y1="8" x2="32" y2="22" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="50" y1="8" x2="50" y2="22" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="68" y1="8" x2="68" y2="22" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="32" y1="78" x2="32" y2="92" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="50" y1="78" x2="50" y2="92" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="68" y1="78" x2="68" y2="92" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="8" y1="32" x2="22" y2="32" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="8" y1="50" x2="22" y2="50" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="8" y1="68" x2="22" y2="68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="78" y1="32" x2="92" y2="32" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="78" y1="50" x2="92" y2="50" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+              <line x1="78" y1="68" x2="92" y2="68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          
+          <div class="engine-content-wrap">
+            <span class="engine-sub-tag">SYSTEM ENGINE</span>
+            <h3 class="engine-title">IRAASOFT <span class="engine-os-accent">OS</span></h3>
+            <div class="engine-pill-badge">
+              <span class="engine-pulse-dot"></span>
+              <span class="engine-version-lbl">ENTERPRISE V2.1</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Top Quick Metrics Cards -->
         <div class="support-metrics-grid">
           <div class="support-metric-card">
@@ -966,8 +1116,8 @@
       <p><span data-i18n="footerText">© 2026 GSCS BANK Loan System. All rights reserved.</span> | <strong>Calculator by iraasoft Solution</strong></p>
     </footer>
 
-  </main>
-
+    </main>
+  </div>
 
   <script src="script.js"></script>
 </body>

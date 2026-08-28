@@ -448,13 +448,44 @@ function initEventListeners() {
     }
   });
 
+  // Sidebar Mobile Toggle
+  document.getElementById("btn-sidebar-toggle")?.addEventListener("click", () => {
+    document.querySelector(".dashboard-sidebar")?.classList.toggle("open");
+    document.getElementById("sidebar-backdrop")?.classList.toggle("show");
+  });
+
+  document.getElementById("sidebar-backdrop")?.addEventListener("click", () => {
+    document.querySelector(".dashboard-sidebar")?.classList.remove("open");
+    document.getElementById("sidebar-backdrop")?.classList.remove("show");
+  });
+
+  // Sidebar shortcut for Saved Records
+  document.getElementById("sidebar-btn-saved")?.addEventListener("click", () => {
+    // Switch to vehicle mode if not already
+    const vehTab = document.querySelector('.tab-btn[data-mode="vehicle"]');
+    if (vehTab) vehTab.click();
+    setTimeout(() => {
+      document.getElementById("saved-records-section")?.scrollIntoView({ behavior: 'smooth' });
+    }, 150);
+    document.querySelector(".dashboard-sidebar")?.classList.remove("open");
+    document.getElementById("sidebar-backdrop")?.classList.remove("show");
+  });
+
   // Tabs
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      const clickedTab = e.currentTarget;
-      clickedTab.classList.add("active");
-      currentMode = clickedTab.dataset.mode;
+      const targetMode = e.currentTarget.dataset.mode;
+      if (!targetMode) return;
+      currentMode = targetMode;
+
+      // Sync active state across all tab buttons (sidebar + in-page)
+      document.querySelectorAll(".tab-btn").forEach(b => {
+        if (b.dataset.mode === targetMode) {
+          b.classList.add("active");
+        } else {
+          b.classList.remove("active");
+        }
+      });
 
       const calcGrid = document.getElementById("single-calc-view");
       const compareGrid = document.getElementById("compare-calc-view");
@@ -486,6 +517,10 @@ function initEventListeners() {
         if (rateSlider) rateSlider.value = currentRate;
         updateInterestRatePresetActive(currentRate);
       }
+
+      // Close mobile sidebar if open
+      document.querySelector(".dashboard-sidebar")?.classList.remove("open");
+      document.getElementById("sidebar-backdrop")?.classList.remove("show");
 
       calculateAndRender();
     });
@@ -629,6 +664,8 @@ function updateLanguage() {
   // Search placeholder
   const searchInput = document.getElementById("search-month");
   if (searchInput) searchInput.placeholder = dict.searchPlaceholder;
+
+  updateTopHeroStats();
 }
 
 // Number formatting helpers
@@ -827,6 +864,65 @@ function updateSummaryCards(res) {
   elInterest.textContent = formatCurrency(res.totalInterest);
   elInsurance.textContent = formatCurrency(res.totalInsurance);
   elTotalPayable.textContent = formatCurrency(res.totalPayable);
+
+  updateTopHeroStats();
+}
+
+function updateTopHeroStats() {
+  const stat1Title = document.getElementById("stat-pill-1-title");
+  const stat1Val = document.getElementById("stat-pill-1-val");
+  const stat2Title = document.getElementById("stat-pill-2-title");
+  const stat2Val = document.getElementById("stat-pill-2-val");
+  const stat3Title = document.getElementById("stat-pill-3-title");
+  const stat3Val = document.getElementById("stat-pill-3-val");
+  const stat4Title = document.getElementById("stat-pill-4-title");
+  const stat4Val = document.getElementById("stat-pill-4-val");
+
+  if (!stat1Title || !stat1Val) return;
+
+  if (currentMode === 'vehicle') {
+    const price = parseInputNumber("veh-price", 0);
+    const regFee = parseInputNumber("veh-reg-fee", 0);
+    const vehInsurance = parseInputNumber("veh-insurance-fee", 0);
+    const downPayment = parseInputNumber("veh-down-payment", 0);
+    const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
+    const g1Shares = parseInputNumber("fee-guarantor1-shares", 0);
+    const g2Shares = parseInputNumber("fee-guarantor2-shares", 0);
+    const docFee = parseInputNumber("fee-doc", 0);
+    const serviceFund = parseInputNumber("fee-service-fund", 0);
+    const loanInsurance = parseInputNumber("fee-loan-insurance", 0);
+    const swashakthiFund = parseInputNumber("fee-swashakthi-fund", 0);
+    const buildingFund = parseInputNumber("fee-building-fund", 0);
+    const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
+
+    const totalDocFees = borrowerShares + g1Shares + g2Shares + docFee + serviceFund + loanInsurance + swashakthiFund + buildingFund + borrowerDeposit + regFee + vehInsurance;
+    const totalVehCost = price + totalDocFees;
+    const requiredLoan = Math.max(0, totalVehCost - downPayment);
+
+    stat1Title.textContent = currentLang === 'si' ? "වාහනයේ මිල (Price)" : "Vehicle Price";
+    stat1Val.textContent = formatCurrency(price);
+
+    stat2Title.textContent = currentLang === 'si' ? "ලිපි ලේඛන ගාස්තු" : "Documentation Fees";
+    stat2Val.textContent = formatCurrency(totalDocFees);
+
+    stat3Title.textContent = currentLang === 'si' ? "මූලික ගෙවීම (Down)" : "Down Payment";
+    stat3Val.textContent = formatCurrency(downPayment);
+
+    stat4Title.textContent = currentLang === 'si' ? "අවශ්‍ය ණය මුදල" : "Required Loan";
+    stat4Val.textContent = formatCurrency(requiredLoan);
+  } else if (activeCalculationResult) {
+    stat1Title.textContent = currentLang === 'si' ? "ණය මුදල (Principal)" : "Loan Amount";
+    stat1Val.textContent = formatCurrency(activeCalculationResult.loanAmount);
+
+    stat2Title.textContent = currentLang === 'si' ? "මාසික වාරිකය (Installment)" : "Installment";
+    stat2Val.textContent = formatCurrency(activeCalculationResult.firstMonthPayment);
+
+    stat3Title.textContent = currentLang === 'si' ? "මුළු පොලිය (Interest)" : "Total Interest";
+    stat3Val.textContent = formatCurrency(activeCalculationResult.totalInterest);
+
+    stat4Title.textContent = currentLang === 'si' ? "ගෙවිය යුතු මුළු මුදල" : "Total Payable";
+    stat4Val.textContent = formatCurrency(activeCalculationResult.totalPayable);
+  }
 }
 
 function renderFormulaBox() {
@@ -1859,15 +1955,15 @@ function updateVehicleCalculation() {
   const vehInsurance = parseInputNumber("veh-insurance-fee", 0);
   const downPayment = parseInputNumber("veh-down-payment", 0);
 
-  const borrowerShares = parseInputNumber("fee-borrower-shares", 5000);
-  const g1Shares = parseInputNumber("fee-guarantor1-shares", 5000);
-  const g2Shares = parseInputNumber("fee-guarantor2-shares", 5000);
-  const docFee = parseInputNumber("fee-doc", 350);
-  const serviceFund = parseInputNumber("fee-service-fund", 1500);
-  const loanInsurance = parseInputNumber("fee-loan-insurance", 300);
-  const swashakthiFund = parseInputNumber("fee-swashakthi-fund", 5000);
-  const buildingFund = parseInputNumber("fee-building-fund", 1000);
-  const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 1500);
+  const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
+  const g1Shares = parseInputNumber("fee-guarantor1-shares", 0);
+  const g2Shares = parseInputNumber("fee-guarantor2-shares", 0);
+  const docFee = parseInputNumber("fee-doc", 0);
+  const serviceFund = parseInputNumber("fee-service-fund", 0);
+  const loanInsurance = parseInputNumber("fee-loan-insurance", 0);
+  const swashakthiFund = parseInputNumber("fee-swashakthi-fund", 0);
+  const buildingFund = parseInputNumber("fee-building-fund", 0);
+  const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
 
   // Formula matching Excel sheet exact rows
   const totalDocFees = borrowerShares + g1Shares + g2Shares + docFee + serviceFund + loanInsurance + swashakthiFund + buildingFund + borrowerDeposit + regFee + vehInsurance;
@@ -1907,6 +2003,7 @@ function updateVehicleCalculation() {
 
   // Re-render saved loans table
   renderSavedLoansTable();
+  updateTopHeroStats();
 }
 
 function applyVehicleLoanAmount(amount) {
@@ -1965,6 +2062,8 @@ function updateSavedLoansCountBadge() {
   const count = getSavedVehicleLoans().length;
   const badge = document.getElementById("saved-loans-count-badge");
   if (badge) badge.textContent = count;
+  const sidebarBadge = document.getElementById("sidebar-saved-count");
+  if (sidebarBadge) sidebarBadge.textContent = count;
 }
 
 function initSavedVehicleLoans() {
@@ -2012,15 +2111,15 @@ function initSavedVehicleLoans() {
     const regFee         = parseInputNumber("veh-reg-fee", 0);
     const vehIns         = parseInputNumber("veh-insurance-fee", 0);
     const downPayment    = parseInputNumber("veh-down-payment", 0);
-    const borrowerShares = parseInputNumber("fee-borrower-shares", 5000);
-    const g1             = parseInputNumber("fee-guarantor1-shares", 5000);
-    const g2             = parseInputNumber("fee-guarantor2-shares", 5000);
-    const docFee         = parseInputNumber("fee-doc", 350);
-    const serviceFund    = parseInputNumber("fee-service-fund", 1500);
-    const loanIns        = parseInputNumber("fee-loan-insurance", 300);
-    const swashakthi     = parseInputNumber("fee-swashakthi-fund", 5000);
-    const building       = parseInputNumber("fee-building-fund", 1000);
-    const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 1500);
+    const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
+    const g1             = parseInputNumber("fee-guarantor1-shares", 0);
+    const g2             = parseInputNumber("fee-guarantor2-shares", 0);
+    const docFee         = parseInputNumber("fee-doc", 0);
+    const serviceFund    = parseInputNumber("fee-service-fund", 0);
+    const loanIns        = parseInputNumber("fee-loan-insurance", 0);
+    const swashakthi     = parseInputNumber("fee-swashakthi-fund", 0);
+    const building       = parseInputNumber("fee-building-fund", 0);
+    const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
 
     const totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns;
     const totalVehCost   = vehPrice + totalDocFees;
@@ -2199,8 +2298,8 @@ function renderSavedLoansTable(filterQuery = "") {
         if (record.loanType) document.getElementById("save-loan-type").value = record.loanType;
         if (record.g1Acc) document.getElementById("save-g1-account").value = record.g1Acc;
         if (record.g2Acc) document.getElementById("save-g2-account").value = record.g2Acc;
-        if (record.period) document.getElementById("save-loan-period").value = record.period;
-        if (record.rate) document.getElementById("save-loan-rate").value = record.rate;
+        if (record.period !== undefined) document.getElementById("save-loan-period").value = record.period;
+        if (record.rate !== undefined) document.getElementById("save-loan-rate").value = record.rate;
 
         updateVehicleCalculation();
         document.getElementById("modal-saved-veh-loans-list").style.display = "none";
@@ -2232,30 +2331,30 @@ function printVehicleLoanSlip(customData = null) {
 
   if (customData) {
     selectedVehName = customData.vehicleName || "–";
-    vehPrice       = customData.vehPrice || 0;
-    regFee         = customData.regFee || 0;
-    vehIns         = customData.vehIns || 0;
-    downPayment    = customData.downPayment || 0;
-    borrowerShares = customData.borrowerShares || 5000;
-    g1             = customData.g1 || 5000;
-    g2             = customData.g2 || 5000;
-    docFee         = customData.docFee || 350;
-    serviceFund    = customData.serviceFund || 1500;
-    loanIns        = customData.loanIns || 300;
-    swashakthi     = customData.swashakthi || 5000;
-    building       = customData.building || 1000;
-    borrowerDeposit = customData.borrowerDeposit !== undefined ? customData.borrowerDeposit : 1500;
-    totalDocFees   = customData.totalDocFees || (borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns);
-    totalVehCost   = customData.totalVehCost || (vehPrice + totalDocFees);
-    requiredLoan   = customData.requiredLoan || Math.max(0, totalVehCost - downPayment);
+    vehPrice       = customData.vehPrice !== undefined ? customData.vehPrice : 0;
+    regFee         = customData.regFee !== undefined ? customData.regFee : 0;
+    vehIns         = customData.vehIns !== undefined ? customData.vehIns : 0;
+    downPayment    = customData.downPayment !== undefined ? customData.downPayment : 0;
+    borrowerShares = customData.borrowerShares !== undefined ? customData.borrowerShares : 0;
+    g1             = customData.g1 !== undefined ? customData.g1 : 0;
+    g2             = customData.g2 !== undefined ? customData.g2 : 0;
+    docFee         = customData.docFee !== undefined ? customData.docFee : 0;
+    serviceFund    = customData.serviceFund !== undefined ? customData.serviceFund : 0;
+    loanIns        = customData.loanIns !== undefined ? customData.loanIns : 0;
+    swashakthi     = customData.swashakthi !== undefined ? customData.swashakthi : 0;
+    building       = customData.building !== undefined ? customData.building : 0;
+    borrowerDeposit = customData.borrowerDeposit !== undefined ? customData.borrowerDeposit : 0;
+    totalDocFees   = customData.totalDocFees !== undefined ? customData.totalDocFees : (borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns);
+    totalVehCost   = customData.totalVehCost !== undefined ? customData.totalVehCost : (vehPrice + totalDocFees);
+    requiredLoan   = customData.requiredLoan !== undefined ? customData.requiredLoan : Math.max(0, totalVehCost - downPayment);
     today          = customData.date || new Date().toLocaleDateString('si-LK', { year:'numeric', month:'long', day:'numeric' });
     memberId       = customData.memberId || "";
     memberName     = customData.memberName || "";
     loanType       = customData.loanType || "ස්වශක්ති ණය 01";
     g1Acc          = customData.g1Acc || "";
     g2Acc          = customData.g2Acc || "";
-    period         = customData.period || 24;
-    rate           = customData.rate || 18;
+    period         = customData.period !== undefined ? customData.period : 24;
+    rate           = customData.rate !== undefined ? customData.rate : 18;
   } else {
     const vehSelectEl = document.getElementById("vehicle-select");
     selectedVehName = vehSelectEl?.options[vehSelectEl.selectedIndex]?.text?.split(" - ")[0] || "–";
@@ -2263,15 +2362,15 @@ function printVehicleLoanSlip(customData = null) {
     regFee         = parseInputNumber("veh-reg-fee", 0);
     vehIns         = parseInputNumber("veh-insurance-fee", 0);
     downPayment    = parseInputNumber("veh-down-payment", 0);
-    borrowerShares = parseInputNumber("fee-borrower-shares", 5000);
-    g1             = parseInputNumber("fee-guarantor1-shares", 5000);
-    g2             = parseInputNumber("fee-guarantor2-shares", 5000);
-    docFee         = parseInputNumber("fee-doc", 350);
-    serviceFund    = parseInputNumber("fee-service-fund", 1500);
-    loanIns        = parseInputNumber("fee-loan-insurance", 300);
-    swashakthi     = parseInputNumber("fee-swashakthi-fund", 5000);
-    building       = parseInputNumber("fee-building-fund", 1000);
-    borrowerDeposit = parseInputNumber("fee-borrower-deposit", 1500);
+    borrowerShares = parseInputNumber("fee-borrower-shares", 0);
+    g1             = parseInputNumber("fee-guarantor1-shares", 0);
+    g2             = parseInputNumber("fee-guarantor2-shares", 0);
+    docFee         = parseInputNumber("fee-doc", 0);
+    serviceFund    = parseInputNumber("fee-service-fund", 0);
+    loanIns        = parseInputNumber("fee-loan-insurance", 0);
+    swashakthi     = parseInputNumber("fee-swashakthi-fund", 0);
+    building       = parseInputNumber("fee-building-fund", 0);
+    borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
     totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns;
     totalVehCost   = vehPrice + totalDocFees;
     requiredLoan   = Math.max(0, totalVehCost - downPayment);
@@ -2548,11 +2647,11 @@ function printVehicleLoanSlip(customData = null) {
                 <div class="field-row-grid">
                   <div>
                     <span class="field-lbl">කාලය / Period:</span>
-                    <span class="field-line">${period ? `<span class="val-text">${period} මාස</span>` : ''}</span>
+                    <span class="field-line">${period !== undefined && period !== "" ? `<span class="val-text">${period} මාස</span>` : ''}</span>
                   </div>
                   <div>
                     <span class="field-lbl">පොලී / Rate:</span>
-                    <span class="field-line">${rate ? `<span class="val-text">${rate}%</span>` : ''}</span>
+                    <span class="field-line">${rate !== undefined && rate !== "" ? `<span class="val-text">${rate}%</span>` : ''}</span>
                   </div>
                 </div>
 
