@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GSCS BANK Loan Calculator | iraasoft Solution</title>
-  <meta name="description" content="GSCS BANK ණය ගණකය - ණය වාරික, පොලිය, ණය රක්ෂණය සහ සම්පූර්ණ ගෙවීම් කාලසටහන (Amortization Schedule) ගණනය කරගන්න. Calculator by iraasoft Solution.">
+  <title>GSCS BANK Assistant Manager Dashboard System | iraasoft Solution</title>
+  <meta name="description" content="GSCS BANK සහකාර කළමනාකරු පාලක පද්ධතිය - සියලුම ණය වර්ග නිකුත් කිරීම, අරමුදල් හා පරිපාලන අයකිරීම් 12 ගණනය කිරීම, වාරික කාලසටහන සහ A4 ද්විත්ව කුවිතාන්සි මුද්‍රණය.">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Sinhala:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,7 +17,7 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Custom Styles -->
+  <!-- Custom Modern Styles -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="light-theme">
@@ -28,7 +28,7 @@
     <!-- Mobile Sidebar Backdrop Overlay -->
     <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 
-    <!-- Left Purple Sidebar Navigation (Inspired by Modern Dashboard UI) -->
+    <!-- Left Modern Sidebar Navigation -->
     <aside class="dashboard-sidebar">
       
       <!-- Brand Logo Section -->
@@ -37,65 +37,76 @@
           <i class="fa-solid fa-building-columns"></i>
         </div>
         <div class="brand-info">
-          <h2 class="brand-name">GSCS BANK</h2>
-          <span class="brand-tagline">Calculator Dashboard</span>
+          <h2 class="brand-name">GSCS Bank</h2>
+          <span class="brand-tagline">Assistant Manager</span>
         </div>
       </div>
+
+
 
       <!-- Main Navigation Menu -->
       <div class="sidebar-nav-group">
         <div class="sidebar-group-title">MAIN MENU</div>
 
-        <button class="sidebar-nav-item tab-btn active" data-mode="vehicle">
-          <span class="nav-dot"></span>
-          <i class="fa-solid fa-motorcycle nav-icon"></i>
-          <span class="nav-label" data-i18n="tabVehicle">ස්වශක්ති වාහන ණය</span>
+        <button class="sidebar-nav-item tab-btn active" data-mode="universal">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <span>ණය නිකුත් කිරීම</span>
         </button>
 
+        <button class="sidebar-nav-item tab-btn" data-mode="vehicle">
+          <i class="fa-solid fa-motorcycle"></i>
+          <span>ස්වශක්ති වාහන ණය</span>
+        </button>
+      </div>
+
+      <!-- Loan Calculators Section -->
+      <div class="sidebar-nav-group">
+        <div class="sidebar-group-title">LOAN CALCULATORS</div>
+
         <button class="sidebar-nav-item tab-btn" data-mode="reducing">
-          <span class="nav-dot"></span>
-          <i class="fa-solid fa-chart-line nav-icon"></i>
-          <span class="nav-label" data-i18n="tabReducing">හීනවෙන ක්‍රමය</span>
+          <i class="fa-solid fa-chart-line"></i>
+          <span>හීනවෙන ක්‍රමය</span>
         </button>
 
         <button class="sidebar-nav-item tab-btn" data-mode="flat">
-          <span class="nav-dot"></span>
-          <i class="fa-solid fa-equals nav-icon"></i>
-          <span class="nav-label" data-i18n="tabFlat">සමාන වාරික ක්‍රමය</span>
+          <i class="fa-solid fa-equals"></i>
+          <span>සමාන වාරික ක්‍රමය</span>
         </button>
 
         <button class="sidebar-nav-item tab-btn" data-mode="compare">
-          <span class="nav-dot"></span>
-          <i class="fa-solid fa-scale-balanced nav-icon"></i>
-          <span class="nav-label" data-i18n="tabCompare">ක්‍රම දෙක සසඳන්න</span>
+          <i class="fa-solid fa-scale-balanced"></i>
+          <span>ක්‍රම දෙක සසඳන්න</span>
         </button>
       </div>
 
-      <!-- Services & Saved Records Section -->
+      <!-- Management & Records Section -->
       <div class="sidebar-nav-group">
-        <div class="sidebar-group-title">RECORDS &amp; TOOLS</div>
+        <div class="sidebar-group-title">MANAGEMENT & SYSTEMS</div>
 
-        <button class="sidebar-nav-item" id="sidebar-btn-saved">
-          <span class="nav-dot"></span>
-          <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
-          <span class="nav-label">සුරකින ලද වාර්තා</span>
+        <button class="sidebar-nav-item tab-btn" data-mode="records">
+          <i class="fa-solid fa-folder-tree"></i>
+          <span>ලේඛනාගාරය (Archive)</span>
           <span class="sidebar-badge" id="sidebar-saved-count">0</span>
         </button>
 
-        <button class="sidebar-nav-item" id="sidebar-btn-support" onclick="openCustomerSupportModal()">
-          <span class="nav-dot"></span>
-          <i class="fa-solid fa-headset nav-icon"></i>
-          <span class="nav-label">පද්ධති සහාය</span>
-        </button>
+        <a href="https://gscsbank.github.io/Lease-File-Tracking-System/" target="_blank" rel="noopener noreferrer" class="sidebar-nav-item" style="text-decoration: none;" title="Open Lease File Tracking System in new tab">
+          <i class="fa-solid fa-folder-open" style="color: var(--accent-amber);"></i>
+          <span>Lease Tracking System</span>
+          <i class="fa-solid fa-arrow-up-right-from-square" style="margin-left: auto; font-size: 0.72rem; opacity: 0.6; width: auto;"></i>
+        </a>
       </div>
 
-      <!-- Sidebar Footer Badge Card -->
-      <div class="sidebar-footer-card">
-        <div class="staff-pill">
-          <i class="fa-solid fa-shield-halved"></i>
-          <span data-i18n="staffBadge">OFFICIAL STAFF ONLY</span>
+      <!-- Bottom Promo / Support Card -->
+      <div class="sidebar-bottom-promo">
+        <div class="promo-badge-icon">
+          <i class="fa-solid fa-headset"></i>
         </div>
-        <div class="dev-credits">Powered by iraasoft Solution</div>
+        <div class="promo-title">GSCS Support Desk</div>
+        <div class="promo-desc">පද්ධති සහාය සහ සේවා</div>
+        <button class="promo-btn" onclick="openCustomerSupportModal()">
+          <i class="fa-solid fa-phone"></i>
+          <span>සම්බන්ධ වන්න</span>
+        </button>
       </div>
 
     </aside>
@@ -109,1012 +120,959 @@
           <button id="btn-sidebar-toggle" class="btn-sidebar-toggle" title="Toggle Navigation Menu">
             <i class="fa-solid fa-bars-staggered"></i>
           </button>
-          <div class="topbar-title-block">
-            <h1 class="topbar-title" data-i18n="appTitle">GSCS BANK Loan Calculator</h1>
-            <div class="topbar-status">
-              <span class="status-dot-live"></span>
-              <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Online System</span>
-              <span class="staff-badge-small" data-i18n="staffBadge">STAFF ONLY</span>
-            </div>
+          
+          <!-- Global Search Input -->
+          <div class="topbar-search-wrap">
+            <i class="fa-solid fa-magnifying-glass topbar-search-icon"></i>
+            <input type="text" id="topbar-global-search" class="topbar-search-input" placeholder="සාමාජික අංකය, නම, NIC හෝ ගිණුම සොයන්න...">
           </div>
         </div>
 
         <div class="topbar-actions">
-          <button id="btn-support" class="btn-topbar-action btn-support-pill" onclick="openCustomerSupportModal()" title="System Services">
-            <i class="fa-solid fa-headset"></i>
-            <span>System Services</span>
-          </button>
-          <button id="btn-lang" class="btn-topbar-action btn-lang-pill" title="Switch Language">
+          <button class="btn-icon-pill" id="btn-lang" title="Switch Language">
             <i class="fa-solid fa-language"></i>
-            <span id="lang-name">English</span>
           </button>
-          <button id="btn-theme" class="btn-topbar-action btn-theme-pill" title="Toggle Theme">
+          <button class="btn-icon-pill" id="btn-theme" title="Toggle Theme">
             <i class="fa-solid fa-sun"></i>
           </button>
-          <div class="user-profile-pill">
+          <button class="btn-icon-pill" onclick="openCustomerSupportModal()" title="Notifications &amp; Alerts">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notif-dot"></span>
+          </button>
+
+          <!-- User Profile Card -->
+          <div class="user-profile-card">
             <div class="user-avatar-circle">
-              <i class="fa-solid fa-user"></i>
+              <i class="fa-solid fa-user-tie"></i>
             </div>
-            <span class="user-name">Staff User</span>
+            <div class="user-info-block">
+              <span class="user-name">Assistant Manager</span>
+              <span class="user-role">Official Staff</span>
+            </div>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; color: var(--text-light); margin-left: 4px;"></i>
           </div>
         </div>
       </header>
 
-      <!-- 4 Top Modern Stat Pills (Inspired by Reference Design Stat Cards) -->
-      <section class="hero-stats-row">
-        <div class="hero-stat-card stat-orange">
-          <span class="stat-card-label" id="stat-pill-1-title">වාහනයේ මිල (Price)</span>
-          <div class="stat-card-value text-orange" id="stat-pill-1-val">Rs. 789,950.00</div>
+
+      <!-- ============================================================ -->
+      <!-- VIEW 1: Universal Loan Issuance & 12 Deductions View (Default) -->
+      <!-- ============================================================ -->
+      <div id="universal-calc-view" class="universal-calc-wrapper">
+        
+        <!-- Header Banner Card -->
+        <div class="glass-card" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <h2 class="card-title">
+                <i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i>
+                <span>ණය නිකුත් කිරීම</span>
+              </h2>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <button id="btn-reset-universal-form" class="btn-action">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>හිස් කරන්න</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="hero-stat-card stat-purple">
-          <span class="stat-card-label" id="stat-pill-2-title">ලිපි ලේඛන ගාස්තු</span>
-          <div class="stat-card-value text-purple" id="stat-pill-2-val">Rs. 59,573.00</div>
+        <!-- Main 3-Column Grid for Universal Loan Issuance -->
+        <div class="calculator-grid universal-calc-grid" style="display: grid; grid-template-columns: 1.05fr 1.25fr 0.95fr; gap: 20px;">
+          
+          <!-- Column 1: Member & Loan Parameters -->
+          <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 class="card-title" style="font-size: 1rem; color: var(--accent-amber);">
+                <i class="fa-solid fa-user-tag"></i>
+                <span>1. සාමාජික සහ ණය විස්තර</span>
+              </h3>
+              <span class="badge-tag" style="background: var(--accent-amber-light); color: var(--accent-amber);">Member Info</span>
+            </div>
+
+            <!-- Loan Scheme Selector -->
+            <div class="input-group">
+              <label for="univ-loan-scheme" class="input-label">ණය වර්ගය (Loan Scheme / Type) <span style="color: var(--accent-rose);">*</span></label>
+              <select id="univ-loan-scheme" class="input-field univ-input" style="font-weight: 700;">
+                <!-- Populated dynamically via JS -->
+              </select>
+            </div>
+
+            <!-- Member No & Name -->
+            <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px;">
+              <div class="input-group">
+                <label for="univ-member-id" class="input-label">සාමාජික අංකය <span style="color: var(--accent-rose);">*</span></label>
+                <input type="text" id="univ-member-id" class="input-field univ-input" value="">
+              </div>
+              <div class="input-group">
+                <label for="univ-member-name" class="input-label">සාමාජිකයාගේ නම <span style="color: var(--accent-rose);">*</span></label>
+                <input type="text" id="univ-member-name" class="input-field univ-input" value="">
+              </div>
+            </div>
+
+
+
+            <!-- Guarantor 1 & 2 Accounts -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="input-group">
+                <label for="univ-g1-acc" class="input-label">ඇපකරු 1 A/C No</label>
+                <input type="text" id="univ-g1-acc" class="input-field univ-input" value="">
+              </div>
+              <div class="input-group">
+                <label for="univ-g2-acc" class="input-label">ඇපකරු 2 A/C No</label>
+                <input type="text" id="univ-g2-acc" class="input-field univ-input" value="">
+              </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-light); margin: 14px 0;">
+
+            <!-- Gross Approved Loan Amount -->
+            <div class="input-group">
+              <label for="univ-loan-amount" class="input-label" style="color: var(--primary);">අනුමත ණය මුදල (Gross Loan Amount)</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">Rs.</span>
+                <input type="number" id="univ-loan-amount" class="input-field has-prefix univ-input" value="" step="1000" min="0">
+              </div>
+              
+              <div class="presets-row">
+                <span class="preset-chip" data-for="univ-loan-amount" data-value="100000">100k</span>
+                <span class="preset-chip" data-for="univ-loan-amount" data-value="250000">250k</span>
+                <span class="preset-chip" data-for="univ-loan-amount" data-value="500000">500k</span>
+                <span class="preset-chip" data-for="univ-loan-amount" data-value="750000">750k</span>
+                <span class="preset-chip" data-for="univ-loan-amount" data-value="1000000">1M</span>
+                <span class="preset-chip" data-for="univ-loan-amount" data-value="2000000">2M</span>
+              </div>
+            </div>
+
+            <!-- Interest Rate & Tenure -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="input-group">
+                <label for="univ-interest-rate" class="input-label">පොලී අනුපාතය (%)</label>
+                <div class="input-wrapper">
+                  <input type="number" id="univ-interest-rate" class="input-field has-suffix univ-input" value="" step="0.1" min="0" max="100">
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label for="univ-loan-tenure" class="input-label">කාලය (මාස)</label>
+                <input type="number" id="univ-loan-tenure" class="input-field univ-input" value="" min="1" max="360">
+              </div>
+            </div>
+
+            <!-- Calculation Method -->
+            <div class="input-group" style="margin-bottom: 0;">
+              <label class="input-label">වාරික ගණනය කිරීමේ ක්‍රමය</label>
+              <div style="display: flex; gap: 14px; margin-top: 6px;">
+                <label style="font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                  <input type="radio" name="univ-calc-method" value="reducing" checked>
+                  <span>හීනවෙන ක්‍රමය (Reducing)</span>
+                </label>
+                <label style="font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                  <input type="radio" name="univ-calc-method" value="flat">
+                  <span>සමාන වාරික (Flat)</span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Column 2: 12 Deductions & Fund Charges -->
+          <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <h3 class="card-title" style="font-size: 1rem; color: var(--accent-rose);">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+                <span>2. පරිපාලන &amp; අරමුදල් අඩුකිරීම් (12 Deductions)</span>
+              </h3>
+              <button id="btn-clear-univ-deductions" class="btn-action" style="padding: 4px 8px; font-size: 0.74rem; color: var(--accent-rose);">
+                <i class="fa-solid fa-eraser"></i> 0 කරන්න
+              </button>
+            </div>
+
+            <div class="fee-inputs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              
+              <!-- 1. Saving sandaha (ඉතිරිකිරීම් සඳහා) -->
+              <div class="input-group">
+                <label for="univ-fee-savings" class="input-label" style="font-size: 0.75rem;">1. ඉතිරිකිරීම් සඳහා (Savings)</label>
+                <input type="number" id="univ-fee-savings" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 2. Sewa aramudala (සේවා අරමුදල) -->
+              <div class="input-group">
+                <label for="univ-fee-service" class="input-label" style="font-size: 0.75rem;">2. සේවා අරමුදල (Service)</label>
+                <input type="number" id="univ-fee-service" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 3. Godanagili aramudala (ගොඩනැගිලි අරමුදල) -->
+              <div class="input-group">
+                <label for="univ-fee-building" class="input-label" style="font-size: 0.75rem;">3. ගොඩනැගිලි අරමුදල (Building)</label>
+                <input type="number" id="univ-fee-building" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 4. Naya rakshana (ණය රක්ෂණය) -->
+              <div class="input-group">
+                <label for="univ-fee-insurance" class="input-label" style="font-size: 0.75rem;">4. ණය රක්ෂණය (Insurance)</label>
+                <input type="number" id="univ-fee-insurance" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 5. Samajika kotas thanpath (සාමාජික කොටස් තැන්පතු) -->
+              <div class="input-group">
+                <label for="univ-fee-member-shares" class="input-label" style="font-size: 0.75rem;">5. සාමාජික කොටස් (Shares)</label>
+                <input type="number" id="univ-fee-member-shares" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 6. Surekum thanpath sandaha (සුරැකුම් තැන්පතු) -->
+              <div class="input-group">
+                <label for="univ-fee-security" class="input-label" style="font-size: 0.75rem;">6. සුරැකුම් තැන්පතු (Security)</label>
+                <input type="number" id="univ-fee-security" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 7. Lipi drwaya gasthu (ලිපි ද්‍රව්‍ය ගාස්තු) -->
+              <div class="input-group">
+                <label for="univ-fee-stationery" class="input-label" style="font-size: 0.75rem;">7. ලිපි ද්‍රව්‍ය ගාස්තු (Stationery)</label>
+                <input type="number" id="univ-fee-stationery" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 8. Subha sadhana aramudala (සුබසාධන අරමුදල) -->
+              <div class="input-group">
+                <label for="univ-fee-welfare" class="input-label" style="font-size: 0.75rem;">8. සුබසාධන අරමුදල (Welfare)</label>
+                <input type="number" id="univ-fee-welfare" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 9. Gewimata athi naya (ගෙවීමට ඇති ණය) -->
+              <div class="input-group">
+                <label for="univ-fee-existing-loan" class="input-label" style="font-size: 0.75rem;">9. ගෙවීමට ඇති ණය (Old Loan)</label>
+                <input type="number" id="univ-fee-existing-loan" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 10. Gewimata athi poliya (ගෙවීමට ඇති පොලිය) -->
+              <div class="input-group">
+                <label for="univ-fee-existing-interest" class="input-label" style="font-size: 0.75rem;">10. ගෙවීමට ඇති පොලිය (Interest)</label>
+                <input type="number" id="univ-fee-existing-interest" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 11. Apakaru 1 kotas thanpathu (ඇපකරු 1 කොටස්) -->
+              <div class="input-group">
+                <label for="univ-fee-g1-shares" class="input-label" style="font-size: 0.75rem;">11. ඇපකරු 1 කොටස් (G1)</label>
+                <input type="number" id="univ-fee-g1-shares" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+              <!-- 12. Apakaru 2 kotas thnpathu (ඇපකරු 2 කොටස්) -->
+              <div class="input-group">
+                <label for="univ-fee-g2-shares" class="input-label" style="font-size: 0.75rem;">12. ඇපකරු 2 කොටස් (G2)</label>
+                <input type="number" id="univ-fee-g2-shares" class="input-field univ-input univ-fee-input" value="">
+              </div>
+
+            </div>
+
+            <!-- Additional Custom Notes -->
+            <div class="input-group" style="margin-top: 12px; margin-bottom: 0;">
+              <label for="univ-loan-remarks" class="input-label" style="font-size: 0.75rem;">අමතර සටහන් (Remarks):</label>
+              <input type="text" id="univ-loan-remarks" class="input-field univ-input" value="">
+            </div>
+
+          </div>
+
+          <!-- Column 3: Live Realtime Calculation & Action Controls -->
+          <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <h3 class="card-title" style="font-size: 1rem; color: var(--accent-emerald);">
+                  <i class="fa-solid fa-calculator"></i>
+                  <span>3. ගණනය කිරීමේ සාරාංශය</span>
+                </h3>
+                <span class="badge-tag" style="background: var(--accent-emerald-light); color: var(--accent-emerald);">Realtime</span>
+              </div>
+
+              <!-- Metric Cards Stack -->
+              <div class="summary-cards-grid">
+                
+                <div class="metric-card">
+                  <span class="metric-title">අනුමත ණය මුදල (Gross Loan)</span>
+                  <div id="univ-metric-gross-loan" class="metric-value" style="color: var(--primary);">Rs. 0.00</div>
+                </div>
+
+                <div class="metric-card">
+                  <span class="metric-title" style="color: var(--accent-rose);">මුළු අයකිරීම් / අඩුකිරීම්</span>
+                  <div id="univ-metric-total-deductions" class="metric-value" style="color: var(--accent-rose);">Rs. 0.00</div>
+                </div>
+
+                <div class="metric-card emerald-border" style="background: var(--accent-emerald-light); border: 1.5px solid #86efac;">
+                  <span class="metric-title" style="color: var(--accent-emerald); font-weight: 800;">අතට ලැබෙන ශුද්ධ මුදල (Net)</span>
+                  <div id="univ-metric-net-disbursement" class="metric-value" style="font-size: 1.6rem; color: var(--accent-emerald); font-weight: 900;">Rs. 0.00</div>
+                </div>
+
+                <div class="metric-card gold-border">
+                  <span class="metric-title" style="color: var(--accent-amber);">ඇස්තමේන්තුගත මාසික වාරිකය (EMI)</span>
+                  <div id="univ-metric-monthly-installment" class="metric-value" style="color: var(--accent-amber);">Rs. 0.00</div>
+                  <span id="univ-metric-installment-sub" style="font-size: 0.7rem; color: var(--text-muted);">–</span>
+                </div>
+
+                <div class="metric-card">
+                  <span class="metric-title">මුළු පොලිය (Total Interest)</span>
+                  <div id="univ-metric-total-interest" class="metric-value" style="font-size: 1.05rem;">Rs. 0.00</div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+              <button id="btn-save-and-print-universal" class="btn-action btn-emerald" style="width: 100%; justify-content: center; padding: 13px;">
+                <i class="fa-solid fa-print"></i>
+                <span>සුරැක Print කරන්න (A4 Dual Slip)</span>
+              </button>
+
+              <button id="btn-apply-to-repayment-schedule" class="btn-action btn-gold" style="width: 100%; justify-content: center; padding: 10px;">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>වාරික කාලසටහන බලන්න</span>
+              </button>
+            </div>
+
+          </div>
+
         </div>
 
-        <div class="hero-stat-card stat-pink">
-          <span class="stat-card-label" id="stat-pill-3-title">මූලික ගෙවීම (Down)</span>
-          <div class="stat-card-value text-pink" id="stat-pill-3-val">Rs. 350,000.00</div>
-        </div>
-
-        <div class="hero-stat-card stat-blue">
-          <span class="stat-card-label" id="stat-pill-4-title">අවශ්‍ය ණය මුදල</span>
-          <div class="stat-card-value text-blue" id="stat-pill-4-val">Rs. 499,523.00</div>
-        </div>
-      </section>
-
-      <!-- Method Selection Tabs -->
-      <div class="method-tabs-wrapper">
-        <div class="method-tabs">
-          <button class="tab-btn active purple-tab" data-mode="vehicle">
-            <i class="fa-solid fa-motorcycle"></i>
-            <span data-i18n="tabVehicle">ස්වශක්ති වාහන ණය (Vehicle Loan)</span>
-          </button>
-          <button class="tab-btn gold-tab" data-mode="reducing">
-            <i class="fa-solid fa-chart-line"></i>
-            <span data-i18n="tabReducing">හීනවෙන ක්‍රමය (Reducing Balance)</span>
-          </button>
-          <button class="tab-btn" data-mode="flat">
-            <i class="fa-solid fa-equals"></i>
-            <span data-i18n="tabFlat">සමාන වාරික ක්‍රමය (Flat Rate)</span>
-          </button>
-          <button class="tab-btn emerald-tab" data-mode="compare">
-            <i class="fa-solid fa-scale-balanced"></i>
-            <span data-i18n="tabCompare">ක්‍රම දෙක සසඳන්න (Comparison)</span>
-          </button>
-        </div>
       </div>
 
-    <!-- Single Calculator Main Grid -->
-    <div id="single-calc-view" class="calculator-grid" style="display: none;">
-      
-      <!-- Input Controls Side Card -->
-      <div class="glass-card">
-        <div class="card-header">
-          <h2 class="card-title">
-            <i class="fa-solid fa-sliders"></i>
-            <span data-i18n="inputsHeader">ණය තොරතුරු ඇතුළත් කරන්න</span>
-          </h2>
-        </div>
+      <!-- ============================================================ -->
+      <!-- VIEW 2: Swashakthi Vehicle Loan Calculator View (Preserved) -->
+      <!-- ============================================================ -->
+      <div id="vehicle-calc-view" class="vehicle-calc-wrapper" style="display: none;">
+        
+        <div class="glass-card" style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h2 class="card-title">
+                <i class="fa-solid fa-motorcycle" style="color: var(--accent-amber);"></i>
+                <span>ස්වශක්ති වාහන ණය - ණය මුදල ගණනය කිරීම</span>
+              </h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">
+                පහතින් වාහනයක් තෝරන්න (Select a Bike / Vehicle):
+              </p>
+            </div>
 
-        <!-- 1. Loan Amount Input -->
-        <div class="input-group">
-          <div class="input-label-row">
-            <label for="loan-amount" class="input-label" data-i18n="loanAmount">ණය මුදල (Loan Amount)</label>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <a href="https://www.dpmco.com/en/products/motorcycles.html" target="_blank" rel="noopener noreferrer" class="btn-action" title="Bajaj Price List">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Bajaj නවතම මිලගණන්</span>
+              </a>
+              <select id="vehicle-select" class="input-field" style="display: none;"></select>
+            </div>
           </div>
-          <div class="input-wrapper">
-            <span class="input-prefix">Rs.</span>
-            <input type="number" id="loan-amount" class="input-field has-prefix" value="400000" step="10000" min="10000" max="50000000">
-          </div>
-          <input type="range" id="loan-amount-slider" class="range-slider" min="50000" max="10000000" step="25000" value="400000">
-          
-          <div class="presets-row">
-            <span class="preset-chip" data-for="loan-amount" data-value="100000">100k</span>
-            <span class="preset-chip active" data-for="loan-amount" data-value="400000">400k</span>
-            <span class="preset-chip" data-for="loan-amount" data-value="500000">500k</span>
-            <span class="preset-chip" data-for="loan-amount" data-value="1000000">1M</span>
-            <span class="preset-chip" data-for="loan-amount" data-value="2500000">2.5M</span>
-            <span class="preset-chip" data-for="loan-amount" data-value="5000000">5M</span>
-          </div>
-          <div style="margin-top: 8px;">
-            <button id="btn-calc-veh-loan" class="preset-chip active" style="background: linear-gradient(135deg, var(--accent-purple), #7c3aed); color: #fff; border: none; font-size: 0.78rem; font-weight: 600; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-              <i class="fa-solid fa-motorcycle"></i>
-              <span data-i18n="btnCalcVehShortcut">ස්වශක්ති වාහන ණය මුදල ගණනය කරන්න</span>
+
+          <div style="display: flex; gap: 10px; align-items: center; margin-top: 14px; flex-wrap: wrap;">
+            <div class="topbar-search-wrap" style="flex: 1; min-width: 240px;">
+              <i class="fa-solid fa-magnifying-glass topbar-search-icon"></i>
+              <input type="text" id="vehicle-search-input" class="topbar-search-input" placeholder="වාහනය සොයන්න... (Search vehicle)" autocomplete="off">
+            </div>
+            <button id="btn-add-vehicle-modal" class="btn-action btn-gold">
+              <i class="fa-solid fa-plus"></i>
+              <span>නව වාහනයක්</span>
             </button>
           </div>
+
+          <div id="vehicle-tiles-container" class="vehicle-tiles-grid">
+            <!-- Populated dynamically via JS -->
+          </div>
         </div>
 
-        <!-- 2. Interest Rate Input -->
-        <div class="input-group">
-          <div class="input-label-row">
-            <label for="interest-rate" class="input-label" data-i18n="interestRate">වාර්ෂික පොලී අනුපාතය (Interest Rate)</label>
-          </div>
-          <div class="input-wrapper">
-            <input type="number" id="interest-rate" class="input-field has-suffix" value="18" step="0.25" min="1" max="50">
-            <span class="input-suffix">%</span>
-          </div>
-          <input type="range" id="interest-rate-slider" class="range-slider" min="5" max="35" step="0.5" value="18">
+        <div class="calculator-grid veh-calc-grid" style="display: grid; grid-template-columns: 1fr 1fr 380px; gap: 20px;">
           
-          <div class="presets-row">
-            <span class="preset-chip" data-for="interest-rate" data-value="10">10%</span>
-            <span class="preset-chip" data-for="interest-rate" data-value="12">12%</span>
-            <span class="preset-chip" data-for="interest-rate" data-value="15">15%</span>
-            <span class="preset-chip active" data-for="interest-rate" data-value="18">18%</span>
-            <span class="preset-chip" data-for="interest-rate" data-value="20">20%</span>
-            <span class="preset-chip" data-for="interest-rate" data-value="24">24%</span>
-          </div>
-        </div>
-
-        <!-- 3. Loan Tenure Input -->
-        <div class="input-group">
-          <div class="input-label-row">
-            <label for="loan-tenure" class="input-label" data-i18n="loanTenure">ණය කාලසීමාව (Tenure)</label>
-            <div>
-              <label style="font-size: 0.8rem; cursor: pointer;">
-                <input type="radio" name="tenure-unit" value="months" checked> <span data-i18n="months">මාස</span>
-              </label>
-              <label style="font-size: 0.8rem; cursor: pointer; margin-left: 8px;">
-                <input type="radio" name="tenure-unit" value="years"> <span data-i18n="years">අවුරුදු</span>
-              </label>
-            </div>
-          </div>
-          <div class="input-wrapper">
-            <input type="number" id="loan-tenure" class="input-field" value="60" min="1" max="360">
-          </div>
-          <input type="range" id="loan-tenure-slider" class="range-slider" min="3" max="120" step="1" value="60">
-          
-          <div class="presets-row">
-            <span class="preset-chip" data-for="loan-tenure" data-value="12">12m</span>
-            <span class="preset-chip" data-for="loan-tenure" data-value="24">24m</span>
-            <span class="preset-chip" data-for="loan-tenure" data-value="36">36m</span>
-            <span class="preset-chip" data-for="loan-tenure" data-value="48">48m</span>
-            <span class="preset-chip active" data-for="loan-tenure" data-value="60">60m</span>
-            <span class="preset-chip" data-for="loan-tenure" data-value="120">120m</span>
-          </div>
-        </div>
-
-
-
-        <!-- 6. Loan Insurance Rate Input -->
-        <div class="input-group" style="margin-bottom: 0;">
-          <div class="input-label-row">
-            <label for="insurance-rate" class="input-label" data-i18n="insuranceRate">ණය රක්ෂණ අනුපාතය (Insurance Rate)</label>
-            <span class="input-label-subtitle" data-i18n="insuranceHint">0.06% (නැතහොත් ඔබගේ අනුපාතය)</span>
-          </div>
-          <div class="input-wrapper">
-            <input type="number" id="insurance-rate" class="input-field has-suffix" value="0.06" step="0.01" min="0" max="5">
-            <span class="input-suffix">%</span>
-          </div>
-          <input type="range" id="insurance-rate-slider" class="range-slider" min="0" max="2" step="0.01" value="0.06">
-        </div>
-
-      </div>
-
-      <!-- Results & Visualizations Side -->
-      <div>
-        <!-- Summary Cards Row -->
-        <div class="summary-cards-grid">
-          <!-- Card 1: Monthly Installment -->
-          <div class="metric-card gold-border">
-            <span class="metric-title" data-i18n="monthlyInstallment">මාසික වාරිකය (Monthly Installment)</span>
-            <div id="metric-installment" class="metric-value">Rs. 0.00</div>
-            <span id="metric-installment-sub" class="metric-subtitle">--</span>
-          </div>
-
-          <!-- Card 2: Total Interest -->
-          <div class="metric-card">
-            <span class="metric-title" data-i18n="totalInterest">මුළු පොලිය (Total Interest)</span>
-            <div id="metric-interest" class="metric-value">Rs. 0.00</div>
-          </div>
-
-          <!-- Card 3: Total Insurance -->
-          <div class="metric-card emerald-border">
-            <span class="metric-title" data-i18n="totalInsurance">මුළු ණය රක්ෂණය (Total Loan Insurance)</span>
-            <div id="metric-insurance" class="metric-value">Rs. 0.00</div>
-          </div>
-
-          <!-- Card 4: Total Amount Payable -->
-          <div class="metric-card purple-border">
-            <span class="metric-title" data-i18n="totalPayable">ගෙවිය යුතු මුළු මුදල (Total Amount Payable)</span>
-            <div id="metric-total-payable" class="metric-value">Rs. 0.00</div>
-          </div>
-        </div>
-
-
-
-        <!-- Charts Container -->
-        <div class="charts-grid">
           <div class="glass-card">
-            <div class="chart-container">
-              <canvas id="chart-breakdown"></canvas>
-            </div>
-          </div>
-
-          <div class="glass-card">
-            <div class="chart-container">
-              <canvas id="chart-trend"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Comparison View Container (Hidden initially) -->
-    <div id="compare-calc-view" class="comparison-grid" style="display: none;">
-      <!-- Populated dynamically via script.js -->
-    </div>
-
-    <!-- Swashakthi Vehicle Loan Calculator View (Active initially) -->
-    <div id="vehicle-calc-view" class="vehicle-calc-wrapper">
-      
-      <!-- Top Action Bar for Vehicle Selector & Interactive Tiles -->
-      <div class="glass-card" style="margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-          <div>
-            <h2 class="card-title" style="font-size: 1.25rem;">
-              <i class="fa-solid fa-motorcycle" style="color: var(--accent-gold);"></i>
-              <span data-i18n="vehicleCalcTitle">ස්වශක්ති වාහන ණය - ණය මුදල ගණනය කිරීම</span>
-            </h2>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" data-i18n="vehicleCalcSubtitle">
-              පහතින් වාහනයක් තෝරන්න (Select a Bike / Vehicle):
-            </p>
-          </div>
-
-          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <a href="https://www.dpmco.com/en/products/motorcycles.html" target="_blank" rel="noopener noreferrer" class="btn-action btn-bajaj-prices" title="David Pieris Motor Company - Official Price List">
-              <i class="fa-solid fa-arrow-up-right-from-square"></i>
-              <span data-i18n="btnBajajPrices">Bajaj යතුරුපැදි සඳහා නවතම මිලගණන් බලන්න</span>
-            </a>
-            <select id="vehicle-select" class="input-field" style="display: none;">
-              <!-- Populated dynamically via JS -->
-            </select>
-            <button id="btn-edit-vehicle-modal" class="btn-action" style="display: none;"></button>
-          </div>
-        </div>
-
-        <!-- Search + Add bar above vehicle tiles -->
-        <div class="vehicle-tiles-toolbar">
-          <div class="veh-search-wrap">
-            <i class="fa-solid fa-magnifying-glass veh-search-icon"></i>
-            <input type="text" id="vehicle-search-input" class="veh-search-input" placeholder="වාහනය සොයන්න... (Search vehicle)" autocomplete="off">
-          </div>
-          <button id="btn-add-vehicle-modal" class="btn-action btn-gold" style="gap: 6px; white-space: nowrap;">
-            <i class="fa-solid fa-plus"></i>
-            <span data-i18n="btnAddVehicle">නව වාහනයක් එකතු කරන්න</span>
-          </button>
-        </div>
-
-        <!-- Vehicle Tiles Grid (Cards for vehicles) -->
-        <div id="vehicle-tiles-container" class="vehicle-tiles-grid">
-          <!-- Populated dynamically via JS -->
-        </div>
-
-      </div>
-
-      <!-- Main Vehicle Inputs Grid -->
-      <div class="calculator-grid veh-calc-grid" style="grid-template-columns: 1fr 1fr 380px;">
-        
-        <!-- Column 1: Variable & Vehicle Specific Fees (Red Values in Excel) -->
-        <div class="glass-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 class="card-title" style="font-size: 1.05rem; margin-bottom: 0; color: var(--accent-rose);">
-              <i class="fa-solid fa-pen-to-square"></i>
-              <span data-i18n="headerVariableFees">වාහන තොරතුරු &amp; වෙනස්වන ගාස්තු</span>
+            <h3 class="card-title" style="font-size: 1rem; color: var(--accent-amber); margin-bottom: 14px;">
+              <i class="fa-solid fa-user-tag"></i>
+              <span>1. සාමාජික &amp; ණය විස්තර</span>
             </h3>
-            <span class="badge-tag" style="background: rgba(244,63,94,0.12); color: var(--accent-rose); border: 1px solid rgba(244,63,94,0.25);">Variable</span>
-          </div>
 
-          <!-- Vehicle Price -->
-          <div class="input-group">
-            <label for="veh-price" class="input-label" data-i18n="lblVehPrice">වාහනයේ මිල (Vehicle Price)</label>
-            <div class="input-wrapper" style="margin-top: 6px;">
-              <span class="input-prefix">Rs.</span>
-              <input type="number" id="veh-price" class="input-field has-prefix veh-input" value="789950" step="1000">
+            <div class="input-group">
+              <label for="veh-loan-type" class="input-label">ණය වර්ගය (Loan Scheme)</label>
+              <select id="veh-loan-type" class="input-field veh-input" style="font-weight: 700;">
+                <option value="ස්වශක්ති ණය 01" selected>ස්වශක්ති ණය 01 (Swashakthi 01)</option>
+                <option value="ස්වශක්ති ණය 02">ස්වශක්ති ණය 02 (Swashakthi 02)</option>
+              </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px;">
+              <div class="input-group">
+                <label for="veh-member-id" class="input-label">සාමාජික අංකය <span style="color: var(--accent-rose);">*</span></label>
+                <input type="text" id="veh-member-id" class="input-field veh-input" placeholder="">
+              </div>
+              <div class="input-group">
+                <label for="veh-member-name" class="input-label">සාමාජිකයාගේ නම <span style="color: var(--accent-rose);">*</span></label>
+                <input type="text" id="veh-member-name" class="input-field veh-input" placeholder="">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="input-group">
+                <label for="veh-g1-account" class="input-label">ඇපකරු 1 A/C</label>
+                <input type="text" id="veh-g1-account" class="input-field veh-input" placeholder="">
+              </div>
+              <div class="input-group">
+                <label for="veh-g2-account" class="input-label">ඇපකරු 2 A/C</label>
+                <input type="text" id="veh-g2-account" class="input-field veh-input" placeholder="">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="input-group">
+                <label for="veh-loan-period" class="input-label">කාලය (මාස)</label>
+                <input type="number" id="veh-loan-period" class="input-field veh-input" value="24" min="1">
+              </div>
+              <div class="input-group">
+                <label for="veh-loan-rate" class="input-label">පොලී අනුපාතය (%)</label>
+                <input type="number" id="veh-loan-rate" class="input-field veh-input" value="18" step="0.1" min="0">
+              </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-light); margin: 14px 0;">
+
+            <h3 class="card-title" style="font-size: 1rem; color: var(--accent-rose); margin-bottom: 14px;">
+              <i class="fa-solid fa-motorcycle"></i>
+              <span>2. වාහන තොරතුරු &amp; ගාස්තු</span>
+            </h3>
+
+            <div class="input-group">
+              <label for="veh-price" class="input-label">වාහනයේ මිල (Vehicle Price)</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">Rs.</span>
+                <input type="number" id="veh-price" class="input-field has-prefix veh-input" value="789950" step="1000">
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="veh-reg-fee" class="input-label">වාහන ලියාපදිංචි ගාස්තු (Reg Fee)</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">Rs.</span>
+                <input type="number" id="veh-reg-fee" class="input-field has-prefix veh-input" value="15000" step="250">
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="veh-insurance-fee" class="input-label">වාහන රක්ෂණ ගාස්තු (Vehicle Insurance)</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">Rs.</span>
+                <input type="number" id="veh-insurance-fee" class="input-field has-prefix veh-input" value="21423" step="500">
+              </div>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 0;">
+              <label for="veh-down-payment" class="input-label">වාහනයේ මූලික ගෙවීම (Down Payment)</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">Rs.</span>
+                <input type="number" id="veh-down-payment" class="input-field has-prefix veh-input" value="350000" step="5000">
+              </div>
             </div>
           </div>
 
-          <!-- Vehicle Registration Fee -->
-          <div class="input-group">
-            <label for="veh-reg-fee" class="input-label" data-i18n="lblRegFee">වාහන ලියාපදිංචි ගාස්තු (Reg Fee)</label>
-            <div class="input-wrapper" style="margin-top: 6px;">
-              <span class="input-prefix">Rs.</span>
-              <input type="number" id="veh-reg-fee" class="input-field has-prefix veh-input" value="15000" step="250">
-            </div>
-          </div>
-
-          <!-- Vehicle Insurance Fee -->
-          <div class="input-group">
-            <label for="veh-insurance-fee" class="input-label" data-i18n="lblVehInsurance">වාහන රක්ෂණ ගාස්තු (Vehicle Insurance)</label>
-            <div class="input-wrapper" style="margin-top: 6px;">
-              <span class="input-prefix">Rs.</span>
-              <input type="number" id="veh-insurance-fee" class="input-field has-prefix veh-input" value="21423" step="500">
-            </div>
-          </div>
-
-          <!-- Down Payment -->
-          <div class="input-group" style="margin-bottom: 0;">
-            <label for="veh-down-payment" class="input-label" data-i18n="lblDownPayment">වාහනයේ මූලික ගෙවීම (Down Payment)</label>
-            <div class="input-wrapper" style="margin-top: 6px;">
-              <span class="input-prefix">Rs.</span>
-              <input type="number" id="veh-down-payment" class="input-field has-prefix veh-input" value="350000" step="5000">
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Column 2: Standard Administrative & Fund Fees -->
-        <div class="glass-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 class="card-title" style="font-size: 1.05rem; margin-bottom: 0; color: var(--accent-blue);">
+          <div class="glass-card">
+            <h3 class="card-title" style="font-size: 1rem; color: var(--accent-blue); margin-bottom: 16px;">
               <i class="fa-solid fa-list-check"></i>
-              <span data-i18n="headerFixedFees">පරිපාලන &amp; අරමුදල් ගාස්තු</span>
+              <span>පරිපාලන &amp; අරමුදල් ගාස්තු</span>
             </h3>
-            <span class="badge-tag" style="background: rgba(59,130,246,0.12); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.25);">Standard</span>
+
+            <div class="fee-inputs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="input-group">
+                <label for="fee-borrower-shares" class="input-label" style="font-size: 0.75rem;">ණයකරු කොටස්</label>
+                <input type="number" id="fee-borrower-shares" class="input-field veh-input" value="5000">
+              </div>
+
+              <div class="input-group">
+                <label for="fee-borrower-deposit" class="input-label" style="font-size: 0.75rem;">ණයකරු තැන්පතු</label>
+                <input type="number" id="fee-borrower-deposit" class="input-field veh-input" value="1500">
+              </div>
+
+              <div class="input-group">
+                <label for="fee-guarantor1-shares" class="input-label" style="font-size: 0.75rem;">ඇපකරු 1 කොටස්</label>
+                <input type="number" id="fee-guarantor1-shares" class="input-field veh-input" value="5000">
+              </div>
+
+              <div class="input-group">
+                <label for="fee-guarantor2-shares" class="input-label" style="font-size: 0.75rem;">ඇපකරු 2 කොටස්</label>
+                <input type="number" id="fee-guarantor2-shares" class="input-field veh-input" value="5000">
+              </div>
+
+              <div class="input-group">
+                <label for="fee-building-fund" class="input-label" style="font-size: 0.75rem;">ගොඩනැගිලි අරමුදල</label>
+                <input type="number" id="fee-building-fund" class="input-field veh-input" value="1000">
+              </div>
+
+              <div class="input-group">
+                <label for="fee-swashakthi-fund" class="input-label" style="font-size: 0.75rem;">සමිති දායකත්වය</label>
+                <input type="number" id="fee-swashakthi-fund" class="input-field veh-input" value="5000">
+              </div>
+
+              <div class="input-group">
+                <label for="fee-doc" class="input-label" style="font-size: 0.75rem;">ලිපි ගාස්තු</label>
+                <input type="number" id="fee-doc" class="input-field veh-input" value="350">
+              </div>
+
+              <div class="input-group">
+                <label for="fee-service-fund" class="input-label" style="font-size: 0.75rem;">සේවා අරමුදල</label>
+                <input type="number" id="fee-service-fund" class="input-field veh-input" value="1500">
+              </div>
+
+              <div class="input-group">
+                <label for="fee-loan-insurance" class="input-label" style="font-size: 0.75rem;">ණය රක්ෂණය</label>
+                <input type="number" id="fee-loan-insurance" class="input-field veh-input" value="300">
+              </div>
+            </div>
           </div>
 
-          <div class="fee-inputs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="input-group">
-              <label for="fee-borrower-shares" class="input-label" style="font-size: 0.8rem;" data-i18n="lblBorrowerShares">ණයකරු කොටස්</label>
-              <input type="number" id="fee-borrower-shares" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="5000">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-borrower-deposit" class="input-label" style="font-size: 0.8rem;" data-i18n="lblBorrowerDeposit">ණයකරු තැන්පතු</label>
-              <input type="number" id="fee-borrower-deposit" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="1500">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-guarantor1-shares" class="input-label" style="font-size: 0.8rem;" data-i18n="lblGuarantor1Shares">ඇපකරු 1 කොටස්</label>
-              <input type="number" id="fee-guarantor1-shares" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="5000">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-guarantor2-shares" class="input-label" style="font-size: 0.8rem;" data-i18n="lblGuarantor2Shares">ඇපකරු 2 කොටස්</label>
-              <input type="number" id="fee-guarantor2-shares" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="5000">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-building-fund" class="input-label" style="font-size: 0.8rem;" data-i18n="lblBuildingFund">ගොඩනැගිලි අරමුදල</label>
-              <input type="number" id="fee-building-fund" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="1000">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-swashakthi-fund" class="input-label" style="font-size: 0.8rem;" data-i18n="lblSwashakthiFund">සමිති දායකත්වය</label>
-              <input type="number" id="fee-swashakthi-fund" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="5000">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-doc" class="input-label" style="font-size: 0.8rem;" data-i18n="lblDocFee">ලිපි ගාස්තු</label>
-              <input type="number" id="fee-doc" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="350">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-service-fund" class="input-label" style="font-size: 0.8rem;" data-i18n="lblServiceFund">සේවා අරමුදල</label>
-              <input type="number" id="fee-service-fund" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="1500">
-            </div>
-
-            <div class="input-group">
-              <label for="fee-loan-insurance" class="input-label" style="font-size: 0.8rem;" data-i18n="lblLoanInsurance">ණය රක්ෂණය</label>
-              <input type="number" id="fee-loan-insurance" class="input-field veh-input" style="font-size: 0.95rem; padding: 8px;" value="300">
-            </div>
-          </div>
-        </div>
-
-        <!-- Column 3: Live Results Summary Box -->
-        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-              <h3 class="card-title" style="font-size: 1.05rem; margin-bottom: 0; color: var(--accent-emerald);">
+          <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <h3 class="card-title" style="font-size: 1rem; color: var(--accent-emerald); margin-bottom: 16px;">
                 <i class="fa-solid fa-calculator"></i>
-                <span data-i18n="headerVehSummary">ගණනය කිරීමේ සාරාංශය</span>
+                <span>ගණනය කිරීමේ සාරාංශය</span>
               </h3>
-              <span class="badge-tag" style="background: rgba(16,185,129,0.12); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.25);">Realtime</span>
-            </div>
 
-            <div class="summary-cards-grid" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px;">
-              <div class="metric-card">
-                <span class="metric-title" data-i18n="lblTotalDocFees">ලිපි ලේඛන ගාස්තු එකතුව</span>
-                <div id="veh-metric-doc-fees" class="metric-value" style="font-size: 1.15rem; color: var(--accent-gold);">Rs. 59,573.00</div>
-              </div>
+              <div class="summary-cards-grid">
+                <div class="metric-card">
+                  <span class="metric-title">ලිපි ලේඛන ගාස්තු එකතුව</span>
+                  <div id="veh-metric-doc-fees" class="metric-value" style="color: var(--accent-amber);">Rs. 59,573.00</div>
+                </div>
 
-              <div class="metric-card">
-                <span class="metric-title" data-i18n="lblTotalVehCost">සම්පූර්ණ පිරිවැය (මිල + ගාස්තු)</span>
-                <div id="veh-metric-total-cost" class="metric-value" style="font-size: 1.15rem;">Rs. 849,523.00</div>
-              </div>
+                <div class="metric-card">
+                  <span class="metric-title">සම්පූර්ණ පිරිවැය (මිල + ගාස්තු)</span>
+                  <div id="veh-metric-total-cost" class="metric-value">Rs. 849,523.00</div>
+                </div>
 
-              <div class="metric-card">
-                <span class="metric-title" data-i18n="lblDownPaymentSummary">මූලික ගෙවීම (Down Payment)</span>
-                <div id="veh-metric-down-payment" class="metric-value" style="font-size: 1.15rem; color: var(--accent-rose);">Rs. 350,000.00</div>
-              </div>
+                <div class="metric-card">
+                  <span class="metric-title">මූලික ගෙවීම (Down Payment)</span>
+                  <div id="veh-metric-down-payment" class="metric-value" style="color: var(--accent-rose);">Rs. 350,000.00</div>
+                </div>
 
-              <div class="metric-card emerald-border" id="veh-metric-loan-card" style="background: rgba(16, 185, 129, 0.1);">
-                <span class="metric-title" style="color: var(--accent-emerald);" data-i18n="lblRequiredLoan">අවශ්‍ය ණය මුදල (Required Loan Amount)</span>
-                <div id="veh-metric-required-loan" class="metric-value" style="font-size: 1.6rem; color: var(--accent-emerald);">Rs. 499,523.00</div>
-                <div id="veh-downpayment-warning" style="display:none; font-size: 0.75rem; color: var(--accent-rose); font-weight: 600; margin-top: 4px; line-height: 1.3;">
-                  <i class="fa-solid fa-triangle-exclamation"></i> <span id="veh-downpayment-warning-text">මූලික ගෙවීම සම්පූර්ණ පිරිවැයට වඩා වැඩියි. කරුණාකර මූලික ගෙවීම අඩු කරන්න.</span>
+                <div class="metric-card emerald-border" style="background: var(--accent-emerald-light); border: 1.5px solid #86efac;">
+                  <span class="metric-title" style="color: var(--accent-emerald); font-weight: 800;">අවශ්‍ය ණය මුදල</span>
+                  <div id="veh-metric-required-loan" class="metric-value" style="font-size: 1.5rem; color: var(--accent-emerald); font-weight: 900;">Rs. 499,523.00</div>
                 </div>
               </div>
             </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+              <button id="btn-apply-veh-loan" class="btn-action btn-gold" style="width: 100%; justify-content: center; padding: 12px;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                <span>වාරික ගණකයට යොදන්න</span>
+              </button>
+              
+              <button id="btn-save-veh-loan-modal" class="btn-action btn-emerald" style="width: 100%; justify-content: center; padding: 12px;">
+                <i class="fa-solid fa-print"></i>
+                <span>සුරැක Print කරන්න</span>
+              </button>
+            </div>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <button id="btn-apply-veh-loan" class="btn-action btn-gold" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.95rem; font-weight: 700; gap: 10px;">
-              <i class="fa-solid fa-arrow-right-to-bracket"></i>
-              <span data-i18n="btnApplyLoan">මෙම ණය මුදල වාරික ගණකයට යොදන්න</span>
-            </button>
-            
-            <button id="btn-save-veh-loan-modal" class="btn-action btn-emerald" style="width: 100%; justify-content: center; padding: 13px; font-size: 0.95rem; font-weight: 700; gap: 10px;">
-              <i class="fa-solid fa-print"></i>
-              <span>සුරැක Print කරන්න (Save &amp; Print)</span>
-            </button>
+        </div>
 
-            <button id="btn-view-saved-veh-loans" class="btn-action" style="width: 100%; justify-content: center; padding: 10px; font-size: 0.85rem; font-weight: 600; gap: 8px; border: 1px solid var(--border-color); background: var(--bg-card);">
-              <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-gold);"></i>
-              <span>සුරකින ලද වාර්තා (Saved Records)</span>
-              <span id="saved-loans-count-badge" style="background: var(--accent-blue); color: #fff; border-radius: 12px; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; margin-left: 4px;">0</span>
-            </button>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- VIEW 3: Single Calculator Main Grid (Reducing / Flat Rates) -->
+      <!-- ============================================================ -->
+      <div id="single-calc-view" class="calculator-grid" style="display: none; grid-template-columns: 1.1fr 1.4fr; gap: 20px;">
+        
+        <div class="glass-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <i class="fa-solid fa-sliders"></i>
+              <span>ණය තොරතුරු ඇතුළත් කරන්න</span>
+            </h2>
+          </div>
+
+          <div class="input-group">
+            <label for="loan-amount" class="input-label">ණය මුදල (Loan Amount)</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">Rs.</span>
+              <input type="number" id="loan-amount" class="input-field has-prefix" value="400000" step="10000">
+            </div>
+            <input type="range" id="loan-amount-slider" class="range-slider" min="50000" max="10000000" step="25000" value="400000" style="width: 100%; margin-top: 8px;">
+          </div>
+
+          <div class="input-group">
+            <label for="interest-rate" class="input-label">වාර්ෂික පොලී අනුපාතය (%)</label>
+            <div class="input-wrapper">
+              <input type="number" id="interest-rate" class="input-field has-suffix" value="18" step="0.25">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="loan-tenure" class="input-label">ණය කාලසීමාව (මාස)</label>
+            <input type="number" id="loan-tenure" class="input-field" value="60" min="1" max="360">
+          </div>
+
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="insurance-rate" class="input-label">ණය රක්ෂණ අනුපාතය (%)</label>
+            <div class="input-wrapper">
+              <input type="number" id="insurance-rate" class="input-field has-suffix" value="0.06" step="0.01">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="summary-cards-grid" style="grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
+            <div class="metric-card gold-border">
+              <span class="metric-title">මාසික වාරිකය (Monthly Installment)</span>
+              <div id="metric-installment" class="metric-value">Rs. 0.00</div>
+              <span id="metric-installment-sub" style="font-size: 0.72rem; color: var(--text-muted);">--</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-title">මුළු පොලිය (Total Interest)</span>
+              <div id="metric-interest" class="metric-value">Rs. 0.00</div>
+            </div>
+
+            <div class="metric-card emerald-border">
+              <span class="metric-title">මුළු ණය රක්ෂණය</span>
+              <div id="metric-insurance" class="metric-value">Rs. 0.00</div>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-title">ගෙවිය යුතු මුළු මුදල</span>
+              <div id="metric-total-payable" class="metric-value" style="color: var(--primary);">Rs. 0.00</div>
+            </div>
+          </div>
+
+          <div class="charts-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="glass-card" style="margin-bottom: 0;">
+              <div style="height: 220px;">
+                <canvas id="chart-breakdown"></canvas>
+              </div>
+            </div>
+
+            <div class="glass-card" style="margin-bottom: 0;">
+              <div style="height: 220px;">
+                <canvas id="chart-trend"></canvas>
+              </div>
+            </div>
           </div>
         </div>
 
       </div>
 
-      <!-- In-Page Saved Vehicle Loan Records Table -->
-      <div id="saved-records-section" class="schedule-section" style="margin-top: 28px;">
-        <div class="section-header-row" style="flex-wrap: wrap; gap: 12px;">
-          <h2 class="card-title">
-            <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-gold);"></i>
-            <span>සුරකින ලද වාහන ණය වාර්තා (Saved Loan Records)</span>
-          </h2>
-
-          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <div class="input-wrapper" style="width: 280px;">
-              <input type="text" id="search-saved-loans" class="input-field" style="padding: 7px 12px; font-size: 0.85rem;" placeholder="සාමාජිකයා, වාහනය හෝ A/C සොයන්න...">
-            </div>
-            <button id="btn-clear-all-saved-loans" class="btn-action" style="color: var(--accent-rose); border-color: rgba(244,63,94,0.4); font-size: 0.82rem; gap: 6px; padding: 7px 12px;">
-              <i class="fa-solid fa-trash"></i>
-              <span>සියල්ල මකන්න</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
-          <table class="schedule-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-            <thead>
-              <tr style="position: sticky; top: 0; background: var(--bg-card); z-index: 10;">
-                <th style="text-align: left;">සාමාජිකයා</th>
-                <th style="text-align: left;">වාහනය</th>
-                <th>ඇපකරු 1 A/C</th>
-                <th>ඇපකරු 2 A/C</th>
-                <th>මිල</th>
-                <th>මූලික ගෙවීම</th>
-                <th>අවශ්‍ය ණය මුදල</th>
-                <th>දිනය</th>
-                <th style="text-align: center;">ක්‍රියා</th>
-              </tr>
-            </thead>
-            <tbody id="saved-loans-tbody">
-              <!-- Populated dynamically via JS -->
-            </tbody>
-          </table>
-        </div>
+      <!-- ============================================================ -->
+      <!-- VIEW 4: Comparison View Container -->
+      <!-- ============================================================ -->
+      <div id="compare-calc-view" class="comparison-grid" style="display: none; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <!-- Populated dynamically via script.js -->
       </div>
 
-    </div>
 
-    <!-- Modal 1: Save & Print Vehicle Loan Calculation (Member ID + Name) -->
-    <div id="modal-save-veh-loan" class="modal-backdrop" style="display: none;">
-      <div class="glass-card modal-content" style="max-width: 520px; width: 90%; margin: 50px auto;">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa-solid fa-print" style="color: var(--accent-emerald);"></i>
-            <span>වාහන ණය ගණනය කිරීම සුරැක මුද්‍රණය (Save &amp; Print)</span>
-          </h3>
-          <button id="btn-close-save-modal" class="btn-action" style="padding: 4px 10px;">&times;</button>
-        </div>
 
-        <form id="form-save-veh-loan">
-          <div style="background: var(--bg-card-muted, rgba(0,0,0,0.03)); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
-            <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">ගණනය කළ වාහනය සහ ණය මුදල:</div>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700;">
-              <span id="save-modal-veh-name" style="font-size: 1rem; color: var(--accent-gold);">–</span>
-              <span id="save-modal-req-loan" style="font-size: 1.1rem; color: var(--accent-emerald);">–</span>
+      <!-- ============================================================ -->
+      <!-- VIEW 6: Saved Loan Records Archive View -->
+      <!-- ============================================================ -->
+      <div id="records-calc-view" class="records-view-wrapper" style="display: none;">
+        
+        <div class="glass-card" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <h2 class="card-title">
+                <i class="fa-solid fa-folder-tree" style="color: var(--accent-blue);"></i>
+                <span>සුරකින ලද ණය ලේඛනාගාරය (Saved Loan Records Archive)</span>
+              </h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">
+                පද්ධතියේ සකස් කළ සියලුම ණය වාර්තා, කුවිතාන්සි මුද්‍රණය, ගණකයට නැවත ඇතුළත් කිරීම සහ දත්ත අපනයනය.
+              </p>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <button id="btn-export-all-loans-csv" class="btn-action btn-emerald">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>Excel / CSV අපනයනය</span>
+              </button>
+              <button id="btn-clear-archive" class="btn-action" style="color: var(--accent-rose);">
+                <i class="fa-solid fa-trash"></i>
+                <span>සියල්ල මකන්න</span>
+              </button>
             </div>
           </div>
 
-          <div class="input-group">
-            <label class="input-label" style="font-weight: 700;">සාමාජික අංකය (Member No.) <span style="color: var(--accent-rose);">*</span></label>
-            <input type="text" id="save-member-id" class="input-field" required>
-          </div>
-
-          <div class="input-group">
-            <label class="input-label" style="font-weight: 700;">සාමාජිකයාගේ නම (Member Name) <span style="color: var(--accent-rose);">*</span></label>
-            <input type="text" id="save-member-name" class="input-field" required>
-          </div>
-
-          <div class="input-group">
-            <label class="input-label" style="font-size: 0.82rem; font-weight: 600;">ස්වශක්ති ණය වර්ගය (Loan Type)</label>
-            <select id="save-loan-type" class="input-field" style="padding: 8px;">
-              <option value="ස්වශක්ති ණය 01" selected>ස්වශක්ති ණය 01</option>
-              <option value="ස්වශක්ති ණය 02">ස්වශක්ති ණය 02</option>
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; margin-top: 14px;">
+            <div class="topbar-search-wrap">
+              <i class="fa-solid fa-magnifying-glass topbar-search-icon"></i>
+              <input type="text" id="archive-search-input" class="topbar-search-input" placeholder="සාමාජික අංකය, නම, ණය වර්ගය හෝ ඇපකරු සොයන්න...">
+            </div>
+            <select id="archive-filter-scheme" class="input-field">
+              <option value="all">සියලුම ණය වර්ග (All Schemes)</option>
+            </select>
+            <select id="archive-sort-by" class="input-field">
+              <option value="newest">අලුත්ම වාර්තා පළමුව</option>
+              <option value="oldest">පැරණිම වාර්තා පළමුව</option>
+              <option value="amount-high">මුදල වැඩි සිට අඩු</option>
             </select>
           </div>
+        </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="input-group">
-              <label class="input-label" style="font-size: 0.82rem; font-weight: 600;">ඇපකරු 1 ගිණුම් අංකය (Guarantor 1 A/C)</label>
-              <input type="text" id="save-g1-account" class="input-field">
-            </div>
-            <div class="input-group">
-              <label class="input-label" style="font-size: 0.82rem; font-weight: 600;">ඇපකරු 2 ගිණුම් අංකය (Guarantor 2 A/C)</label>
-              <input type="text" id="save-g2-account" class="input-field">
-            </div>
+        <div class="glass-card">
+          <div class="table-responsive" style="max-height: 560px; overflow-y: auto;">
+            <table class="schedule-table">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">සාමාජිකයා</th>
+                  <th style="text-align: left;">ණය වර්ගය</th>
+                  <th>අනුමත මුදල</th>
+                  <th>අඩුකිරීම්</th>
+                  <th>ශුද්ධ මුදල</th>
+                  <th>වාරිකය</th>
+                  <th>කාලය</th>
+                  <th>දිනය</th>
+                  <th style="text-align: center;">ක්‍රියා</th>
+                </tr>
+              </thead>
+              <tbody id="archive-loans-tbody">
+                <!-- Populated dynamically via JS -->
+              </tbody>
+            </table>
           </div>
+        </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="input-group">
-              <label class="input-label" style="font-size: 0.82rem; font-weight: 600;">කාලය (මාස / Months)</label>
-              <input type="number" id="save-loan-period" class="input-field" value="24">
-            </div>
-            <div class="input-group">
-              <label class="input-label" style="font-size: 0.82rem; font-weight: 600;">පොලී අනුපාතය (% Rate)</label>
-              <input type="number" id="save-loan-rate" class="input-field" step="0.1" value="18">
-            </div>
-          </div>
+      </div>
 
-          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;">
-            <button type="button" id="btn-cancel-save-modal" class="btn-action">අවලංගු කරන්න</button>
-            <button type="submit" id="btn-submit-save-and-print" class="btn-action btn-emerald" style="padding: 10px 22px; font-weight: 700;">
-              <i class="fa-solid fa-print"></i>
-              <span>සුරැක Print කරන්න (Save &amp; Print)</span>
+      <!-- ============================================================ -->
+      <!-- Repayment Schedule Section (Amortization Table) -->
+      <!-- ============================================================ -->
+      <div class="schedule-section glass-card" id="repayment-schedule-section" style="display: none; margin-top: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+          <h2 class="card-title">
+            <i class="fa-solid fa-calendar-days" style="color: var(--accent-amber);"></i>
+            <span>මාසික ගෙවීම් කාලසටහන (Repayment Schedule)</span>
+          </h2>
+
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="search-month" class="input-field" style="width: 140px; padding: 6px 10px;" placeholder="මාසය...">
+            <select id="rows-per-page" class="input-field" style="width: 110px; padding: 6px 10px;">
+              <option value="12">12 / page</option>
+              <option value="24">24 / page</option>
+              <option value="0">All Rows</option>
+            </select>
+            <button id="btn-export-csv" class="btn-action btn-emerald" style="padding: 6px 12px; font-size: 0.8rem;">
+              <i class="fa-solid fa-file-csv"></i> CSV
+            </button>
+            <button id="btn-print" class="btn-action" style="padding: 6px 12px; font-size: 0.8rem;">
+              <i class="fa-solid fa-print"></i> මුද්‍රණය
             </button>
           </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Modal 2: View Saved Vehicle Loan Records List -->
-    <div id="modal-saved-veh-loans-list" class="modal-backdrop" style="display: none;">
-      <div class="glass-card modal-content" style="max-width: 850px; width: 95%; margin: 40px auto; max-height: 85vh; display: flex; flex-direction: column;">
-        <div class="card-header" style="flex-shrink: 0;">
-          <h3 class="card-title">
-            <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-gold);"></i>
-            <span>සුරකින ලද වාහන ණය ගණනය කිරීම් (Saved Loan Records)</span>
-          </h3>
-          <button id="btn-close-saved-list-modal" class="btn-action" style="padding: 4px 10px;">&times;</button>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; flex-shrink: 0;">
-          <div class="input-wrapper" style="flex: 1; min-width: 220px;">
-            <input type="text" id="search-saved-loans" class="input-field" placeholder="සාමාජික අංකය, නම හෝ වාහනය සොයන්න...">
-          </div>
-          <button id="btn-clear-all-saved-loans" class="btn-action" style="color: var(--accent-rose); border-color: rgba(244,63,94,0.4); font-size: 0.8rem; gap: 6px;">
-            <i class="fa-solid fa-trash"></i>
-            <span>සියල්ල මකන්න</span>
-          </button>
-        </div>
-
-        <div style="flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
-          <table class="schedule-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+        <div class="table-responsive">
+          <table id="schedule-table" class="schedule-table">
             <thead>
-              <tr style="position: sticky; top: 0; background: var(--bg-card); z-index: 10;">
-                <th style="text-align: left;">සාමාජිකයා</th>
-                <th style="text-align: left;">වාහනය</th>
-                <th>මිල</th>
-                <th>මූලික ගෙවීම</th>
-                <th>අවශ්‍ය ණය මුදල</th>
+              <tr>
+                <th>මාසය</th>
                 <th>දිනය</th>
-                <th style="text-align: center;">ක්‍රියා</th>
+                <th>ආරම්භක ශේෂය</th>
+                <th>මුල මුදල</th>
+                <th>පොලිය</th>
+                <th>ණය රක්ෂණය</th>
+                <th>මාසික වාරිකය</th>
+                <th>අවසාන ශේෂය</th>
               </tr>
             </thead>
-            <tbody id="saved-loans-tbody">
-              <!-- Populated dynamically via JS -->
-            </tbody>
+            <tbody id="schedule-tbody"></tbody>
+            <tfoot id="schedule-tfoot"></tfoot>
           </table>
         </div>
       </div>
-    </div>
 
-    <!-- Add / Edit Vehicle Modal -->
-    <div id="modal-add-vehicle" class="modal-backdrop" style="display: none;">
-      <div class="glass-card modal-content" style="max-width: 500px; width: 90%; margin: 60px auto;">
-        <div class="card-header">
-          <h3 class="card-title" id="modal-title">
-            <i class="fa-solid fa-motorcycle" style="color: var(--accent-gold);"></i>
-            <span id="modal-title-text">නව වාහනයක් ඇතුළත් කරන්න</span>
-          </h3>
-          <button id="btn-close-modal" class="btn-action" style="padding: 4px 10px;">&times;</button>
+      <!-- ============================================================ -->
+      <!-- MODALS SECTION -->
+      <!-- ============================================================ -->
+
+      <!-- Modal 1: Add / Edit Loan Scheme Modal -->
+      <div id="modal-add-scheme" class="modal-backdrop" style="display: none;">
+        <div class="modal-content glass-card">
+          <div class="card-header">
+            <h3 class="card-title" id="scheme-modal-title">
+              <i class="fa-solid fa-layer-group" style="color: var(--accent-amber);"></i>
+              <span>නව ණය වර්ගයක් ඇතුළත් කරන්න</span>
+            </h3>
+            <button id="btn-close-scheme-modal" class="btn-action" style="padding: 4px 8px;">&times;</button>
+          </div>
+
+          <input type="hidden" id="m-scheme-edit-id" value="">
+
+          <form id="form-add-scheme">
+            <div class="input-group">
+              <label class="input-label">ණය වර්ගයේ නම (Scheme Name) <span style="color: var(--accent-rose);">*</span></label>
+              <input type="text" id="m-scheme-name" class="input-field" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="input-group">
+                <label class="input-label">පෙරනිමි පොලිය (%)</label>
+                <input type="number" id="m-scheme-rate" class="input-field" step="0.1" value="18" required>
+              </div>
+              <div class="input-group">
+                <label class="input-label">පෙරනිමි කාලය (මාස)</label>
+                <input type="number" id="m-scheme-period" class="input-field" value="24" required>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">ගණනය කිරීමේ පදනම</label>
+              <select id="m-scheme-method" class="input-field">
+                <option value="reducing" selected>හීනවෙන ක්‍රමය (Reducing Balance)</option>
+                <option value="flat">සමාන වාරික ක්‍රමය (Flat Rate)</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">කාණ්ඩය (Category / Notes)</label>
+              <input type="text" id="m-scheme-category" class="input-field">
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px;">
+              <button type="button" id="btn-cancel-scheme-modal" class="btn-action">අවලංගු කරන්න</button>
+              <button type="submit" id="btn-submit-scheme" class="btn-action btn-gold">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span id="btn-save-scheme-label">සුරකින්න</span>
+              </button>
+            </div>
+          </form>
         </div>
+      </div>
 
-        <!-- Hidden field to track which vehicle is being edited (empty = new) -->
-        <input type="hidden" id="m-veh-edit-id" value="">
 
-        <form id="form-add-vehicle">
-          <!-- Vehicle Type Selector Chips -->
-          <div class="input-group">
-            <label class="input-label" style="font-weight: 700; margin-bottom: 6px;">වාහන වර්ගය (Vehicle Type)</label>
-            <div class="veh-type-selector" id="modal-veh-type-selector">
-              <label class="veh-type-chip active" data-type="bike">
-                <input type="radio" name="veh-type" value="bike" checked style="display: none;">
-                <i class="fa-solid fa-motorcycle"></i>
-                <span>බයික්</span>
-              </label>
-              <label class="veh-type-chip" data-type="threewheel">
-                <input type="radio" name="veh-type" value="threewheel" style="display: none;">
-                <svg class="tuktuk-svg" viewBox="0 0 100 100" width="1.25em" height="1.25em" fill="currentColor">
-                  <path d="M43 14h14a2 2 0 0 1 2 2v3H41v-3a2 2 0 0 1 2-2z"/>
-                  <path d="M26 39c-6-1-9-6-11-10" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
-                  <circle cx="14" cy="27" r="4.5"/>
-                  <path d="M74 39c6-1 9-6 11-10" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
-                  <circle cx="86" cy="27" r="4.5"/>
-                  <rect x="25" y="74" width="7" height="12" rx="3.5"/>
-                  <rect x="68" y="74" width="7" height="12" rx="3.5"/>
-                  <rect x="46" y="74" width="8" height="17" rx="4"/>
-                  <path fill-rule="evenodd" d="M33 18.5c-6.5.8-9 4.5-9.5 9.5L21.5 50h-1c-2 0-3.5 1.5-3.5 3.5v20c0 1.8 1.4 3.2 3.2 3.2H31c1.8 0 3.2-1.4 3.2-3.2v-9.5h31.6v9.5c0 1.8 1.4 3.2 3.2 3.2h10.8c1.8 0 3.2-1.4 3.2-3.2v-20c0-2-1.5-3.5-3.5-3.5h-1L76.5 28c-.5-5-3-8.7-9.5-9.5-6-.8-28-.8-34 0zm-4.5 8c0-1.8 1.4-3 3-3h37c1.6 0 3 1.2 3 3l-1.2 17.5c0 1.8-1.4 3-3 3H31.7c-1.6 0-3-1.2-3-3L28.5 26.5zm-2 26.5h7.5a1.5 1.5 0 0 1 1.5 1.5v.5a1.5 1.5 0 0 1-1.5 1.5h-7.5a1.5 1.5 0 0 1-1.5-1.5v-.5a1.5 1.5 0 0 1 1.5-1.5zm39 0h7.5a1.5 1.5 0 0 1 1.5 1.5v.5a1.5 1.5 0 0 1-1.5 1.5H65.5a1.5 1.5 0 0 1-1.5-1.5v-.5a1.5 1.5 0 0 1 1.5-1.5zm-15.5 8a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/>
-                </svg>
-                <span>ත්‍රීවීල්</span>
-              </label>
-              <label class="veh-type-chip" data-type="car">
-                <input type="radio" name="veh-type" value="car" style="display: none;">
-                <i class="fa-solid fa-car"></i>
-                <span>කාර්</span>
-              </label>
-              <label class="veh-type-chip" data-type="van">
-                <input type="radio" name="veh-type" value="van" style="display: none;">
-                <i class="fa-solid fa-car-side"></i>
-                <span>වෑන්</span>
-              </label>
-              <label class="veh-type-chip" data-type="bus">
-                <input type="radio" name="veh-type" value="bus" style="display: none;">
-                <i class="fa-solid fa-bus"></i>
-                <span>බස්</span>
-              </label>
-              <label class="veh-type-chip" data-type="lorry">
-                <input type="radio" name="veh-type" value="lorry" style="display: none;">
-                <i class="fa-solid fa-truck"></i>
-                <span>ලොරි</span>
-              </label>
-              <label class="veh-type-chip" data-type="other">
-                <input type="radio" name="veh-type" value="other" style="display: none;">
-                <i class="fa-solid fa-circle-question"></i>
-                <span>වෙනත්</span>
-              </label>
+
+      <!-- Modal 3: Add / Edit Vehicle Modal (Preserved) -->
+      <div id="modal-add-vehicle" class="modal-backdrop" style="display: none;">
+        <div class="modal-content glass-card" style="max-width: 480px;">
+          <div class="card-header">
+            <h3 class="card-title" id="modal-title">
+              <i class="fa-solid fa-motorcycle" style="color: var(--accent-amber);"></i>
+              <span id="modal-title-text">නව වාහනයක්</span>
+            </h3>
+            <button id="btn-close-modal" class="btn-action" style="padding: 4px 8px;">&times;</button>
+          </div>
+
+          <input type="hidden" id="m-veh-edit-id" value="">
+          <input type="hidden" id="m-veh-type" value="bike">
+
+          <form id="form-add-vehicle">
+
+            <!-- Vehicle Type Icon Picker -->
+            <div class="input-group" style="margin-bottom: 14px;">
+              <label class="input-label" style="margin-bottom: 8px;">වාහන වර්ගය (Vehicle Type)</label>
+              <div id="veh-type-picker" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(68px, 1fr)); gap: 8px;">
+                <button type="button" class="veh-type-btn selected" data-type="bike" data-icon="fa-motorcycle" title="Bike / Motorcycle"
+                  style="padding:10px 4px; border-radius:12px; border:2px solid var(--accent-amber); background:var(--accent-amber); color:#fff; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; font-size:11px; font-weight:600; transition:all .2s;">
+                  <i class="fa-solid fa-motorcycle" style="font-size:18px;"></i><span>Bike</span>
+                </button>
+                <button type="button" class="veh-type-btn" data-type="threewheel" data-icon="fa-truck-pickup" title="Three Wheeler"
+                  style="padding:10px 4px; border-radius:12px; border:2px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; font-size:11px; font-weight:600; transition:all .2s;">
+                  <i class="fa-solid fa-truck-pickup" style="font-size:18px;"></i><span>3-Wheel</span>
+                </button>
+                <button type="button" class="veh-type-btn" data-type="car" data-icon="fa-car" title="Car"
+                  style="padding:10px 4px; border-radius:12px; border:2px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; font-size:11px; font-weight:600; transition:all .2s;">
+                  <i class="fa-solid fa-car" style="font-size:18px;"></i><span>Car</span>
+                </button>
+                <button type="button" class="veh-type-btn" data-type="van" data-icon="fa-van-shuttle" title="Van"
+                  style="padding:10px 4px; border-radius:12px; border:2px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; font-size:11px; font-weight:600; transition:all .2s;">
+                  <i class="fa-solid fa-van-shuttle" style="font-size:18px;"></i><span>Van</span>
+                </button>
+                <button type="button" class="veh-type-btn" data-type="bus" data-icon="fa-bus" title="Bus"
+                  style="padding:10px 4px; border-radius:12px; border:2px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; font-size:11px; font-weight:600; transition:all .2s;">
+                  <i class="fa-solid fa-bus" style="font-size:18px;"></i><span>Bus</span>
+                </button>
+                <button type="button" class="veh-type-btn" data-type="lorry" data-icon="fa-truck" title="Lorry / Truck"
+                  style="padding:10px 4px; border-radius:12px; border:2px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; font-size:11px; font-weight:600; transition:all .2s;">
+                  <i class="fa-solid fa-truck" style="font-size:18px;"></i><span>Lorry</span>
+                </button>
+                <button type="button" class="veh-type-btn" data-type="other" data-icon="fa-shapes" title="Other"
+                  style="padding:10px 4px; border-radius:12px; border:2px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; font-size:11px; font-weight:600; transition:all .2s;">
+                  <i class="fa-solid fa-shapes" style="font-size:18px;"></i><span>Other</span>
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div class="input-group">
-            <label class="input-label">වාහනයේ නම / මාදිලිය</label>
-            <input type="text" id="m-veh-name" class="input-field" required>
-          </div>
-
-          <div class="input-group">
-            <label class="input-label">වාහනයේ මිල (Vehicle Price) - Rs.</label>
-            <input type="number" id="m-veh-price" class="input-field" required>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="input-group">
-              <label class="input-label" style="font-size: 0.82rem;">ලියාපදිංචි ගාස්තු (Reg Fee)</label>
-              <input type="number" id="m-veh-reg" class="input-field" value="15000">
+              <label class="input-label">වාහනයේ නම / මාදිලිය</label>
+              <input type="text" id="m-veh-name" class="input-field" required>
             </div>
+
             <div class="input-group">
-              <label class="input-label" style="font-size: 0.82rem;">වාහන රක්ෂණ ගාස්තු (Insurance)</label>
-              <input type="number" id="m-veh-insurance" class="input-field" value="18000">
+              <label class="input-label">වාහනයේ මිල - Rs.</label>
+              <input type="number" id="m-veh-price" class="input-field" required>
             </div>
-          </div>
 
-          <div class="input-group">
-            <label class="input-label">මූලික ගෙවීම (Down Payment) - Rs.</label>
-            <input type="number" id="m-veh-down" class="input-field" value="200000">
-          </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="input-group">
+                <label class="input-label">ලියාපදිංචි ගාස්තු</label>
+                <input type="number" id="m-veh-reg" class="input-field" value="15000">
+              </div>
+              <div class="input-group">
+                <label class="input-label">වාහන රක්ෂණය</label>
+                <input type="number" id="m-veh-insurance" class="input-field" value="18000">
+              </div>
+            </div>
 
-          <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap;">
-            <!-- Delete button (shown only in edit mode) -->
-            <button type="button" id="btn-delete-vehicle" class="btn-action" style="color: var(--accent-rose); border-color: rgba(244,63,94,0.4); background: rgba(244,63,94,0.08); display: none;">
-              <i class="fa-solid fa-trash-can"></i>
-              <span>මකන්න</span>
-            </button>
-            <div style="display: flex; gap: 10px; margin-left: auto;">
+            <div class="input-group">
+              <label class="input-label">මූලික ගෙවීම (Down Payment)</label>
+              <input type="number" id="m-veh-down" class="input-field" value="200000">
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 18px;">
+              <button type="button" id="btn-delete-vehicle" class="btn-action" style="display: none; color: var(--accent-rose); border-color: rgba(239, 68, 68, 0.35); margin-right: auto;" title="මෙම වාහනය පද්ධතියෙන් ඉවත් කරන්න">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>මකන්න (Delete)</span>
+              </button>
               <button type="button" id="btn-cancel-modal" class="btn-action">අවලංගු කරන්න</button>
               <button type="submit" id="btn-save-vehicle" class="btn-action btn-gold">
                 <i class="fa-solid fa-floppy-disk"></i>
                 <span id="btn-save-label">සුරකින්න</span>
               </button>
             </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Modal: Customer Service & Support (පද්ධති සේවා සහ සහාය) -->
-    <div id="modal-customer-service" class="modal-backdrop modal-overlay" style="display: none;">
-      <div class="glass-card modal-support-card">
-        
-        <!-- Modal Header -->
-        <div class="support-modal-header">
-          <div class="support-header-left">
-            <h2 class="support-main-title">පද්ධති සේවා සහ සහාය</h2>
-            <p class="support-sub-title">System Services &amp; Customer Care Support — Iraasoft Solution</p>
-          </div>
-          <div class="support-header-right">
-            <div class="support-status-badge">
-              <span class="status-pulse-dot"></span>
-              <span>SUPPORT DESK ONLINE</span>
-            </div>
-            <button type="button" id="btn-close-support-modal" class="btn-modal-close" title="වසන්න (Close)">&times;</button>
-          </div>
-        </div>
-
-        <!-- System Engine OS Banner (Enterprise Runtime) -->
-        <div class="system-engine-banner">
-          <div class="engine-watermark-icon">
-            <svg viewBox="0 0 100 100" fill="currentColor" width="95" height="95">
-              <rect x="22" y="22" width="56" height="56" rx="14" fill="none" stroke="currentColor" stroke-width="6"/>
-              <rect x="36" y="36" width="28" height="28" rx="6" fill="currentColor"/>
-              <line x1="32" y1="8" x2="32" y2="22" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="50" y1="8" x2="50" y2="22" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="68" y1="8" x2="68" y2="22" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="32" y1="78" x2="32" y2="92" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="50" y1="78" x2="50" y2="92" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="68" y1="78" x2="68" y2="92" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="8" y1="32" x2="22" y2="32" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="8" y1="50" x2="22" y2="50" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="8" y1="68" x2="22" y2="68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="78" y1="32" x2="92" y2="32" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="78" y1="50" x2="92" y2="50" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-              <line x1="78" y1="68" x2="92" y2="68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-            </svg>
-          </div>
-          
-          <div class="engine-content-wrap">
-            <span class="engine-sub-tag">SYSTEM ENGINE</span>
-            <h3 class="engine-title">IRAASOFT <span class="engine-os-accent">OS</span></h3>
-            <div class="engine-pill-badge">
-              <span class="engine-pulse-dot"></span>
-              <span class="engine-version-lbl">ENTERPRISE V2.1</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Quick Metrics Cards -->
-        <div class="support-metrics-grid">
-          <div class="support-metric-card">
-            <div class="support-metric-icon icon-purple">
-              <i class="fa-solid fa-phone-volume"></i>
-            </div>
-            <div class="support-metric-content">
-              <span class="support-metric-label">HOTLINE SUPPORT</span>
-              <span class="support-metric-val">+94 75 289 5951</span>
-            </div>
-          </div>
-
-          <div class="support-metric-card">
-            <div class="support-metric-icon icon-blue">
-              <i class="fa-regular fa-clock"></i>
-            </div>
-            <div class="support-metric-content">
-              <span class="support-metric-label">SERVICE AVAILABILITY</span>
-              <span class="support-metric-val">8:00 AM – 10:00 PM (Daily)</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Main 2-Column Content Grid -->
-        <div class="support-body-grid">
-          
-          <!-- Column 1: Contact Channels -->
-          <div class="support-channels-col">
-            <div class="support-section-heading">
-              <i class="fa-solid fa-shuffle" style="color: var(--accent-purple);"></i>
-              <span class="heading-si">සම්බන්ධීකරණ විස්තර</span>
-              <span class="heading-en">CONTACT CHANNELS</span>
-            </div>
-
-            <div class="support-channel-list">
-              <!-- Channel 1: Phone -->
-              <div class="support-channel-item" id="channel-phone" title="ක්ලික් කර දුරකථන අංකය Copy කරගන්න">
-                <div class="channel-icon icon-purple">
-                  <i class="fa-solid fa-phone"></i>
-                </div>
-                <div class="channel-info">
-                  <span class="channel-label">PHONE CALL</span>
-                  <strong class="channel-val">+94 75 289 5951</strong>
-                  <span class="channel-desc">Direct voice call support</span>
-                </div>
-                <button type="button" class="btn-channel-copy" title="Copy Number" aria-label="Copy phone number">
-                  <i class="fa-regular fa-copy"></i>
-                </button>
-              </div>
-
-              <!-- Channel 2: WhatsApp -->
-              <a href="https://wa.me/94752895951" target="_blank" rel="noopener noreferrer" class="support-channel-item" title="WhatsApp ඔස්සේ සම්බන්ධ වන්න">
-                <div class="channel-icon icon-green">
-                  <i class="fa-brands fa-whatsapp"></i>
-                </div>
-                <div class="channel-info">
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    <span class="channel-label">WHATSAPP</span>
-                    <span class="badge-recommended">Recommended</span>
-                  </div>
-                  <strong class="channel-val">+94 75 289 5951</strong>
-                  <span class="channel-desc">Instant messaging &amp; screen sharing</span>
-                </div>
-                <i class="fa-solid fa-arrow-up-right-from-square channel-arrow"></i>
-              </a>
-
-              <!-- Channel 3: Telegram -->
-              <a href="https://t.me/INDUNILRATHNAYAKA" target="_blank" rel="noopener noreferrer" class="support-channel-item" title="Telegram ඔස්සේ සම්බන්ධ වන්න">
-                <div class="channel-icon icon-sky">
-                  <i class="fa-brands fa-telegram"></i>
-                </div>
-                <div class="channel-info">
-                  <span class="channel-label">TELEGRAM</span>
-                  <strong class="channel-val">@INDUNILRATHNAYAKA</strong>
-                  <span class="channel-desc">Direct developer telegram handle</span>
-                </div>
-                <i class="fa-solid fa-arrow-right channel-arrow"></i>
-              </a>
-
-              <!-- Channel 4: Email -->
-              <a href="mailto:iraafxtrading@gmail.com" class="support-channel-item" title="Email පණිවිඩයක් එවන්න">
-                <div class="channel-icon icon-rose">
-                  <i class="fa-regular fa-envelope"></i>
-                </div>
-                <div class="channel-info">
-                  <span class="channel-label">EMAIL ADDRESS</span>
-                  <strong class="channel-val">iraafxtrading@gmail.com</strong>
-                  <span class="channel-desc">Official support mail channel</span>
-                </div>
-                <i class="fa-solid fa-arrow-right channel-arrow"></i>
-              </a>
-            </div>
-          </div>
-
-          <!-- Column 2: Service Developer & Quick Action -->
-          <div class="support-developer-col">
-            <div class="support-section-heading">
-              <i class="fa-solid fa-code" style="color: var(--accent-purple);"></i>
-              <span class="heading-si">පද්ධති සේවා සපයන්නා</span>
-              <span class="heading-en">SERVICE DEVELOPER</span>
-            </div>
-
-            <!-- Developer Banner Card -->
-            <div class="dev-banner-card">
-              <div class="dev-banner-top">
-                <div class="dev-avatar">I</div>
-                <div class="dev-meta">
-                  <div class="dev-name-row">
-                    <span class="dev-name">Iraasoft Solution</span>
-                    <span class="badge-verified"><i class="fa-solid fa-shield-check"></i> VERIFIED DEVELOPER</span>
-                  </div>
-                  <span class="dev-category">ENTERPRISE SOFTWARE DEVELOPMENT</span>
-                </div>
-              </div>
-              <p class="dev-description">
-                පද්ධතියේ කිසියම් ගැටළුවක්, නව විශේෂාංග එකතු කිරීමක් (Customizations) හෝ තාක්ෂණික සහාය සඳහා ඉහත සඳහන් කළ ඕනෑම මාධ්‍යයක් ඔස්සේ අප හා සම්බන්ධ විය හැක.
-              </p>
-            </div>
-
-            <!-- Available Services Tags -->
-            <div class="support-services-block">
-              <span class="services-block-label">AVAILABLE SUPPORT SERVICES</span>
-              <div class="services-chips-wrap">
-                <span class="service-chip"><i class="fa-solid fa-check"></i> Customizations</span>
-                <span class="service-chip"><i class="fa-solid fa-check"></i> Bug Fixes</span>
-                <span class="service-chip"><i class="fa-solid fa-check"></i> New Features</span>
-                <span class="service-chip"><i class="fa-solid fa-check"></i> Database Sync</span>
-                <span class="service-chip"><i class="fa-solid fa-check"></i> Data Backup</span>
-              </div>
-            </div>
-
-            <!-- Working Hours Info Box -->
-            <div class="working-hours-card">
-              <div class="working-hours-title">
-                <i class="fa-regular fa-clock"></i>
-                <span>WORKING HOURS / සේවා වේලාවන්</span>
-              </div>
-              <ul class="working-hours-list">
-                <li><i class="fa-solid fa-check"></i> <span>සෑම දිනකම පෙ.ව. 8:00 සිට ප.ව. 10:00 දක්වා සේවා සහාය ලබාගත හැක.</span></li>
-                <li><i class="fa-solid fa-check"></i> <span>WhatsApp හෝ Telegram පණිවිඩයක් ඔස්සේ ක්ෂණික පිළිතුරු ලබා ගත හැක.</span></li>
-              </ul>
-            </div>
-
-            <!-- Quick Action Buttons -->
-            <div class="support-action-buttons">
-              <a href="https://wa.me/94752895951" target="_blank" rel="noopener noreferrer" class="btn-support-action btn-support-whatsapp">
-                <i class="fa-brands fa-whatsapp"></i>
-                <span>WhatsApp Chat</span>
-              </a>
-              <a href="tel:+94752895951" class="btn-support-action btn-support-call">
-                <i class="fa-solid fa-phone"></i>
-                <span>Call Now</span>
-              </a>
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Schedule Section (Amortization Table) -->
-    <div class="schedule-section" id="repayment-schedule-section" style="display: none;">
-      <div class="section-header-row">
-        <h2 class="card-title">
-          <i class="fa-solid fa-calendar-days"></i>
-          <span data-i18n="scheduleTitle">මාසික ගෙවීම් කාලසටහන (Repayment Schedule)</span>
-        </h2>
-
-        <div class="schedule-actions">
-          <div class="input-wrapper" style="width: 180px;">
-            <input type="text" id="search-month" class="input-field" style="padding: 6px 12px; font-size: 0.85rem;" placeholder="මාසය සොයන්න...">
-          </div>
-
-          <select id="rows-per-page" class="input-field" style="padding: 6px 12px; font-size: 0.85rem; width: 110px;">
-            <option value="12">12 / page</option>
-            <option value="24">24 / page</option>
-            <option value="36">36 / page</option>
-            <option value="0">All Rows</option>
-          </select>
-
-          <button id="btn-export-pdf" class="btn-action btn-gold">
-            <i class="fa-solid fa-file-pdf"></i>
-            <span data-i18n="btnPdf">PDF වාර්තාව</span>
-          </button>
-          
-          <button id="btn-export-csv" class="btn-action btn-emerald">
-            <i class="fa-solid fa-file-csv"></i>
-            <span data-i18n="btnCsv">Excel / CSV</span>
-          </button>
-
-          <button id="btn-print" class="btn-action">
-            <i class="fa-solid fa-print"></i>
-            <span data-i18n="btnPrint">මුද්‍රණය</span>
-          </button>
+          </form>
         </div>
       </div>
 
-      <!-- Amortization Table -->
-      <div class="table-responsive">
-        <table id="schedule-table" class="schedule-table">
-          <thead>
-            <tr>
-              <th data-i18n="colMonth">මාසය</th>
-              <th data-i18n="colDate">දිනය</th>
-              <th data-i18n="colStartBal">ආරම්භක ශේෂය</th>
-              <th data-i18n="colPrincipal">මුල මුදල</th>
-              <th data-i18n="colInterest">පොලිය</th>
-              <th data-i18n="colInsurance">ණය රක්ෂණය</th>
-              <th data-i18n="colPayment">මාසික වාරිකය</th>
-              <th data-i18n="colEndBal">අවසාන ශේෂය</th>
-            </tr>
-          </thead>
-          <tbody id="schedule-tbody">
-            <!-- Table rows rendered dynamically -->
-          </tbody>
-          <tfoot id="schedule-tfoot">
-            <!-- Totals rendered dynamically -->
-          </tfoot>
-        </table>
+      <!-- Modal 4: Customer Service & Support -->
+      <div id="modal-customer-service" class="modal-backdrop" style="display: none;">
+        <div class="modal-content glass-card" style="max-width: 520px;">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fa-solid fa-headset" style="color: var(--primary);"></i>
+              <span>පද්ධති සේවා සහ සහාය (Support)</span>
+            </h3>
+            <button id="btn-close-support-modal" class="btn-action" style="padding: 4px 8px;">&times;</button>
+          </div>
 
-        <div class="table-pagination">
-          <span id="pagination-info"></span>
-          <div id="pagination-controls" class="pagination-controls"></div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-input); border-radius: 12px;">
+              <i class="fa-solid fa-phone" style="color: var(--primary); font-size: 1.2rem;"></i>
+              <div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Hotline Call</div>
+                <strong style="font-size: 0.95rem;">+94 75 289 5951</strong>
+              </div>
+            </div>
+
+            <a href="https://wa.me/94752895951" target="_blank" rel="noopener noreferrer" style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 12px; background: #ecfdf5; border-radius: 12px; color: #065f46;">
+              <i class="fa-brands fa-whatsapp" style="color: #10b981; font-size: 1.4rem;"></i>
+              <div>
+                <div style="font-size: 0.75rem; color: #047857;">WhatsApp Chat Support</div>
+                <strong style="font-size: 0.95rem;">+94 75 289 5951</strong>
+              </div>
+            </a>
+
+            <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; padding: 10px; background: var(--bg-input); border-radius: 10px;">
+              <strong style="color: var(--text-main);">Iraasoft Solution</strong> – නව විශේෂාංග එකතු කිරීම් හෝ තාක්ෂණික සහාය සඳහා සම්බන්ධ වන්න.
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Hidden Vehicle Loan Print Area (populated by JS, visible only when printing) -->
-    <div id="veh-print-area"></div>
+      <!-- Toast Notification Container -->
+      <div id="toast-container"></div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container"></div>
-
-    <!-- Footer -->
-    <footer>
-      <p><span data-i18n="footerText">© 2026 GSCS BANK Loan System. All rights reserved.</span> | <strong>Calculator by iraasoft Solution</strong></p>
-    </footer>
+      <!-- Footer -->
+      <footer>
+        <p>© 2026 GSCS BANK Assistant Manager Dashboard System | Developed by iraasoft Solution</p>
+      </footer>
 
     </main>
   </div>

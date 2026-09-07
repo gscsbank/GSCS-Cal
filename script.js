@@ -1,10 +1,19 @@
 /**
- * Lanka Bank Loan Calculator - Core Script & Logic
- * Supports Reducing Balance (හීනවෙන ක්‍රමය) & Flat Rate (සමාන වාරික ක්‍රමය)
- * Loan Insurance, Bilingual (Sinhala / English) UI, Charts & Exporting.
+ * GSCS BANK Assistant Manager Dashboard System - Core Script & Logic
+ * Developed by iraasoft Solution
+ * 
+ * Features:
+ * 1. Universal Loan Issuance & Deductions Engine (12 Fund & Admin Deductions)
+ * 2. Swashakthi Vehicle Loan Calculator & Estimator
+ * 3. Reducing Balance (හීනවන ක්‍රමය) & Flat Rate (සමාන වාරික ක්‍රමය) Calculation
+ * 4. Loan Schemes Manager (CRUD custom schemes)
+ * 5. Official Dual-Slip A4 Receipt Printing (Cashier Copy & Office/Customer Copy)
+ * 6. Centralized Saved Loan Records Archive & Export
  */
 
-// Modern Toast Notification System
+// ============================================================
+// 1. Toast Notification System
+// ============================================================
 function showToast(message, type = 'success', title = '') {
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -44,7 +53,6 @@ function showToast(message, type = 'success', title = '') {
 
   container.appendChild(toast);
 
-  // Trigger smooth enter animation
   requestAnimationFrame(() => {
     toast.classList.add('show');
   });
@@ -57,23 +65,26 @@ function showToast(message, type = 'success', title = '') {
     }, 350);
   };
 
-  // Close on button click
   toast.querySelector('.toast-close')?.addEventListener('click', removeToast);
-
-  // Auto-dismiss after 3.5 seconds
   setTimeout(removeToast, 3500);
 }
 
-// Language Dictionary
-const i18n = {
+// ============================================================
+// 2. Bilingual Dictionary (Sinhala / English)
+// ============================================================
+let currentLang = 'si';
 
+const i18n = {
   si: {
-    appTitle: "GSCS BANK Loan Calculator",
-    appSubtitle: "iraasoft Solution මගින් බලගන්වන ලද GSCS BANK ණය ගණනය කිරීමේ පද්ධතිය",
-    staffBadge: "FOR STAFF USE ONLY",
+    appTitle: "GSCS BANK Assistant Manager Dashboard",
+    staffBadge: "ASST. MANAGER",
+    tabUniversal: "ණය නිකුත් කිරීම & අයකිරීම්",
+    tabVehicle: "ස්වශක්ති වාහන ණය",
     tabReducing: "හීනවෙන ක්‍රමය (Reducing Balance)",
     tabFlat: "සමාන වාරික ක්‍රමය (Flat Rate)",
-    tabCompare: "ක්‍රම දෙක සසඳන්න (Comparison)",
+    tabCompare: "ක්‍රම දෙක සසඳන්න",
+    tabSchemes: "ණය වර්ග (Schemes)",
+    tabRecords: "ලේඛනාගාරය (Archive)",
     
     // Inputs
     inputsHeader: "ණය තොරතුරු ඇතුළත් කරන්න",
@@ -81,61 +92,19 @@ const i18n = {
     interestRate: "වාර්ෂික පොලී අනුපාතය (Interest Rate)",
     loanTenure: "ණය කාලසීමාව (Tenure)",
     insuranceRate: "ණය රක්ෂණ අනුපාතය (Insurance Rate)",
-    insuranceHint: "0.06% (නැතහොත් ඔබගේ අනුපාතය)",
-    startDate: "ණය ආරම්භක දිනය (Start Date)",
+    insuranceHint: "0.06%",
     months: "මාස",
     years: "අවුරුදු",
-    calcMethod: "පොලී ගණනය කිරීමේ පදනම (Basis)",
-    basisActual: "නියමිත දින ගණන (Actual Days / 365) - සනස / බැංකු ක්‍රමය",
-    basisFixed: "මාසික නියත පදනම (30 Days / 360 Basis)",
-    roundingOption: "ගණන් වටයන ආකාරය (Rounding)",
-    roundRupees: "සම්පූර්ණ රුපියල් වලට (Sanasa / Bank Format)",
-    roundCents: "සත 2 කට (Exact Cents)",
     
     // Summary Cards
     monthlyInstallment: "මාසික වාරිකය (Monthly Installment)",
     totalInterest: "මුළු පොලිය (Total Interest)",
-    totalInsurance: "මුළු ණය රක්ෂණය (Total Insurance)",
+    totalInsurance: "මුළු ණය රක්ෂණය (Total Loan Insurance)",
     totalPayable: "ගෙවිය යුතු මුළු මුදල (Total Amount Payable)",
-    reducingRange: "පළමු මාසය: {{first}} | අවසාන මාසය: {{last}}",
-    flatFixed: "මුළු කාලය පුරාම ස්ථාවර වාරිකය",
 
-    // Formula Box
-    formulaReducingTitle: "හීනවෙන ක්‍රමයේ ගණනය කිරීම (Sanasa / Bank Day-Count Basis):",
-    formulaReducingText: "එක් එක් මාසික ගෙවීම් කාලසීමාවේ ඇති සැබෑ දින ගණන (31, 30, 28/29) අනුව එම මාසයේ ඉතිරි ණය ශේෂයට පමණක් පොලිය ගණනය කෙරේ (දින 365 පදනම). මුල මුදල සමානව බෙදා වෙන් කෙරේ. එමගින් සැබෑ බැංකු වාර්තාවට 100% ක් සමානව ගණනය වේ.",
-    formulaFlatTitle: "සමාන වාරික ක්‍රමයේ ගණනය කිරීම:",
-    formulaFlatText: "සම්පූර්ණ කාලසීමාව සඳහාම පොලිය එකවර ගණනය කර ණය මුදලට එකතු කර මාස ගණනට සමානව බෙදා වෙන් කරනු ලැබේ. සෑම මාසයකම වාරිකය එක සමානය.",
-
-    // Table
-    scheduleTitle: "මාසික ගෙවීම් කාලසටහන (Repayment Schedule)",
-    searchPlaceholder: "මාසය සොයන්න...",
-    btnPdf: "PDF වාර්තාව",
-    btnCsv: "Excel / CSV",
-    btnPrint: "මුද්‍රණය",
-    
-    colMonth: "මාසය",
-    colDate: "ගෙවිය යුතු දිනය",
-    colStartBal: "ආරම්භක ශේෂය (Balance B/F)",
-    colPrincipal: "මුල මුදල (Principal)",
-    colInterest: "පොලිය (Interest)",
-    colInsurance: "ණය රක්ෂණය",
-    colPayment: "මාසික වාරිකය (Total)",
-    colEndBal: "අවසාන ශේෂය (Balance C/F)",
-    colTotal: "එකතුව (Total)",
-
-    // Comparison
-    cmpTitle: "හීනවෙන ක්‍රමය සහ සමාන වාරික ක්‍රමය අතර සැසඳීම",
-    cmpSavingsMsg: "හීනවෙන ක්‍රමය තෝරාගැනීමෙන් රු. {{savings}} ක මුදලක් ඉතිරි කරගත හැක!",
-    cmpReducingHead: "හීනවෙන ක්‍රමය (Reducing Balance)",
-    cmpFlatHead: "සමාන වාරික ක්‍රමය (Flat Rate)",
-    recommended: "වඩාත් වාසිදායකයි",
-
-    // Vehicle Estimator
-    tabVehicle: "ස්වශක්ති වාහන ණය (Vehicle Loan)",
-    btnCalcVehShortcut: "ස්වශක්ති වාහන ණය මුදල ගණනය කරන්න",
+    // Vehicle
     vehicleCalcTitle: "ස්වශක්ති වාහන ණය - ණය මුදල ගණනය කිරීම",
     vehicleCalcSubtitle: "වාහනයේ මිල, පරිපාලන ගාස්තු සහ මූලික ගෙවීම අනුව අදාළ ණය මුදල ස්වයංක්‍රීයව ගණනය කරගන්න",
-    selectVehicleLabel: "වාහනය තෝරන්න:",
     btnAddVehicle: "නව වාහනයක් එකතු කරන්න",
     btnBajajPrices: "Bajaj යතුරුපැදි සඳහා නවතම මිලගණන් බලන්න",
     headerVariableFees: "වාහන තොරතුරු & වෙනස්වන ගාස්තු",
@@ -159,42 +128,63 @@ const i18n = {
     lblDownPaymentSummary: "මූලික ගෙවීම (Down Payment)",
     lblRequiredLoan: "අවශ්‍ය ණය මුදල (Required Loan Amount)",
     btnApplyLoan: "මෙම ණය මුදල වාරික ගණකයට යොදන්න",
-    titleVehComparison: "ස්වශක්ති ණය - වාහන සසඳන සැසඳුම් සටහන (Excel Matrix)",
-    modalTitleAddVeh: "නව වාහනයක් ඇතුළත් කරන්න",
-    lblModalVehName: "වාහනයේ නම / මාදිලිය (e.g. TVS Apache)",
-    lblModalVehPrice: "වාහනයේ මිල (Vehicle Price)",
-    lblModalRegFee: "ලියාපදිංචි ගාස්තු (Reg Fee)",
-    lblModalInsuranceFee: "වාහන රක්ෂණ ගාස්තු (Vehicle Insurance)",
-    lblModalDownPayment: "පෙරනිමි මූලික ගෙවීම (Default Down Payment)",
-    btnCancel: "අවලංගු කරන්න",
-    btnSaveVeh: "සුරකින්න",
-    customVehicleOption: "වෙනත් / නියමිත නොවන වාහනයක් (Custom)",
-    btnApplyThisLoan: "මේ ණය මුදල ගන්න",
 
-    footerText: "© 2026 GSCS BANK Loan System. All rights reserved."
+    // Schedule
+    scheduleTitle: "මාසික ගෙවීම් කාලසටහන (Repayment Schedule)",
+    btnPdf: "PDF වාර්තාව",
+    btnCsv: "Excel / CSV",
+    btnPrint: "මුද්‍රණය",
+    colMonth: "මාසය",
+    colDate: "ගෙවිය යුතු දිනය",
+    colStartBal: "ආරම්භක ශේෂය",
+    colPrincipal: "මුල මුදල",
+    colInterest: "පොලිය",
+    colInsurance: "ණය රක්ෂණය",
+    colPayment: "මාසික වාරිකය",
+    colEndBal: "අවසාන ශේෂය",
+
+    footerText: "© 2026 GSCS BANK Assistant Manager Dashboard System. All rights reserved."
   },
 
   en: {
-    appTitle: "GSCS BANK Loan Calculator",
-    appSubtitle: "GSCS BANK Loan Calculation System Powered by iraasoft Solution",
-    staffBadge: "FOR STAFF USE ONLY",
+    appTitle: "GSCS BANK Assistant Manager Dashboard",
+    staffBadge: "ASST. MANAGER",
+    tabUniversal: "Loan Issue & Deductions",
+    tabVehicle: "Swashakthi Vehicle Loan",
     tabReducing: "Reducing Balance Method",
     tabFlat: "Flat Rate Method",
-    tabCompare: "Compare Both Methods",
-    tabVehicle: "Swashakthi Vehicle Loan",
-    btnCalcVehShortcut: "Calculate Vehicle Loan Amount",
+    tabCompare: "Compare Methods",
+    tabSchemes: "Loan Schemes",
+    tabRecords: "Records Archive",
+    
+    // Inputs
+    inputsHeader: "Enter Loan Details",
+    loanAmount: "Loan Amount (LKR)",
+    interestRate: "Annual Interest Rate (%)",
+    loanTenure: "Loan Tenure",
+    insuranceRate: "Loan Insurance Rate (%)",
+    insuranceHint: "0.06%",
+    months: "Months",
+    years: "Years",
+    
+    // Summary Cards
+    monthlyInstallment: "Monthly Installment",
+    totalInterest: "Total Interest",
+    totalInsurance: "Total Loan Insurance",
+    totalPayable: "Total Amount Payable",
+
+    // Vehicle
     vehicleCalcTitle: "Swashakthi Vehicle Loan Estimator",
-    vehicleCalcSubtitle: "Calculate required loan amount based on vehicle price, documentation fees & down payment",
-    selectVehicleLabel: "Select Vehicle Model:",
+    vehicleCalcSubtitle: "Calculate required loan amount based on vehicle price, fees & down payment",
     btnAddVehicle: "Add New Vehicle",
     btnBajajPrices: "Check Latest Bajaj Motorcycle Prices",
     headerVariableFees: "Vehicle Info & Variable Fees",
     headerFixedFees: "Standard Admin & Fund Fees",
     headerVehSummary: "Calculation Summary",
-    lblVehPrice: "Vehicle Price (LKR)",
-    lblRegFee: "Vehicle Registration Fee",
+    lblVehPrice: "Vehicle Price",
+    lblRegFee: "Registration Fee",
     lblVehInsurance: "Vehicle Insurance Fee",
-    lblDownPayment: "Down Payment (Initial Deposit)",
+    lblDownPayment: "Down Payment",
     lblBorrowerShares: "Borrower Shares",
     lblGuarantor1Shares: "Guarantor 1 Shares",
     lblGuarantor2Shares: "Guarantor 2 Shares",
@@ -205,2033 +195,970 @@ const i18n = {
     lblLoanInsurance: "Loan Insurance Fee",
     lblBorrowerDeposit: "Borrower Deposit",
     lblTotalDocFees: "Total Documentation Fees",
-    lblTotalVehCost: "Total Vehicle Cost (Price + Fees)",
+    lblTotalVehCost: "Total Vehicle Cost",
     lblDownPaymentSummary: "Down Payment",
     lblRequiredLoan: "Required Loan Amount",
-    btnApplyLoan: "Apply Loan Amount to EMI Calculator",
-    titleVehComparison: "Swashakthi Loan - Vehicle Matrix (Excel Comparison)",
-    modalTitleAddVeh: "Add New Vehicle Model",
-    lblModalVehName: "Vehicle Name / Model",
-    lblModalVehPrice: "Vehicle Price",
-    lblModalRegFee: "Registration Fee",
-    lblModalInsuranceFee: "Vehicle Insurance Fee",
-    lblModalDownPayment: "Default Down Payment",
-    btnCancel: "Cancel",
-    btnSaveVeh: "Save Vehicle",
-    customVehicleOption: "Custom Vehicle Model",
-    btnApplyThisLoan: "Apply Loan",
-    
-    // Inputs
-    inputsHeader: "Enter Loan Details",
-    loanAmount: "Loan Amount (LKR)",
-    interestRate: "Annual Interest Rate (%)",
-    loanTenure: "Loan Tenure",
-    insuranceRate: "Loan Insurance Rate (%)",
-    insuranceHint: "0.06% (or custom rate)",
-    startDate: "Loan Start Date",
-    months: "Months",
-    years: "Years",
-    calcMethod: "Interest Calculation Basis",
-    basisActual: "Actual Days / 365 Basis (Sanasa & Sri Lanka Bank Standard)",
-    basisFixed: "Fixed 30 Days / 360 Basis",
-    roundingOption: "Rounding Method",
-    roundRupees: "Round to Whole Rupees (Sanasa / Bank Format)",
-    roundCents: "Exact Cents (2 Decimals)",
+    btnApplyLoan: "Apply Loan Amount",
 
-    // Summary Cards
-    monthlyInstallment: "Monthly Installment",
-    totalInterest: "Total Interest",
-    totalInsurance: "Total Loan Insurance",
-    totalPayable: "Total Amount Payable",
-    reducingRange: "Month 1: {{first}} | Month {{n}}: {{last}}",
-    flatFixed: "Fixed installment across all months",
-
-    // Formula Box
-    formulaReducingTitle: "Reducing Balance Calculation (Sanasa / Bank Day-Count Basis):",
-    formulaReducingText: "Interest is calculated on the exact calendar days of each installment period (31, 30, 28/29 days on a 365-day basis) on the remaining loan balance. Principal is divided equally across months.",
-    formulaFlatTitle: "Flat Rate Calculation:",
-    formulaFlatText: "Interest for the total tenure is calculated upfront on the original loan amount and split equally across all months.",
-
-    // Table
-    scheduleTitle: "Repayment Amortization Schedule",
-    searchPlaceholder: "Search month...",
+    // Schedule
+    scheduleTitle: "Repayment Schedule (Amortization)",
     btnPdf: "PDF Report",
     btnCsv: "Excel / CSV",
     btnPrint: "Print",
-
     colMonth: "Month",
     colDate: "Due Date",
-    colStartBal: "Balance B/F",
+    colStartBal: "Start Balance",
     colPrincipal: "Principal",
     colInterest: "Interest",
     colInsurance: "Loan Insurance",
-    colPayment: "Total Installment",
-    colEndBal: "Balance C/F",
-    colTotal: "Total",
+    colPayment: "Monthly Payment",
+    colEndBal: "Ending Balance",
 
-    // Comparison
-    cmpTitle: "Reducing Balance vs Flat Rate Comparison",
-    cmpSavingsMsg: "By choosing Reducing Balance, you save LKR {{savings}} in total payments!",
-    cmpReducingHead: "Reducing Balance Method",
-    cmpFlatHead: "Flat Rate Method",
-    recommended: "Recommended",
-
-    footerText: "© 2026 GSCS BANK Loan System. All rights reserved."
+    footerText: "© 2026 GSCS BANK Assistant Manager Dashboard System. All rights reserved."
   }
 };
 
-// Global State
-let currentLang = 'si';
-let currentMode = 'vehicle'; // 'vehicle', 'reducing', 'flat', 'compare'
-let tenureUnit = 'months';
-let currentPage = 1;
-let rowsPerPage = 12;
+// ============================================================
+// 3. Default Databases (Loan Schemes & Vehicles)
+// ============================================================
 
-// Independent Interest Rates for Reducing Balance & Flat Rate
-let reducingRate = 18;
-let flatRate = 10;
-
-let vehicleDatabase = [
-  // ── BIKES ─────────────────────────────────────────────────────────────────
-  { id: "bajaj_platina100es",    name: "Bajaj Platina 100 ES",          type: "bike", price: 289900,  regFee: 15000, vehicleInsurance: 8500,  downPayment: 100000 },
-  { id: "bajaj_ct100es",         name: "Bajaj CT 100 ES",               type: "bike", price: 279900,  regFee: 15000, vehicleInsurance: 8200,  downPayment: 100000 },
-  { id: "bajaj_discover125drl",  name: "Bajaj Discover 125 DRL",        type: "bike", price: 349900,  regFee: 15000, vehicleInsurance: 9800,  downPayment: 120000 },
-  { id: "bajaj_pulsarn125",      name: "Bajaj Pulsar N125",             type: "bike", price: 389900,  regFee: 15000, vehicleInsurance: 10500, downPayment: 130000 },
-  { id: "bajaj_pulsarns125",     name: "Bajaj Pulsar NS125",            type: "bike", price: 409900,  regFee: 15000, vehicleInsurance: 11000, downPayment: 140000 },
-  { id: "bajaj_pulsarn160std",   name: "Bajaj Pulsar N160 Standard",    type: "bike", price: 489900,  regFee: 15000, vehicleInsurance: 13000, downPayment: 160000 },
-  { id: "bajaj_pulsarn160prem",  name: "Bajaj Pulsar N160 Premium",     type: "bike", price: 519900,  regFee: 15000, vehicleInsurance: 14000, downPayment: 170000 },
-  { id: "bajaj_pulsarns200",     name: "Bajaj Pulsar NS200",            type: "bike", price: 649900,  regFee: 15000, vehicleInsurance: 17500, downPayment: 200000 },
-  { id: "bajaj_pulsarrs200",     name: "Bajaj Pulsar RS200",            type: "bike", price: 759900,  regFee: 15000, vehicleInsurance: 20000, downPayment: 250000 },
-  { id: "bajaj_pulsarns400z",    name: "Bajaj Pulsar NS400Z",           type: "bike", price: 989900,  regFee: 15000, vehicleInsurance: 26000, downPayment: 350000 },
-  { id: "yamaha_rayzr125fi",     name: "Yamaha Ray ZR 125 FI",          type: "bike", price: 359900,  regFee: 15000, vehicleInsurance: 9900,  downPayment: 120000 },
-  { id: "yamaha_rayzr125hyb",    name: "Yamaha Ray ZR 125 Hybrid",      type: "bike", price: 379900,  regFee: 15000, vehicleInsurance: 10200, downPayment: 130000 },
-  { id: "yamaha_fzsv2",          name: "Yamaha FZ-S V2",                type: "bike", price: 489900,  regFee: 15000, vehicleInsurance: 13000, downPayment: 160000 },
-  { id: "yamaha_fzsv3",          name: "Yamaha FZ-S V3",                type: "bike", price: 519900,  regFee: 15000, vehicleInsurance: 14000, downPayment: 170000 },
-  { id: "yamaha_fzsv4",          name: "Yamaha FZ-S V4",                type: "bike", price: 549900,  regFee: 15000, vehicleInsurance: 15000, downPayment: 180000 },
-  { id: "yamaha_mt15v2",         name: "Yamaha MT-15 V2",               type: "bike", price: 699900,  regFee: 15000, vehicleInsurance: 18500, downPayment: 230000 },
-  { id: "yamaha_r15v4",          name: "Yamaha YZF-R15 V4",             type: "bike", price: 849900,  regFee: 15000, vehicleInsurance: 22500, downPayment: 300000 },
-  { id: "yamaha_xsr155",         name: "Yamaha XSR 155",                type: "bike", price: 899900,  regFee: 15000, vehicleInsurance: 23500, downPayment: 310000 },
-  { id: "tvs_sport110",          name: "TVS Sport 110",                  type: "bike", price: 269900,  regFee: 15000, vehicleInsurance: 7800,  downPayment: 90000  },
-  { id: "tvs_raider125",         name: "TVS Raider 125",                 type: "bike", price: 339900,  regFee: 15000, vehicleInsurance: 9500,  downPayment: 110000 },
-  { id: "tvs_xl100",             name: "TVS XL 100 (Moped)",             type: "bike", price: 189900,  regFee: 15000, vehicleInsurance: 5500,  downPayment: 70000  },
-  { id: "tvs_ntorq125",          name: "TVS Ntorq 125",                  type: "bike", price: 369900,  regFee: 15000, vehicleInsurance: 10000, downPayment: 120000 },
-  { id: "tvs_jupiter110",        name: "TVS Jupiter 110",                type: "bike", price: 329900,  regFee: 15000, vehicleInsurance: 9200,  downPayment: 110000 },
-  { id: "tvs_jupiter125",        name: "TVS Jupiter 125",                type: "bike", price: 359900,  regFee: 15000, vehicleInsurance: 9900,  downPayment: 120000 },
-  { id: "tvs_apache160",         name: "TVS Apache RTR 160 / 2V / 4V",  type: "bike", price: 519900,  regFee: 15000, vehicleInsurance: 14000, downPayment: 170000 },
-  { id: "tvs_ronin225",          name: "TVS Ronin 225",                  type: "bike", price: 699900,  regFee: 15000, vehicleInsurance: 18500, downPayment: 230000 },
-  { id: "tvs_iqube",             name: "TVS iQube Electric",             type: "bike", price: 749900,  regFee: 15000, vehicleInsurance: 20000, downPayment: 250000 },
-  { id: "yadea_cooljoy",         name: "Yadea Cooljoy",                  type: "bike", price: 299900,  regFee: 15000, vehicleInsurance: 8500,  downPayment: 100000 },
-  { id: "yadea_ruibins",         name: "Yadea Ruibin S",                 type: "bike", price: 349900,  regFee: 15000, vehicleInsurance: 9800,  downPayment: 120000 },
-  { id: "yadea_m6",              name: "Yadea M6",                       type: "bike", price: 379900,  regFee: 15000, vehicleInsurance: 10200, downPayment: 130000 },
-  { id: "yadea_t9",              name: "Yadea T9",                       type: "bike", price: 469900,  regFee: 15000, vehicleInsurance: 12500, downPayment: 150000 },
-  { id: "yadea_t5l",             name: "Yadea T5L",                      type: "bike", price: 419900,  regFee: 15000, vehicleInsurance: 11500, downPayment: 140000 },
-  { id: "yadea_e8spro",          name: "Yadea E8S Pro",                  type: "bike", price: 529900,  regFee: 15000, vehicleInsurance: 14500, downPayment: 180000 },
-  { id: "sunra_dream6",          name: "Sunra Dream 6",                  type: "bike", price: 329900,  regFee: 15000, vehicleInsurance: 9200,  downPayment: 110000 },
-  { id: "sunra_amalfi",          name: "Sunra Amalfi",                   type: "bike", price: 359900,  regFee: 15000, vehicleInsurance: 9900,  downPayment: 120000 },
-  { id: "sunra_k3",              name: "Sunra K3",                       type: "bike", price: 279900,  regFee: 15000, vehicleInsurance: 8200,  downPayment: 100000 },
-  { id: "sunra_k3l",             name: "Sunra K3L",                      type: "bike", price: 299900,  regFee: 15000, vehicleInsurance: 8500,  downPayment: 100000 },
-  { id: "sunra_k6",              name: "Sunra K6",                       type: "bike", price: 369900,  regFee: 15000, vehicleInsurance: 10000, downPayment: 120000 },
-  { id: "sunra_k6l",             name: "Sunra K6L",                      type: "bike", price: 399900,  regFee: 15000, vehicleInsurance: 11000, downPayment: 130000 },
-  { id: "sunra_mikumax",         name: "Sunra Miku Max",                 type: "bike", price: 449900,  regFee: 15000, vehicleInsurance: 12000, downPayment: 150000 },
-
-  // ── THREE-WHEELERS ────────────────────────────────────────────────────────
-  { id: "bajaj_re4s_petrol",     name: "Bajaj RE 4S Petrol / EFi",      type: "threewheel", price: 1149900, regFee: 18000, vehicleInsurance: 32000, downPayment: 400000 },
-  { id: "tvs_king_deluxe",       name: "TVS King Deluxe",               type: "threewheel", price: 1099900, regFee: 18000, vehicleInsurance: 30000, downPayment: 380000 },
-  { id: "tvs_king_duramax",      name: "TVS King Duramax",              type: "threewheel", price: 1199900, regFee: 18000, vehicleInsurance: 33000, downPayment: 420000 },
-  { id: "tvs_king_ev",           name: "TVS King EV",                   type: "threewheel", price: 1349900, regFee: 18000, vehicleInsurance: 36000, downPayment: 480000 },
-  { id: "piaggio_ape_city_p",    name: "Piaggio Ape City Petrol",       type: "threewheel", price: 1249900, regFee: 18000, vehicleInsurance: 34000, downPayment: 440000 },
-  { id: "piaggio_ape_city_d",    name: "Piaggio Ape City Diesel",       type: "threewheel", price: 1299900, regFee: 18000, vehicleInsurance: 35000, downPayment: 460000 },
-  { id: "piaggio_ape_xtra",      name: "Piaggio Ape Xtra LDX (Pickup)", type: "threewheel", price: 1399900, regFee: 18000, vehicleInsurance: 37000, downPayment: 500000 },
-  { id: "piaggio_ape_ecity",     name: "Piaggio Ape E-City",            type: "threewheel", price: 1499900, regFee: 18000, vehicleInsurance: 39000, downPayment: 520000 },
-  { id: "piaggio_ape_extra_e",   name: "Piaggio Ape E-Xtra",            type: "threewheel", price: 1549900, regFee: 18000, vehicleInsurance: 40000, downPayment: 550000 }
+const defaultLoanSchemes = [
+  {
+    id: "scheme_festival",
+    name: "Festival Loan",
+    rate: 18.0,
+    period: 12,
+    method: "reducing",
+    category: "Festival / උත්සව",
+    isDefault: true
+  },
+  {
+    id: "scheme_athwela",
+    name: "Athwela Team Loan",
+    rate: 18.0,
+    period: 12,
+    method: "flat",
+    category: "Team / අත්වැල",
+    isDefault: true
+  },
+  {
+    id: "scheme_equipment",
+    name: "Equipment Loan",
+    rate: 16.0,
+    period: 24,
+    method: "reducing",
+    category: "Equipment / උපකරණ",
+    isDefault: true
+  },
+  {
+    id: "scheme_long_term",
+    name: "Long Term Loan",
+    rate: 15.0,
+    period: 60,
+    method: "reducing",
+    category: "Long Term / දිගුකාලීන",
+    isDefault: true
+  },
+  {
+    id: "scheme_advanced",
+    name: "Advanced Loan",
+    rate: 18.0,
+    period: 24,
+    method: "reducing",
+    category: "Advanced / අත්තිකාරම්",
+    isDefault: true
+  },
+  {
+    id: "scheme_suhuru_farm",
+    name: "Suhuru Farm Loan",
+    rate: 14.0,
+    period: 24,
+    method: "reducing",
+    category: "Agriculture / සුහුරු ගොවිපළ",
+    isDefault: true
+  },
+  {
+    id: "scheme_business",
+    name: "Business Loan",
+    rate: 16.0,
+    period: 36,
+    method: "reducing",
+    category: "Business / ව්‍යාපාරික",
+    isDefault: true
+  },
+  {
+    id: "scheme_sap",
+    name: "Sap Loan",
+    rate: 18.0,
+    period: 24,
+    method: "reducing",
+    category: "Sap / සැප්",
+    isDefault: true
+  },
+  {
+    id: "scheme_athamaru",
+    name: "Athamaru Loan",
+    rate: 20.0,
+    period: 6,
+    method: "flat",
+    category: "Instant / අතමාරු",
+    isDefault: true
+  },
+  {
+    id: "scheme_general",
+    name: "General Loan",
+    rate: 16.0,
+    period: 36,
+    method: "reducing",
+    category: "General / සාමාන්‍ය",
+    isDefault: true
+  },
+  {
+    id: "scheme_swashakthi_02",
+    name: "Swashakthi Loan 02",
+    rate: 18.0,
+    period: 36,
+    method: "reducing",
+    category: "Swashakthi / ස්වශක්ති",
+    isDefault: true
+  },
+  {
+    id: "scheme_swashakthi_01",
+    name: "Swashakthi Loan 01",
+    rate: 18.0,
+    period: 24,
+    method: "reducing",
+    category: "Swashakthi / ස්වශක්ති",
+    isDefault: true
+  },
+  {
+    id: "scheme_instant",
+    name: "Instant Loan",
+    rate: 22.0,
+    period: 6,
+    method: "flat",
+    category: "Instant / ක්ෂණික",
+    isDefault: true
+  },
+  {
+    id: "scheme_usawigatha",
+    name: "Usawigatha Loan",
+    rate: 18.0,
+    period: 24,
+    method: "reducing",
+    category: "Legal / උසාවිගත",
+    isDefault: true
+  }
 ];
 
-let lastCalculatedVehicleLoanAmount = 499523;
+let loanSchemesDatabase = [...defaultLoanSchemes];
 
+const defaultVehicles = [
+  { id: 'bajaj_ct100', name: 'Bajaj CT 100', type: 'bike', price: 625950, regFee: 15000, vehicleInsurance: 18000, downPayment: 250000 },
+  { id: 'bajaj_platina', name: 'Bajaj Platina 100', type: 'bike', price: 695950, regFee: 15000, vehicleInsurance: 19500, downPayment: 300000 },
+  { id: 'bajaj_pulsar_150', name: 'Bajaj Pulsar 150 UG5', type: 'bike', price: 925950, regFee: 15000, vehicleInsurance: 24500, downPayment: 400000 },
+  { id: 'bajaj_discover_125', name: 'Bajaj Discover 125 Disc', type: 'bike', price: 789950, regFee: 15000, vehicleInsurance: 21423, downPayment: 350000 },
+  { id: 'bajaj_re_2s', name: 'Bajaj RE 4S (3-Wheel)', type: 'threewheel', price: 1450000, regFee: 20000, vehicleInsurance: 32000, downPayment: 600000 },
+  { id: 'tvs_king', name: 'TVS King Deluxe (3-Wheel)', type: 'threewheel', price: 1395000, regFee: 20000, vehicleInsurance: 30000, downPayment: 550000 },
+  { id: 'tvs_apache_160', name: 'TVS Apache RTR 160 4V', type: 'bike', price: 985000, regFee: 15000, vehicleInsurance: 25000, downPayment: 420000 },
+  { id: 'yamaha_fzs_v3', name: 'Yamaha FZ-S V3 ABS', type: 'bike', price: 1150000, regFee: 15000, vehicleInsurance: 28000, downPayment: 480000 }
+];
+
+let vehicleDatabase = [...defaultVehicles];
+
+// Global State
+let currentMode = 'universal'; // 'universal' | 'vehicle' | 'reducing' | 'flat' | 'compare' | 'schemes' | 'records'
 let chartBreakdown = null;
 let chartTrend = null;
+let currentScheduleRows = [];
+let scheduleCurrentPage = 1;
+let lastCalculatedVehicleLoanAmount = 499523;
 
-function updateInterestRatePresetActive(val) {
-  const num = parseFloat(val) || 0;
-  document.querySelectorAll('.preset-chip[data-for="interest-rate"]').forEach(c => {
-    if (parseFloat(c.dataset.value) === num) {
-      c.classList.add("active");
-    } else {
-      c.classList.remove("active");
-    }
-  });
-}
-
-// DOM Elements
+// ============================================================
+// 4. Initialization on DOMContentLoaded
+// ============================================================
 document.addEventListener("DOMContentLoaded", () => {
-  // ── DB Version Migration ───────────────────────────────────────────────────
-  // Clear old localStorage defaults if they belong to the old 3-vehicle DB (v1)
-  const dbVersion = localStorage.getItem("gscs_db_version");
-  if (dbVersion !== "2") {
-    localStorage.removeItem("gscs_default_vehicles");
-    localStorage.setItem("gscs_db_version", "2");
-  }
-  // ─────────────────────────────────────────────────────────────────────────
-  initEventListeners();
+  initTheme();
+  initLanguage();
+  initSidebar();
+  initLoanSchemes();
+  initUniversalCalculator();
   initVehicleCalculator();
-  renderVehicleCalculator();
+  initSingleCalculator();
+  initRecordsArchive();
+  updateTopHeroStats();
+
+  // Switch to initial tab
+  switchAppMode('universal');
+
+  // Quick Action in Topbar: New Loan
+  document.getElementById("btn-quick-new-loan")?.addEventListener("click", () => {
+    switchAppMode('universal');
+    document.getElementById("univ-member-id")?.focus();
+  });
 });
 
-function initEventListeners() {
-  // Language Switcher
-  document.getElementById("btn-lang")?.addEventListener("click", () => {
-    currentLang = currentLang === 'si' ? 'en' : 'si';
-    updateLanguage();
-    calculateAndRender();
-    if (currentMode === 'vehicle') renderVehicleCalculator();
-  });
+// ============================================================
+// 5. App Mode / Tab Switcher
+// ============================================================
+function switchAppMode(mode) {
+  currentMode = mode;
 
-  // Theme Switcher
-  document.getElementById("btn-theme")?.addEventListener("click", () => {
-    document.body.classList.toggle("light-theme");
-    const icon = document.querySelector("#btn-theme i");
-    if (document.body.classList.contains("light-theme")) {
-      icon.className = "fa-solid fa-sun";
+  // Update active state on all sidebar items and top method tabs
+  document.querySelectorAll(".sidebar-nav-item, .method-tabs .tab-btn").forEach(btn => {
+    if (btn.dataset.mode === mode) {
+      btn.classList.add("active");
     } else {
-      icon.className = "fa-solid fa-moon";
+      btn.classList.remove("active");
     }
   });
 
-  // Customer Service & Support Modal (පද්ධති සේවා සහ සහාය)
-  window.openCustomerSupportModal = function() {
-    const modal = document.getElementById("modal-customer-service");
-    if (modal) modal.style.display = "flex";
-  };
-
-  window.closeCustomerSupportModal = function() {
-    const modal = document.getElementById("modal-customer-service");
-    if (modal) modal.style.display = "none";
-  };
-
-  const supportModal = document.getElementById("modal-customer-service");
-  document.getElementById("btn-support")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    window.openCustomerSupportModal();
+  // Hide all view wrappers safely
+  const viewIds = [
+    "universal-calc-view",
+    "vehicle-calc-view",
+    "single-calc-view",
+    "compare-calc-view",
+    "schemes-calc-view",
+    "records-calc-view",
+    "repayment-schedule-section"
+  ];
+  viewIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
   });
 
-  document.getElementById("btn-close-support-modal")?.addEventListener("click", () => {
-    window.closeCustomerSupportModal();
-  });
+  // Show selected view
+  switch(mode) {
+    case 'universal':
+      const uView = document.getElementById("universal-calc-view");
+      if (uView) uView.style.display = 'block';
+      updateUniversalCalculation();
+      break;
 
-  supportModal?.addEventListener("click", (e) => {
-    if (e.target === supportModal) {
-      window.closeCustomerSupportModal();
-    }
-  });
+    case 'vehicle':
+      const vView = document.getElementById("vehicle-calc-view");
+      if (vView) vView.style.display = 'block';
+      updateVehicleCalculation();
+      break;
 
-  // Copy Phone Number
-  document.getElementById("channel-phone")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    const phone = "+94 75 289 5951";
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(phone).then(() => {
-        showToast("දුරකථන අංකය (+94 75 289 5951) Copy කරගන්නා ලදී.", "success", "Copied to Clipboard");
-      }).catch(() => {
-        showToast("Hotline: +94 75 289 5951", "info", "Hotline Support");
-      });
-    } else {
-      showToast("Hotline: +94 75 289 5951", "info", "Hotline Support");
-    }
-  });
-
-  // Close support modal on Escape key
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      if (supportModal && supportModal.style.display === "flex") {
-        window.closeCustomerSupportModal();
-      }
-    }
-  });
-
-  // Sidebar Mobile Toggle
-  document.getElementById("btn-sidebar-toggle")?.addEventListener("click", () => {
-    document.querySelector(".dashboard-sidebar")?.classList.toggle("open");
-    document.getElementById("sidebar-backdrop")?.classList.toggle("show");
-  });
-
-  document.getElementById("sidebar-backdrop")?.addEventListener("click", () => {
-    document.querySelector(".dashboard-sidebar")?.classList.remove("open");
-    document.getElementById("sidebar-backdrop")?.classList.remove("show");
-  });
-
-  // Sidebar shortcut for Saved Records
-  document.getElementById("sidebar-btn-saved")?.addEventListener("click", () => {
-    // Switch to vehicle mode if not already
-    const vehTab = document.querySelector('.tab-btn[data-mode="vehicle"]');
-    if (vehTab) vehTab.click();
-    setTimeout(() => {
-      document.getElementById("saved-records-section")?.scrollIntoView({ behavior: 'smooth' });
-    }, 150);
-    document.querySelector(".dashboard-sidebar")?.classList.remove("open");
-    document.getElementById("sidebar-backdrop")?.classList.remove("show");
-  });
-
-  // Tabs
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const targetMode = e.currentTarget.dataset.mode;
-      if (!targetMode) return;
-      currentMode = targetMode;
-
-      // Sync active state across all tab buttons (sidebar + in-page)
-      document.querySelectorAll(".tab-btn").forEach(b => {
-        if (b.dataset.mode === targetMode) {
-          b.classList.add("active");
-        } else {
-          b.classList.remove("active");
-        }
-      });
-
-      const calcGrid = document.getElementById("single-calc-view");
-      const compareGrid = document.getElementById("compare-calc-view");
-      const vehicleView = document.getElementById("vehicle-calc-view");
-      const scheduleSection = document.getElementById("repayment-schedule-section");
-
-      if (currentMode === 'compare') {
-        calcGrid.style.display = 'none';
-        compareGrid.style.display = 'grid';
-        if (vehicleView) vehicleView.style.display = 'none';
-        if (scheduleSection) scheduleSection.style.display = 'block';
-      } else if (currentMode === 'vehicle') {
-        calcGrid.style.display = 'none';
-        compareGrid.style.display = 'none';
-        if (vehicleView) vehicleView.style.display = 'block';
-        if (scheduleSection) scheduleSection.style.display = 'none';
-        renderVehicleCalculator();
-      } else {
-        calcGrid.style.display = 'grid';
-        compareGrid.style.display = 'none';
-        if (vehicleView) vehicleView.style.display = 'none';
-        if (scheduleSection) scheduleSection.style.display = 'block';
-
-        // Load the mode-specific interest rate
-        const currentRate = currentMode === 'flat' ? flatRate : reducingRate;
-        const rateInput = document.getElementById("interest-rate");
-        const rateSlider = document.getElementById("interest-rate-slider");
-        if (rateInput) rateInput.value = currentRate;
-        if (rateSlider) rateSlider.value = currentRate;
-        updateInterestRatePresetActive(currentRate);
-      }
-
-      // Close mobile sidebar if open
-      document.querySelector(".dashboard-sidebar")?.classList.remove("open");
-      document.getElementById("sidebar-backdrop")?.classList.remove("show");
-
+    case 'reducing':
+    case 'flat':
+      const sView = document.getElementById("single-calc-view");
+      if (sView) sView.style.display = 'grid';
+      const rView = document.getElementById("repayment-schedule-section");
+      if (rView) rView.style.display = 'block';
       calculateAndRender();
-    });
-  });
+      break;
 
-  // Shortcut button under loan amount
-  document.getElementById("btn-calc-veh-loan")?.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach(b => {
-      b.classList.remove("active");
-      if (b.dataset.mode === 'vehicle') b.classList.add("active");
-    });
-    currentMode = 'vehicle';
-    document.getElementById("single-calc-view").style.display = 'none';
-    document.getElementById("compare-calc-view").style.display = 'none';
-    document.getElementById("vehicle-calc-view").style.display = 'block';
-    document.getElementById("repayment-schedule-section").style.display = 'none';
-    renderVehicleCalculator();
-  });
+    case 'compare':
+      const cView = document.getElementById("compare-calc-view");
+      if (cView) cView.style.display = 'grid';
+      renderComparisonView();
+      break;
 
-  // Input fields & Sliders sync
-  bindInputSlider("loan-amount", "loan-amount-slider");
-  bindInputSlider("interest-rate", "interest-rate-slider");
-  bindInputSlider("loan-tenure", "loan-tenure-slider");
-  bindInputSlider("insurance-rate", "insurance-rate-slider");
+    case 'schemes':
+      const schView = document.getElementById("schemes-calc-view");
+      if (schView) schView.style.display = 'block';
+      renderSchemesCards();
+      break;
 
-  // Keep track of mode-specific interest rate when edited
-  const rateInput = document.getElementById("interest-rate");
-  const rateSlider = document.getElementById("interest-rate-slider");
+    case 'records':
+      const recView = document.getElementById("records-calc-view");
+      if (recView) recView.style.display = 'block';
+      renderArchiveTable();
+      break;
+  }
 
-  const syncRate = (val) => {
-    const num = parseFloat(val) || 0;
-    if (currentMode === 'flat') {
-      flatRate = num;
-    } else if (currentMode === 'reducing') {
-      reducingRate = num;
-    }
-    updateInterestRatePresetActive(num);
-  };
-
-  rateInput?.addEventListener("input", (e) => syncRate(e.target.value));
-  rateSlider?.addEventListener("input", (e) => syncRate(e.target.value));
-
-  // Date input
-  document.getElementById("start-date")?.addEventListener("change", calculateAndRender);
-
-  // Tenure Unit toggle (Months vs Years)
-  document.querySelectorAll("input[name='tenure-unit']").forEach(radio => {
-    radio.addEventListener("change", (e) => {
-      tenureUnit = e.target.value;
-      const tenureSlider = document.getElementById("loan-tenure-slider");
-      const tenureInput = document.getElementById("loan-tenure");
-      
-      if (tenureUnit === 'years') {
-        tenureSlider.min = 1;
-        tenureSlider.max = 30;
-        tenureInput.value = 3;
-        tenureSlider.value = 3;
-      } else {
-        tenureSlider.min = 3;
-        tenureSlider.max = 360;
-        tenureInput.value = 36;
-        tenureSlider.value = 36;
-      }
-      calculateAndRender();
-    });
-  });
-
-  // Presets
-  document.querySelectorAll(".preset-chip").forEach(chip => {
-    chip.addEventListener("click", (e) => {
-      const targetInputId = e.target.dataset.for;
-      const val = e.target.dataset.value;
-      const input = document.getElementById(targetInputId);
-      const slider = document.getElementById(targetInputId + "-slider");
-      if (input) input.value = val;
-      if (slider) slider.value = val;
-
-      if (targetInputId === 'interest-rate') {
-        const num = parseFloat(val) || 0;
-        if (currentMode === 'flat') {
-          flatRate = num;
-        } else if (currentMode === 'reducing') {
-          reducingRate = num;
-        }
-      }
-
-      // Update active state on preset chips
-      e.target.parentElement.querySelectorAll(".preset-chip").forEach(c => c.classList.remove("active"));
-      e.target.classList.add("active");
-
-      calculateAndRender();
-    });
-  });
-
-  // Search & Rows per page
-  document.getElementById("search-month")?.addEventListener("input", () => {
-    currentPage = 1;
-    renderTable();
-  });
-
-  document.getElementById("rows-per-page")?.addEventListener("change", (e) => {
-    rowsPerPage = parseInt(e.target.value) || 12;
-    currentPage = 1;
-    renderTable();
-  });
-
-  // Export buttons
-  document.getElementById("btn-export-csv")?.addEventListener("click", exportCSV);
-  document.getElementById("btn-export-pdf")?.addEventListener("click", printRepaymentSchedule);
-  document.getElementById("btn-print")?.addEventListener("click", printRepaymentSchedule);
+  // Close mobile sidebar if open
+  closeMobileSidebar();
+  updateTopHeroStats();
 }
 
-function bindInputSlider(inputId, sliderId) {
-  const input = document.getElementById(inputId);
-  const slider = document.getElementById(sliderId);
-  if (!input || !slider) return;
+// Wire up all tab buttons (both in sidebar & top method tabs)
+document.addEventListener("click", (e) => {
+  const tabBtn = e.target.closest(".tab-btn");
+  if (tabBtn && tabBtn.dataset.mode) {
+    switchAppMode(tabBtn.dataset.mode);
+  }
+});
 
-  input.addEventListener("input", () => {
-    slider.value = input.value;
-    calculateAndRender();
+// ============================================================
+// 6. Universal Loan Issuance & Deductions Engine
+// ============================================================
+function initUniversalCalculator() {
+  // Load saved loan schemes into dropdown
+  populateUniversalSchemeDropdown();
+
+  // Attach input event listeners to all universal inputs
+  document.querySelectorAll(".univ-input").forEach(input => {
+    input.addEventListener("input", () => {
+      updateUniversalCalculation();
+    });
   });
 
-  slider.addEventListener("input", () => {
-    input.value = slider.value;
-    calculateAndRender();
+  // Scheme selector change -> auto-apply scheme defaults
+  document.getElementById("univ-loan-scheme")?.addEventListener("change", (e) => {
+    const schemeId = e.target.value;
+    applySchemeToUniversalCalculator(schemeId);
   });
-}
 
-function updateLanguage() {
-  const dict = i18n[currentLang];
-  document.getElementById("lang-name").textContent = currentLang === 'si' ? 'English' : 'සිංහල';
+  // Calculation method radios (reducing / flat)
+  document.querySelectorAll('input[name="univ-calc-method"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+      updateUniversalCalculation();
+    });
+  });
 
-  // Translate static text elements with data-i18n attribute
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    const key = el.dataset.i18n;
-    if (dict[key]) {
-      el.textContent = dict[key];
+  // Preset chips for Loan Amount
+  document.querySelectorAll('.preset-chip[data-for="univ-loan-amount"]').forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll('.preset-chip[data-for="univ-loan-amount"]').forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      const val = chip.dataset.value;
+      const input = document.getElementById("univ-loan-amount");
+      if (input) {
+        input.value = val;
+        updateUniversalCalculation();
+      }
+    });
+  });
+
+  // Reset form button
+  document.getElementById("btn-reset-universal-form")?.addEventListener("click", () => {
+    if (confirm("පෝරමයේ සියලුම අගයන් මුල් තත්වයට පත් කිරීමට කැමතිද?")) {
+      resetUniversalForm();
+      showToast("පෝරමය සාර්ථකව හිස් කරන ලදී.", "info");
     }
   });
 
-  // Search placeholder
-  const searchInput = document.getElementById("search-month");
-  if (searchInput) searchInput.placeholder = dict.searchPlaceholder;
+  // Clear deductions button
+  document.getElementById("btn-clear-univ-deductions")?.addEventListener("click", () => {
+    document.querySelectorAll(".univ-fee-input").forEach(inp => inp.value = 0);
+    updateUniversalCalculation();
+    showToast("සියලුම අරමුදල් හා අයකිරීම් 0 කරන ලදී.", "info");
+  });
+
+  // Quick add scheme button
+  document.getElementById("btn-quick-add-scheme")?.addEventListener("click", () => {
+    openSchemeModalAdd();
+  });
+
+  // Save & Print Universal Voucher Slip
+  document.getElementById("btn-save-and-print-universal")?.addEventListener("click", () => {
+    saveAndPrintUniversalLoan();
+  });
+
+  // Apply to repayment schedule button
+  document.getElementById("btn-apply-to-repayment-schedule")?.addEventListener("click", () => {
+    applyUniversalLoanToSchedule();
+  });
+
+  // Shortcut to records archive
+  document.getElementById("btn-view-all-saved-records-shortcut")?.addEventListener("click", () => {
+    switchAppMode('records');
+  });
+
+  updateUniversalCalculation();
+}
+
+function populateUniversalSchemeDropdown() {
+  const select = document.getElementById("univ-loan-scheme");
+  if (!select) return;
+
+  const curVal = select.value;
+  select.innerHTML = "";
+
+  loanSchemesDatabase.forEach(scheme => {
+    const opt = document.createElement("option");
+    opt.value = scheme.id;
+    opt.textContent = scheme.name;
+    select.appendChild(opt);
+  });
+
+  if (curVal && Array.from(select.options).some(o => o.value === curVal)) {
+    select.value = curVal;
+  }
+}
+
+function applySchemeToUniversalCalculator(schemeId) {
+  const scheme = loanSchemesDatabase.find(s => s.id === schemeId);
+  if (!scheme) return;
+
+  const rateInput = document.getElementById("univ-interest-rate");
+  const tenureInput = document.getElementById("univ-loan-tenure");
+
+  if (rateInput && (!rateInput.value || rateInput.value === '0')) {
+    if (scheme.rate !== undefined) rateInput.value = scheme.rate;
+  }
+  if (tenureInput && (!tenureInput.value || tenureInput.value === '0')) {
+    if (scheme.period !== undefined) tenureInput.value = scheme.period;
+  }
+
+  if (scheme.method) {
+    document.querySelectorAll('input[name="univ-calc-method"]').forEach(r => {
+      r.checked = (r.value === scheme.method);
+    });
+  }
+
+  updateUniversalCalculation();
+}
+
+function resetUniversalForm() {
+  const ids = ["univ-member-id", "univ-member-name", "univ-member-nic", "univ-member-phone", "univ-g1-acc", "univ-g2-acc", "univ-loan-amount", "univ-interest-rate", "univ-loan-tenure", "univ-loan-remarks"];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  document.querySelectorAll(".univ-fee-input").forEach(inp => inp.value = "");
+  document.querySelectorAll('.preset-chip[data-for="univ-loan-amount"]').forEach(c => c.classList.remove("active"));
+
+  updateUniversalCalculation();
+}
+
+function updateUniversalCalculation() {
+  const grossLoanAmount = parseInputNumber("univ-loan-amount", 0);
+  const annualRate = parseInputNumber("univ-interest-rate", 0);
+  const tenureMonths = parseInt(document.getElementById("univ-loan-tenure")?.value) || 0;
+  const calcMethod = document.querySelector('input[name="univ-calc-method"]:checked')?.value || 'reducing';
+
+  // 12 Itemized Fund & Admin Deductions
+  const savings         = parseInputNumber("univ-fee-savings", 0);
+  const serviceFund     = parseInputNumber("univ-fee-service", 0);
+  const buildingFund    = parseInputNumber("univ-fee-building", 0);
+  const loanInsurance   = parseInputNumber("univ-fee-insurance", 0);
+  const memberShares    = parseInputNumber("univ-fee-member-shares", 0);
+  const securityDeposit = parseInputNumber("univ-fee-security", 0);
+  const stationery      = parseInputNumber("univ-fee-stationery", 0);
+  const welfareFund     = parseInputNumber("univ-fee-welfare", 0);
+  const existingLoan    = parseInputNumber("univ-fee-existing-loan", 0);
+  const existingInterest= parseInputNumber("univ-fee-existing-interest", 0);
+  const g1Shares        = parseInputNumber("univ-fee-g1-shares", 0);
+  const g2Shares        = parseInputNumber("univ-fee-g2-shares", 0);
+
+  const totalDeductions = savings + serviceFund + buildingFund + loanInsurance + 
+                          memberShares + securityDeposit + stationery + welfareFund + 
+                          existingLoan + existingInterest + g1Shares + g2Shares;
+
+  const netDisbursement = Math.max(0, grossLoanAmount - totalDeductions);
+
+  // EMI & Interest Calculations
+  let monthlyInstallment = 0;
+  let totalInterest = 0;
+  let installmentSub = "";
+
+  if (grossLoanAmount > 0 && tenureMonths > 0) {
+    if (calcMethod === 'reducing') {
+      const monthlyPrincipal = grossLoanAmount / tenureMonths;
+      const firstMonthInterest = (grossLoanAmount * (annualRate / 100)) / 12;
+      const lastMonthInterest = (monthlyPrincipal * (annualRate / 100)) / 12;
+      monthlyInstallment = monthlyPrincipal + firstMonthInterest;
+      totalInterest = (grossLoanAmount * (annualRate / 100) * (tenureMonths + 1)) / 24;
+      installmentSub = `පළමු මාසය: ${formatCurrency(monthlyPrincipal + firstMonthInterest)} | අවසන් මාසය: ${formatCurrency(monthlyPrincipal + lastMonthInterest)}`;
+    } else {
+      // Flat Rate
+      totalInterest = grossLoanAmount * (annualRate / 100) * (tenureMonths / 12);
+      monthlyInstallment = (grossLoanAmount + totalInterest) / tenureMonths;
+      installmentSub = "මුළු කාලය පුරාම ස්ථාවර වාරිකය (Fixed EMI)";
+    }
+  } else {
+    installmentSub = "–";
+  }
+
+  // Update UI Elements
+  const elGross = document.getElementById("univ-metric-gross-loan");
+  const elDeductions = document.getElementById("univ-metric-total-deductions");
+  const elNet = document.getElementById("univ-metric-net-disbursement");
+  const elEmi = document.getElementById("univ-metric-monthly-installment");
+  const elEmiSub = document.getElementById("univ-metric-installment-sub");
+  const elTotalInterest = document.getElementById("univ-metric-total-interest");
+
+  if (elGross) elGross.textContent = formatCurrency(grossLoanAmount);
+  if (elDeductions) elDeductions.textContent = formatCurrency(totalDeductions);
+  if (elNet) elNet.textContent = formatCurrency(netDisbursement);
+  if (elEmi) elEmi.textContent = formatCurrency(monthlyInstallment);
+  if (elEmiSub) elEmiSub.textContent = installmentSub;
+  if (elTotalInterest) elTotalInterest.textContent = formatCurrency(totalInterest);
 
   updateTopHeroStats();
 }
 
-// Number formatting helpers
-function formatCurrency(amount) {
-  return "Rs. " + Number(amount).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
+function extractUniversalLoanRecord() {
+  const schemeSelect = document.getElementById("univ-loan-scheme");
+  const schemeName = schemeSelect?.options[schemeSelect.selectedIndex]?.text?.split(" (")[0] || "ණය වර්ගය";
 
-function parseInputNumber(id, defaultVal = 0) {
-  const el = document.getElementById(id);
-  if (!el) return defaultVal;
-  const val = parseFloat(el.value);
-  return isNaN(val) ? defaultVal : val;
-}
+  const memberId    = document.getElementById("univ-member-id")?.value.trim() || "";
+  const memberName  = document.getElementById("univ-member-name")?.value.trim() || "";
+  const nic         = document.getElementById("univ-member-nic")?.value.trim() || "";
+  const phone       = document.getElementById("univ-member-phone")?.value.trim() || "";
+  const g1Acc       = document.getElementById("univ-g1-acc")?.value.trim() || "";
+  const g2Acc       = document.getElementById("univ-g2-acc")?.value.trim() || "";
+  const grossLoan   = parseInputNumber("univ-loan-amount", 0);
+  const rate        = parseInputNumber("univ-interest-rate", 18);
+  const period      = parseInt(document.getElementById("univ-loan-tenure")?.value) || 24;
+  const method      = document.querySelector('input[name="univ-calc-method"]:checked')?.value || 'reducing';
+  const remarks     = document.getElementById("univ-loan-remarks")?.value.trim() || "";
 
-function getNthInstallmentDate(baseDateStr, n) {
-  const base = new Date(baseDateStr);
-  if (isNaN(base.getTime())) return new Date();
-  
-  const startDay = base.getDate();
-  const targetDate = new Date(base.getFullYear(), base.getMonth() + n, 1);
-  const daysInMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0).getDate();
-  const actualDay = Math.min(startDay, daysInMonth);
-  targetDate.setDate(actualDay);
-  return targetDate;
-}
+  // 12 Itemized Fund & Admin Deductions
+  const savings         = parseInputNumber("univ-fee-savings", 0);
+  const serviceFund     = parseInputNumber("univ-fee-service", 0);
+  const buildingFund    = parseInputNumber("univ-fee-building", 0);
+  const loanInsurance   = parseInputNumber("univ-fee-insurance", 0);
+  const memberShares    = parseInputNumber("univ-fee-member-shares", 0);
+  const securityDeposit = parseInputNumber("univ-fee-security", 0);
+  const stationery      = parseInputNumber("univ-fee-stationery", 0);
+  const welfareFund     = parseInputNumber("univ-fee-welfare", 0);
+  const existingLoan    = parseInputNumber("univ-fee-existing-loan", 0);
+  const existingInterest= parseInputNumber("univ-fee-existing-interest", 0);
+  const g1Shares        = parseInputNumber("univ-fee-g1-shares", 0);
+  const g2Shares        = parseInputNumber("univ-fee-g2-shares", 0);
 
-function formatDateString(dateObj) {
-  const y = dateObj.getFullYear();
-  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const d = String(dateObj.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
+  const totalDeductions = savings + serviceFund + buildingFund + loanInsurance + 
+                          memberShares + securityDeposit + stationery + welfareFund + 
+                          existingLoan + existingInterest + g1Shares + g2Shares;
 
-// Core Calculations
-function calculateLoanData(mode, loanAmount, annualRate, months, insuranceRate) {
-  const calcMethod = document.getElementById("calc-method")?.value || "actual";
-  const roundModeRadio = document.querySelector("input[name='rounding-mode']:checked");
-  const roundMode = roundModeRadio ? roundModeRadio.value : "rupees";
+  const netDisbursement = Math.max(0, grossLoan - totalDeductions);
 
-  const monthlyInsuranceFactor = insuranceRate / 100;
-  let schedule = [];
+  // Calculate EMI
+  let emi = 0;
   let totalInterest = 0;
-  let totalInsurance = 0;
-
-  let balance = loanAmount;
-  const startDateVal = document.getElementById("start-date")?.value || new Date().toISOString().split('T')[0];
-  const baseDate = new Date(startDateVal);
-
-  if (mode === 'reducing') {
-    const rawMonthlyPrincipal = loanAmount / months;
-    const fixedPrincipal = roundMode === 'rupees' ? Math.round(rawMonthlyPrincipal) : rawMonthlyPrincipal;
-
-    let prevDate = new Date(baseDate);
-
-    for (let i = 1; i <= months; i++) {
-      const startBal = balance;
-      const dueDate = getNthInstallmentDate(startDateVal, i);
-      
-      let interest = 0;
-      if (calcMethod === 'actual') {
-        // Actual Days / 365 basis (Sanasa & Sri Lanka Bank Standard)
-        const diffTime = dueDate.getTime() - prevDate.getTime();
-        const days = Math.round(diffTime / (1000 * 60 * 60 * 24));
-        const rawInterest = startBal * (annualRate / 100) * (days / 365);
-        interest = roundMode === 'rupees' ? Math.floor(rawInterest) : rawInterest;
-      } else {
-        // Fixed 30 days / 360 basis
-        const rawInterest = startBal * (annualRate / 100 / 12);
-        interest = roundMode === 'rupees' ? Math.floor(rawInterest) : rawInterest;
-      }
-
-      const insurance = startBal * monthlyInsuranceFactor;
-      let principal = (i === months) ? startBal : fixedPrincipal;
-      if (roundMode === 'rupees') principal = Math.round(principal);
-
-      const totalPayment = principal + interest + insurance;
-      const endBal = Math.max(0, startBal - principal);
-
-      totalInterest += interest;
-      totalInsurance += insurance;
-
-      schedule.push({
-        month: i,
-        date: formatDateString(dueDate),
-        startBal: startBal,
-        principal: principal,
-        interest: interest,
-        insurance: insurance,
-        totalPayment: totalPayment,
-        endBal: endBal
-      });
-
-      balance = endBal;
-      prevDate = dueDate;
-    }
+  if (method === 'reducing') {
+    const monthlyPrincipal = grossLoan / period;
+    const firstMonthInterest = (grossLoan * (rate / 100)) / 12;
+    emi = monthlyPrincipal + firstMonthInterest;
+    totalInterest = (grossLoan * (rate / 100) * (period + 1)) / 24;
   } else {
-    // Flat Rate
-    const rawMonthlyPrincipal = loanAmount / months;
-    const monthlyPrincipal = roundMode === 'rupees' ? Math.round(rawMonthlyPrincipal) : rawMonthlyPrincipal;
-    
-    const rawMonthlyInterest = (loanAmount * (annualRate / 100)) / 12;
-    const monthlyInterest = roundMode === 'rupees' ? Math.floor(rawMonthlyInterest) : rawMonthlyInterest;
-    
-    const monthlyInsurance = loanAmount * monthlyInsuranceFactor;
-    const monthlyPayment = monthlyPrincipal + monthlyInterest + monthlyInsurance;
-
-    for (let i = 1; i <= months; i++) {
-      const startBal = balance;
-      const dueDate = getNthInstallmentDate(startDateVal, i);
-      const principal = (i === months) ? startBal : monthlyPrincipal;
-      const endBal = Math.max(0, startBal - principal);
-
-      totalInterest += monthlyInterest;
-      totalInsurance += monthlyInsurance;
-
-      schedule.push({
-        month: i,
-        date: formatDateString(dueDate),
-        startBal: startBal,
-        principal: principal,
-        interest: monthlyInterest,
-        insurance: monthlyInsurance,
-        totalPayment: monthlyPayment,
-        endBal: endBal
-      });
-
-      balance = endBal;
-    }
+    totalInterest = grossLoan * (rate / 100) * (period / 12);
+    emi = (grossLoan + totalInterest) / period;
   }
 
-  const totalPayable = loanAmount + totalInterest + totalInsurance;
-
-  return {
-    loanAmount,
-    annualRate,
-    months,
-    insuranceRate,
-    totalInterest,
-    totalInsurance,
-    totalPayable,
-    schedule,
-    firstMonthPayment: schedule[0]?.totalPayment || 0,
-    lastMonthPayment: schedule[months - 1]?.totalPayment || 0,
-    avgMonthlyPayment: totalPayable / months
+  const record = {
+    id: "rec_" + Date.now(),
+    date: new Date().toLocaleDateString('si-LK', { year:'numeric', month:'short', day:'numeric' }),
+    timestamp: Date.now(),
+    type: "universal",
+    schemeName,
+    memberId,
+    memberName,
+    nic,
+    phone,
+    g1Acc,
+    g2Acc,
+    grossLoan,
+    rate,
+    period,
+    method,
+    remarks,
+    savings,
+    serviceFund,
+    buildingFund,
+    loanInsurance,
+    memberShares,
+    securityDeposit,
+    stationery,
+    welfareFund,
+    existingLoan,
+    existingInterest,
+    g1Shares,
+    g2Shares,
+    totalDeductions,
+    netDisbursement,
+    emi,
+    totalInterest
   };
+
+  return record;
 }
 
-let activeCalculationResult = null;
-
-function calculateAndRender() {
-  const loanAmount = parseInputNumber("loan-amount", 400000);
-  let tenure = parseInputNumber("loan-tenure", 60);
-  if (tenureUnit === 'years') tenure = tenure * 12;
-  const insuranceRate = parseInputNumber("insurance-rate", 0.06);
-
-  if (currentMode === 'compare') {
-    renderComparisonView(loanAmount, tenure, insuranceRate);
+function saveAndPrintUniversalLoan() {
+  const record = extractUniversalLoanRecord();
+  if (!record.memberId || !record.memberName) {
+    showToast("කරුණාකර සාමාජික අංකය සහ නම ඇතුළත් කරන්න.", "warning", "තොරතුරු අවශ්‍යයි");
+    return;
+  }
+  if (record.grossLoan <= 0) {
+    showToast("කරුණාකර වලංගු අනුමත ණය මුදලක් ඇතුළත් කරන්න.", "warning", "අගය අවශ්‍යයි");
     return;
   }
 
-  // Use mode-specific rate
-  const annualRate = currentMode === 'flat' ? flatRate : reducingRate;
+  // Save to Archive
+  const archive = getAllSavedRecords();
+  archive.unshift(record);
+  saveAllRecordsArray(archive);
 
-  // Calculate for single selected mode
-  activeCalculationResult = calculateLoanData(currentMode, loanAmount, annualRate, tenure, insuranceRate);
-  
-  updateSummaryCards(activeCalculationResult);
-  renderFormulaBox();
-  renderCharts(activeCalculationResult);
-  renderTable();
+  showToast(`"${record.memberName}" (${record.memberId}) ගේ ණය වාර්තාව සුරැකි අතර Print Preview විවෘත වේ...`, "success", "සුරකින ලදී & Print");
+
+  // Trigger Print Slip
+  printUniversalLoanSlip(record);
 }
 
-function updateSummaryCards(res) {
-  const dict = i18n[currentLang];
-  
-  const elInstallment = document.getElementById("metric-installment");
-  const elInstallmentSub = document.getElementById("metric-installment-sub");
-  const elInterest = document.getElementById("metric-interest");
-  const elInsurance = document.getElementById("metric-insurance");
-  const elTotalPayable = document.getElementById("metric-total-payable");
+function applyUniversalLoanToSchedule() {
+  const grossLoan = parseInputNumber("univ-loan-amount", 0);
+  const rate = parseInputNumber("univ-interest-rate", 18);
+  const period = parseInt(document.getElementById("univ-loan-tenure")?.value) || 24;
+  const method = document.querySelector('input[name="univ-calc-method"]:checked')?.value || 'reducing';
 
-  if (currentMode === 'reducing') {
-    elInstallment.textContent = `${formatCurrency(res.firstMonthPayment)} → ${formatCurrency(res.lastMonthPayment)}`;
-    elInstallmentSub.textContent = dict.reducingRange
-      .replace("{{first}}", formatCurrency(res.firstMonthPayment))
-      .replace("{{n}}", res.months)
-      .replace("{{last}}", formatCurrency(res.lastMonthPayment));
-  } else {
-    elInstallment.textContent = formatCurrency(res.firstMonthPayment);
-    elInstallmentSub.textContent = dict.flatFixed;
-  }
+  document.getElementById("loan-amount").value = grossLoan;
+  document.getElementById("loan-amount-slider").value = grossLoan;
+  document.getElementById("interest-rate").value = rate;
+  document.getElementById("loan-tenure").value = period;
 
-  elInterest.textContent = formatCurrency(res.totalInterest);
-  elInsurance.textContent = formatCurrency(res.totalInsurance);
-  elTotalPayable.textContent = formatCurrency(res.totalPayable);
-
-  updateTopHeroStats();
+  switchAppMode(method === 'flat' ? 'flat' : 'reducing');
+  document.getElementById("repayment-schedule-section")?.scrollIntoView({ behavior: 'smooth' });
 }
 
-function updateTopHeroStats() {
-  const stat1Title = document.getElementById("stat-pill-1-title");
-  const stat1Val = document.getElementById("stat-pill-1-val");
-  const stat2Title = document.getElementById("stat-pill-2-title");
-  const stat2Val = document.getElementById("stat-pill-2-val");
-  const stat3Title = document.getElementById("stat-pill-3-title");
-  const stat3Val = document.getElementById("stat-pill-3-val");
-  const stat4Title = document.getElementById("stat-pill-4-title");
-  const stat4Val = document.getElementById("stat-pill-4-val");
-
-  if (!stat1Title || !stat1Val) return;
-
-  if (currentMode === 'vehicle') {
-    const price = parseInputNumber("veh-price", 0);
-    const regFee = parseInputNumber("veh-reg-fee", 0);
-    const vehInsurance = parseInputNumber("veh-insurance-fee", 0);
-    const downPayment = parseInputNumber("veh-down-payment", 0);
-    const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
-    const g1Shares = parseInputNumber("fee-guarantor1-shares", 0);
-    const g2Shares = parseInputNumber("fee-guarantor2-shares", 0);
-    const docFee = parseInputNumber("fee-doc", 0);
-    const serviceFund = parseInputNumber("fee-service-fund", 0);
-    const loanInsurance = parseInputNumber("fee-loan-insurance", 0);
-    const swashakthiFund = parseInputNumber("fee-swashakthi-fund", 0);
-    const buildingFund = parseInputNumber("fee-building-fund", 0);
-    const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
-
-    const totalDocFees = borrowerShares + g1Shares + g2Shares + docFee + serviceFund + loanInsurance + swashakthiFund + buildingFund + borrowerDeposit + regFee + vehInsurance;
-    const totalVehCost = price + totalDocFees;
-    const requiredLoan = Math.max(0, totalVehCost - downPayment);
-
-    stat1Title.textContent = currentLang === 'si' ? "වාහනයේ මිල (Price)" : "Vehicle Price";
-    stat1Val.textContent = formatCurrency(price);
-
-    stat2Title.textContent = currentLang === 'si' ? "ලිපි ලේඛන ගාස්තු" : "Documentation Fees";
-    stat2Val.textContent = formatCurrency(totalDocFees);
-
-    stat3Title.textContent = currentLang === 'si' ? "මූලික ගෙවීම (Down)" : "Down Payment";
-    stat3Val.textContent = formatCurrency(downPayment);
-
-    stat4Title.textContent = currentLang === 'si' ? "අවශ්‍ය ණය මුදල" : "Required Loan";
-    stat4Val.textContent = formatCurrency(requiredLoan);
-  } else if (activeCalculationResult) {
-    stat1Title.textContent = currentLang === 'si' ? "ණය මුදල (Principal)" : "Loan Amount";
-    stat1Val.textContent = formatCurrency(activeCalculationResult.loanAmount);
-
-    stat2Title.textContent = currentLang === 'si' ? "මාසික වාරිකය (Installment)" : "Installment";
-    stat2Val.textContent = formatCurrency(activeCalculationResult.firstMonthPayment);
-
-    stat3Title.textContent = currentLang === 'si' ? "මුළු පොලිය (Interest)" : "Total Interest";
-    stat3Val.textContent = formatCurrency(activeCalculationResult.totalInterest);
-
-    stat4Title.textContent = currentLang === 'si' ? "ගෙවිය යුතු මුළු මුදල" : "Total Payable";
-    stat4Val.textContent = formatCurrency(activeCalculationResult.totalPayable);
-  }
-}
-
-function renderFormulaBox() {
-  const titleEl = document.getElementById("formula-title");
-  const textEl = document.getElementById("formula-text");
-  if (!titleEl || !textEl) return;
-
-  const dict = i18n[currentLang];
-  if (currentMode === 'reducing') {
-    titleEl.textContent = dict.formulaReducingTitle;
-    textEl.textContent = dict.formulaReducingText;
-  } else {
-    titleEl.textContent = dict.formulaFlatTitle;
-    textEl.textContent = dict.formulaFlatText;
-  }
-}
-
-function renderCharts(res) {
-  const dict = i18n[currentLang];
-
-  // 1. Donut Chart - Payment Breakdown
-  const ctxBreakdown = document.getElementById("chart-breakdown")?.getContext("2d");
-  if (ctxBreakdown) {
-    if (chartBreakdown) chartBreakdown.destroy();
-    
-    chartBreakdown = new Chart(ctxBreakdown, {
-      type: 'doughnut',
-      data: {
-        labels: [dict.colPrincipal, dict.colInterest, dict.colInsurance],
-        datasets: [{
-          data: [res.loanAmount, res.totalInterest, res.totalInsurance],
-          backgroundColor: ['#3b82f6', '#f59e0b', '#10b981'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { color: getComputedStyle(document.body).getPropertyValue('--text-main') }
-          }
-        }
-      }
-    });
-  }
-
-  // 2. Line Chart - Balance Reduction Trend
-  const ctxTrend = document.getElementById("chart-trend")?.getContext("2d");
-  if (ctxTrend) {
-    if (chartTrend) chartTrend.destroy();
-
-    const labels = res.schedule.map(s => `M${s.month}`);
-    const balances = res.schedule.map(s => Math.round(s.endBal));
-    const payments = res.schedule.map(s => Math.round(s.totalPayment));
-
-    chartTrend = new Chart(ctxTrend, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: dict.colEndBal,
-            data: balances,
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            fill: true,
-            tension: 0.2
-          },
-          {
-            label: dict.colPayment,
-            data: payments,
-            borderColor: '#f59e0b',
-            borderDash: [5, 5],
-            fill: false,
-            tension: 0.2
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-muted'), maxTicksLimit: 12 } },
-          y: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-muted') } }
-        },
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { color: getComputedStyle(document.body).getPropertyValue('--text-main') }
-          }
-        }
-      }
-    });
-  }
-}
-
-function renderTable() {
-  if (!activeCalculationResult) return;
-  const dict = i18n[currentLang];
-  const tbody = document.getElementById("schedule-tbody");
-  const tfoot = document.getElementById("schedule-tfoot");
-  const searchVal = (document.getElementById("search-month")?.value || "").toLowerCase().trim();
-
-  if (!tbody || !tfoot) return;
-
-  let filtered = activeCalculationResult.schedule.filter(row => {
-    return row.month.toString().includes(searchVal) || row.date.toLowerCase().includes(searchVal);
-  });
-
-  const totalPages = Math.ceil(filtered.length / rowsPerPage) || 1;
-  if (currentPage > totalPages) currentPage = totalPages;
-
-  const startIdx = (currentPage - 1) * rowsPerPage;
-  const pageRows = rowsPerPage === 0 ? filtered : filtered.slice(startIdx, startIdx + rowsPerPage);
-
-  tbody.innerHTML = "";
-  pageRows.forEach(row => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><strong>${row.month}</strong></td>
-      <td>${row.date}</td>
-      <td>${formatCurrency(row.startBal)}</td>
-      <td>${formatCurrency(row.principal)}</td>
-      <td>${formatCurrency(row.interest)}</td>
-      <td>${formatCurrency(row.insurance)}</td>
-      <td><strong>${formatCurrency(row.totalPayment)}</strong></td>
-      <td>${formatCurrency(row.endBal)}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  // Footer Totals
-  tfoot.innerHTML = `
-    <tr>
-      <td colspan="3" style="text-align: center;">${dict.colTotal}</td>
-      <td>${formatCurrency(activeCalculationResult.loanAmount)}</td>
-      <td>${formatCurrency(activeCalculationResult.totalInterest)}</td>
-      <td>${formatCurrency(activeCalculationResult.totalInsurance)}</td>
-      <td><strong>${formatCurrency(activeCalculationResult.totalPayable)}</strong></td>
-      <td>Rs. 0.00</td>
-    </tr>
-  `;
-
-  renderPaginationControls(totalPages);
-}
-
-function renderPaginationControls(totalPages) {
-  const container = document.getElementById("pagination-controls");
-  if (!container) return;
-  container.innerHTML = "";
-
-  if (totalPages <= 1) return;
-
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement("button");
-    btn.className = `btn-page ${i === currentPage ? 'active' : ''}`;
-    btn.textContent = i;
-    btn.addEventListener("click", () => {
-      currentPage = i;
-      renderTable();
-    });
-    container.appendChild(btn);
-  }
-}
-
-// Side-by-Side Comparison View
-function renderComparisonView(loanAmount, tenure, insuranceRate) {
-  const dict = i18n[currentLang];
-  const resReducing = calculateLoanData('reducing', loanAmount, reducingRate, tenure, insuranceRate);
-  const resFlat = calculateLoanData('flat', loanAmount, flatRate, tenure, insuranceRate);
-
-  const savings = resFlat.totalPayable - resReducing.totalPayable;
-
-  const compareContainer = document.getElementById("compare-calc-view");
-  if (!compareContainer) return;
-
-  compareContainer.innerHTML = `
-    <div style="grid-column: 1 / -1; margin-bottom: 16px;">
-      <h2 style="font-size: 1.3rem; margin-bottom: 8px;">${dict.cmpTitle}</h2>
-      <div class="formula-box" style="background: rgba(16, 185, 129, 0.1); border-left-color: var(--accent-emerald); display: flex; align-items: center; gap: 10px;">
-        <i class="fa-solid fa-circle-check" style="color: var(--accent-emerald); font-size: 1.2rem; flex-shrink: 0;"></i>
-        <span>${dict.cmpSavingsMsg.replace("{{savings}}", Number(savings).toLocaleString("en-US", { minimumFractionDigits: 2 }))}</span>
-      </div>
-    </div>
-
-    <div class="comparison-card highlight">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-        <h3 style="font-size: 1.15rem; color: var(--accent-emerald);">${dict.cmpReducingHead}</h3>
-        <span class="badge-recommended"><i class="fa-solid fa-star"></i> ${dict.recommended}</span>
-      </div>
-
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; background: rgba(16,185,129,0.07); border-radius: 8px; padding: 8px 12px;">
-        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); white-space: nowrap;">පොලී අනුපාතය:</label>
-        <input type="number" id="cmp-reducing-rate" class="input-field has-suffix" value="${reducingRate}" step="0.25" min="1" max="50" style="width: 80px; padding: 4px 8px; font-size: 0.95rem; font-weight: 700;">
-        <span style="font-size: 0.85rem; color: var(--text-muted);">%</span>
-        <button id="btn-apply-reducing-rate" class="btn-action btn-emerald" style="padding: 4px 12px; font-size: 0.8rem;">යොදන්න</button>
-      </div>
-
-      <div class="input-group">
-        <div class="metric-title">${dict.monthlyInstallment}</div>
-        <div class="metric-value" style="color: var(--accent-emerald);">
-          ${formatCurrency(resReducing.firstMonthPayment)} → ${formatCurrency(resReducing.lastMonthPayment)}
-        </div>
-      </div>
-
-      <div class="summary-cards-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
-        <div class="metric-card">
-          <div class="metric-title">${dict.totalInterest}</div>
-          <div class="metric-value">${formatCurrency(resReducing.totalInterest)}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-title">${dict.totalInsurance}</div>
-          <div class="metric-value">${formatCurrency(resReducing.totalInsurance)}</div>
-        </div>
-      </div>
-
-      <div class="metric-card emerald-border" style="margin-top: 16px;">
-        <div class="metric-title">${dict.totalPayable}</div>
-        <div class="metric-value" style="font-size: 1.6rem; color: var(--accent-emerald);">
-          ${formatCurrency(resReducing.totalPayable)}
-        </div>
-      </div>
-    </div>
-
-    <div class="comparison-card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-        <h3 style="font-size: 1.15rem;">${dict.cmpFlatHead}</h3>
-      </div>
-
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; background: rgba(245,158,11,0.07); border-radius: 8px; padding: 8px 12px;">
-        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); white-space: nowrap;">පොලී අනුපාතය:</label>
-        <input type="number" id="cmp-flat-rate" class="input-field has-suffix" value="${flatRate}" step="0.25" min="1" max="50" style="width: 80px; padding: 4px 8px; font-size: 0.95rem; font-weight: 700;">
-        <span style="font-size: 0.85rem; color: var(--text-muted);">%</span>
-        <button id="btn-apply-flat-rate" class="btn-action btn-gold" style="padding: 4px 12px; font-size: 0.8rem;">යොදන්න</button>
-      </div>
-
-      <div class="input-group">
-        <div class="metric-title">${dict.monthlyInstallment}</div>
-        <div class="metric-value">
-          ${formatCurrency(resFlat.firstMonthPayment)}
-        </div>
-      </div>
-
-      <div class="summary-cards-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
-        <div class="metric-card">
-          <div class="metric-title">${dict.totalInterest}</div>
-          <div class="metric-value">${formatCurrency(resFlat.totalInterest)}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-title">${dict.totalInsurance}</div>
-          <div class="metric-value">${formatCurrency(resFlat.totalInsurance)}</div>
-        </div>
-      </div>
-
-      <div class="metric-card gold-border" style="margin-top: 16px;">
-        <div class="metric-title">${dict.totalPayable}</div>
-        <div class="metric-value" style="font-size: 1.6rem;">
-          ${formatCurrency(resFlat.totalPayable)}
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Wire up inline rate apply buttons
-  document.getElementById("btn-apply-reducing-rate")?.addEventListener("click", () => {
-    const val = parseFloat(document.getElementById("cmp-reducing-rate")?.value) || reducingRate;
-    reducingRate = val;
-    // Also update the main interest-rate input if switching back
-    const mainInput = document.getElementById("interest-rate");
-    const mainSlider = document.getElementById("interest-rate-slider");
-    if (mainInput) mainInput.value = val;
-    if (mainSlider) mainSlider.value = val;
-    calculateAndRender();
-  });
-
-  document.getElementById("btn-apply-flat-rate")?.addEventListener("click", () => {
-    const val = parseFloat(document.getElementById("cmp-flat-rate")?.value) || flatRate;
-    flatRate = val;
-    calculateAndRender();
-  });
-}
-
-// CSV Export
-function exportCSV() {
-  if (!activeCalculationResult) return;
-
-  const dict = i18n[currentLang];
-  let csvContent = "\uFEFF"; // UTF-8 BOM for Excel Sinhala support
-
-  csvContent += `${dict.appTitle} - ${currentMode === 'reducing' ? dict.tabReducing : dict.tabFlat}\n`;
-  csvContent += `${dict.loanAmount},${activeCalculationResult.loanAmount}\n`;
-  csvContent += `${dict.interestRate},${activeCalculationResult.annualRate}%\n`;
-  csvContent += `${dict.loanTenure},${activeCalculationResult.months} ${dict.months}\n`;
-  csvContent += `${dict.totalInterest},${activeCalculationResult.totalInterest.toFixed(2)}\n`;
-  csvContent += `${dict.totalInsurance},${activeCalculationResult.totalInsurance.toFixed(2)}\n`;
-  csvContent += `${dict.totalPayable},${activeCalculationResult.totalPayable.toFixed(2)}\n\n`;
-
-  // Headers
-  csvContent += `"${dict.colMonth}","${dict.colDate}","${dict.colStartBal}","${dict.colPrincipal}","${dict.colInterest}","${dict.colInsurance}","${dict.colPayment}","${dict.colEndBal}"\n`;
-
-  // Rows
-  activeCalculationResult.schedule.forEach(r => {
-    csvContent += `${r.month},"${r.date}",${r.startBal.toFixed(2)},${r.principal.toFixed(2)},${r.interest.toFixed(2)},${r.insurance.toFixed(2)},${r.totalPayment.toFixed(2)},${r.endBal.toFixed(2)}\n`;
-  });
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", `LankaBank_Loan_Schedule_${currentMode}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
-// Professional Repayment Schedule PDF & Print Statement
-function printRepaymentSchedule() {
-  if (!activeCalculationResult) return;
-
-  const res = activeCalculationResult;
-  const modeText = currentMode === 'reducing' ? 'හීනවෙන ක්‍රමය (Reducing Balance)' : 'සමාන වාරික ක්‍රමය (Flat Rate)';
-  const printDate = new Date().toLocaleDateString('si-LK', { year: 'numeric', month: 'long', day: 'numeric' });
-  const printTime = new Date().toLocaleTimeString('si-LK', { hour: '2-digit', minute: '2-digit' });
-
-  // Generate table rows HTML for ALL months in schedule
-  const rowsHtml = res.schedule.map(r => `
-    <tr>
-      <td style="text-align: center; font-weight: 700;">${r.month}</td>
-      <td style="text-align: center;">${r.date}</td>
-      <td style="text-align: right;">${formatCurrency(r.startBal)}</td>
-      <td style="text-align: right;">${formatCurrency(r.principal)}</td>
-      <td style="text-align: right;">${formatCurrency(r.interest)}</td>
-      <td style="text-align: right;">${formatCurrency(r.insurance)}</td>
-      <td style="text-align: right; font-weight: 800;">${formatCurrency(r.totalPayment)}</td>
-      <td style="text-align: right;">${formatCurrency(r.endBal)}</td>
-    </tr>
-  `).join("");
-
-  const docHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>GSCS BANK - මාසික ගෙවීම් කාලසටහන (${res.months} Months)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+Sinhala:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    @page {
-      size: A4 portrait;
-      margin: 10mm 10mm 12mm 10mm;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', 'Noto Sans Sinhala', Arial, sans-serif;
-      font-size: 8.5pt;
-      line-height: 1.35;
-      color: #000;
-      background: #fff;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    .header-table {
-      width: 100%;
-      border-collapse: collapse;
-      border-bottom: 2px solid #000;
-      padding-bottom: 3mm;
-      margin-bottom: 3.5mm;
-    }
-    .brand-title {
-      font-size: 13pt;
-      font-weight: 800;
-      color: #000;
-      letter-spacing: 0.3px;
-    }
-    .brand-subtitle {
-      font-size: 8.5pt;
-      color: #444;
-      font-weight: 600;
-    }
-    .doc-badge {
-      text-align: right;
-      font-size: 8pt;
-      color: #333;
-    }
-    .doc-type {
-      display: inline-block;
-      background: #000;
-      color: #fff;
-      font-size: 8pt;
-      font-weight: 800;
-      padding: 2px 8px;
-      border-radius: 3px;
-      margin-bottom: 2px;
-    }
-
-    /* Summary Grid */
-    .summary-box {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 4mm;
-      border: 1.2px solid #000;
-    }
-    .summary-box td {
-      padding: 3.5px 8px;
-      font-size: 8pt;
-      border: 1px solid #ccc;
-    }
-    .summary-box .lbl {
-      background: #f3f4f6;
-      font-weight: 700;
-      color: #333;
-      width: 18%;
-    }
-    .summary-box .val {
-      font-weight: 700;
-      color: #000;
-      width: 32%;
-    }
-
-    /* Amortization Table */
-    .sched-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 7.8pt;
-    }
-    .sched-table thead {
-      display: table-header-group;
-    }
-    .sched-table thead th {
-      background: #1e293b !important;
-      color: #fff !important;
-      font-weight: 800;
-      padding: 4px 6px;
-      border: 1px solid #0f172a;
-      text-align: right;
-      font-size: 7.5pt;
-      text-transform: uppercase;
-    }
-    .sched-table thead th.c { text-align: center; }
-    .sched-table tbody tr {
-      page-break-inside: avoid;
-    }
-    .sched-table tbody tr:nth-child(even) {
-      background: #f8fafc !important;
-    }
-    .sched-table tbody td {
-      padding: 3px 6px;
-      border: 1px solid #cbd5e1;
-      color: #000;
-    }
-    .sched-table tfoot {
-      display: table-footer-group;
-    }
-    .sched-table tfoot td {
-      background: #e2e8f0 !important;
-      font-weight: 800;
-      padding: 4px 6px;
-      border-top: 2px solid #000;
-      border-bottom: 2px solid #000;
-      border-left: 1px solid #cbd5e1;
-      border-right: 1px solid #cbd5e1;
-      color: #000;
-      font-size: 8pt;
-    }
-
-    /* Signatures */
-    .sig-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 7mm;
-      page-break-inside: avoid;
-    }
-    .sig-table td {
-      width: 25%;
-      text-align: center;
-      vertical-align: bottom;
-      padding: 0 4mm;
-    }
-    .sig-line {
-      border-top: 1.2px dotted #000;
-      padding-top: 2mm;
-      font-size: 7.5pt;
-      font-weight: 700;
-      color: #000;
-    }
-  </style>
-</head>
-<body>
-
-  <table class="header-table">
-    <tr>
-      <td>
-        <div class="brand-title">GSCS BANK - ණය සේවා අංශය</div>
-        <div class="brand-subtitle">ණය මුදල් ගෙවීම් කාලසටහන (Loan Repayment Schedule Statement)</div>
-      </td>
-      <td class="doc-badge">
-        <div class="doc-type">${modeText}</div>
-        <div>මුද්‍රිත දිනය: <strong>${printDate}</strong></div>
-        <div style="font-size: 7.5pt; color: #666;">වේලාව: ${printTime}</div>
-      </td>
-    </tr>
-  </table>
-
-  <!-- Loan Meta Summary -->
-  <table class="summary-box">
-    <tr>
-      <td class="lbl">ණය මුදල (Principal):</td>
-      <td class="val" style="font-size: 9pt; color: #000;">${formatCurrency(res.loanAmount)}</td>
-      <td class="lbl">වාර්ෂික පොලිය (Interest Rate):</td>
-      <td class="val">${res.annualRate}%</td>
-    </tr>
-    <tr>
-      <td class="lbl">ණය කාලය (Tenure):</td>
-      <td class="val">${res.months} මාස (${(res.months/12).toFixed(1)} අවුරුදු)</td>
-      <td class="lbl">ණය රක්ෂණ අනුපාතය:</td>
-      <td class="val">${res.insuranceRate}%</td>
-    </tr>
-    <tr>
-      <td class="lbl">මුළු පොලිය (Total Interest):</td>
-      <td class="val">${formatCurrency(res.totalInterest)}</td>
-      <td class="lbl">මාසික වාරිකය:</td>
-      <td class="val" style="color: #000;">${currentMode === 'reducing' ? `${formatCurrency(res.firstMonthPayment)} → ${formatCurrency(res.lastMonthPayment)}` : formatCurrency(res.firstMonthPayment)}</td>
-    </tr>
-    <tr>
-      <td class="lbl">මුළු රක්ෂණය:</td>
-      <td class="val">${formatCurrency(res.totalInsurance)}</td>
-      <td class="lbl" style="background: #e2e8f0; font-weight: 800;">ගෙවිය යුතු මුළු මුදල:</td>
-      <td class="val" style="background: #e2e8f0; font-size: 9.5pt; font-weight: 800;">${formatCurrency(res.totalPayable)}</td>
-    </tr>
-  </table>
-
-  <!-- Schedule Table -->
-  <table class="sched-table">
-    <thead>
-      <tr>
-        <th class="c" style="width: 6%;">මාසය</th>
-        <th class="c" style="width: 13%;">ගෙවිය යුතු දිනය</th>
-        <th style="width: 14%;">ආරම්භක ශේෂය</th>
-        <th style="width: 13%;">මුල මුදල</th>
-        <th style="width: 13%;">පොලිය</th>
-        <th style="width: 12%;">ණය රක්ෂණය</th>
-        <th style="width: 14%;">මාසික වාරිකය</th>
-        <th style="width: 15%;">අවසාන ශේෂය</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rowsHtml}
-    </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="3" style="text-align: center;">එකතුව (TOTAL)</td>
-        <td style="text-align: right;">${formatCurrency(res.loanAmount)}</td>
-        <td style="text-align: right;">${formatCurrency(res.totalInterest)}</td>
-        <td style="text-align: right;">${formatCurrency(res.totalInsurance)}</td>
-        <td style="text-align: right; font-weight: 800;">${formatCurrency(res.totalPayable)}</td>
-        <td style="text-align: right;">Rs. 0.00</td>
-      </tr>
-    </tfoot>
-  </table>
-
-  <!-- Signature Block -->
-  <table class="sig-table">
-    <tr>
-      <td><div class="sig-line">ණයකරුගේ අත්සන</div></td>
-      <td><div class="sig-line">සකස් කළේ (Officer)</div></td>
-      <td><div class="sig-line">පරීක්ෂා කළේ (Supervisor)</div></td>
-      <td><div class="sig-line">කළමනාකරු / බලයලත් අත්සන</div></td>
-    </tr>
-  </table>
-
-</body>
-</html>`;
-
-  // Use hidden iframe to trigger clean native print
-  let iframe = document.getElementById("repayment-print-frame");
-  if (!iframe) {
-    iframe = document.createElement("iframe");
-    iframe.id = "repayment-print-frame";
-    iframe.style.position = "fixed";
-    iframe.style.right = "0";
-    iframe.style.bottom = "0";
-    iframe.style.width = "0";
-    iframe.style.height = "0";
-    iframe.style.border = "0";
-    document.body.appendChild(iframe);
-  }
-
-  const doc = iframe.contentWindow.document;
-  doc.open();
-  doc.write(docHtml);
-  doc.close();
-
-  iframe.contentWindow.focus();
-  setTimeout(() => {
-    iframe.contentWindow.print();
-  }, 350);
-}
-
-function getVehicleIconClass(type) {
-  switch(type) {
-    case 'threewheel':
-      return 'tuktuk';
-    case 'car':
-      return 'fa-solid fa-car';
-    case 'van':
-      return 'fa-solid fa-car-side';
-    case 'bus':
-      return 'fa-solid fa-bus';
-    case 'lorry':
-      return 'fa-solid fa-truck';
-    case 'other':
-      return 'fa-solid fa-circle-question';
-    case 'bike':
-    default:
-      return 'fa-solid fa-motorcycle';
-  }
-}
-
-function getVehicleIconHTML(type) {
-  if (type === 'threewheel') {
-    return `<svg class="tuktuk-svg" viewBox="0 0 100 100" width="1.3em" height="1.3em" fill="currentColor" aria-hidden="true">
-      <!-- Roof Top Vent -->
-      <path d="M43 14h14a2 2 0 0 1 2 2v3H41v-3a2 2 0 0 1 2-2z"/>
-      
-      <!-- Side Mirrors -->
-      <path d="M26 39c-6-1-9-6-11-10" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
-      <circle cx="14" cy="27" r="4.5"/>
-      <path d="M74 39c6-1 9-6 11-10" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
-      <circle cx="86" cy="27" r="4.5"/>
-
-      <!-- Wheels (Left, Right, Center Front) -->
-      <rect x="25" y="74" width="7" height="12" rx="3.5"/>
-      <rect x="68" y="74" width="7" height="12" rx="3.5"/>
-      <rect x="46" y="74" width="8" height="17" rx="4"/>
-
-      <!-- Main Body + Cutouts (Windshield, Indicators, Center Headlight) -->
-      <path fill-rule="evenodd" d="M33 18.5c-6.5.8-9 4.5-9.5 9.5L21.5 50h-1c-2 0-3.5 1.5-3.5 3.5v20c0 1.8 1.4 3.2 3.2 3.2H31c1.8 0 3.2-1.4 3.2-3.2v-9.5h31.6v9.5c0 1.8 1.4 3.2 3.2 3.2h10.8c1.8 0 3.2-1.4 3.2-3.2v-20c0-2-1.5-3.5-3.5-3.5h-1L76.5 28c-.5-5-3-8.7-9.5-9.5-6-.8-28-.8-34 0zm-4.5 8c0-1.8 1.4-3 3-3h37c1.6 0 3 1.2 3 3l-1.2 17.5c0 1.8-1.4 3-3 3H31.7c-1.6 0-3-1.2-3-3L28.5 26.5zm-2 26.5h7.5a1.5 1.5 0 0 1 1.5 1.5v.5a1.5 1.5 0 0 1-1.5 1.5h-7.5a1.5 1.5 0 0 1-1.5-1.5v-.5a1.5 1.5 0 0 1 1.5-1.5zm39 0h7.5a1.5 1.5 0 0 1 1.5 1.5v.5a1.5 1.5 0 0 1-1.5 1.5H65.5a1.5 1.5 0 0 1-1.5-1.5v-.5a1.5 1.5 0 0 1 1.5-1.5zm-15.5 8a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/>
-    </svg>`;
-  }
-  return `<i class="${getVehicleIconClass(type)}"></i>`;
-}
-
-function getSelectedVehicleType() {
-  const activeChip = document.querySelector('#modal-veh-type-selector .veh-type-chip.active');
-  return activeChip ? activeChip.dataset.type : 'bike';
-}
-
-function setVehicleTypeInModal(type) {
-  const targetType = type || 'bike';
-  document.querySelectorAll('#modal-veh-type-selector .veh-type-chip').forEach(chip => {
-    const radio = chip.querySelector('input[type="radio"]');
-    if (chip.dataset.type === targetType) {
-      chip.classList.add('active');
-      if (radio) radio.checked = true;
-    } else {
-      chip.classList.remove('active');
-      if (radio) radio.checked = false;
-    }
-  });
-}
-
-// Swashakthi Vehicle Loan Calculator Logic
-function initVehicleCalculator() {
-  // Load saved edits to default vehicles (Bajaj, Risk, Yamaha) from localStorage
-  const savedDefaults = localStorage.getItem("gscs_default_vehicles");
-  if (savedDefaults) {
+// ============================================================
+// 7. Loan Schemes Manager (CRUD)
+// ============================================================
+function initLoanSchemes() {
+  loanSchemesDatabase = [...defaultLoanSchemes];
+  const savedCustom = localStorage.getItem("gscs_custom_loan_schemes");
+  if (savedCustom) {
     try {
-      const parsed = JSON.parse(savedDefaults);
-      if (Array.isArray(parsed)) {
-        parsed.forEach(saved => {
-          const existing = vehicleDatabase.find(v => v.id === saved.id);
-          if (existing) {
-            existing.name = saved.name;
-            existing.type = saved.type || 'bike';
-            existing.price = saved.price;
-            existing.regFee = saved.regFee;
-            existing.vehicleInsurance = saved.vehicleInsurance;
-            existing.downPayment = saved.downPayment;
-          }
-        });
-      }
-    } catch(e) {}
-  }
-
-  // Load saved custom vehicles from localStorage
-  const savedVehicles = localStorage.getItem("gscs_custom_vehicles");
-  if (savedVehicles) {
-    try {
-      const parsed = JSON.parse(savedVehicles);
+      const parsed = JSON.parse(savedCustom);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        parsed.forEach(v => {
-          if (!vehicleDatabase.find(existing => existing.id === v.id)) {
-            vehicleDatabase.push(v);
+        parsed.forEach(c => {
+          if (!loanSchemesDatabase.some(s => s.id === c.id)) {
+            loanSchemesDatabase.push(c);
           }
         });
       }
     } catch(e) {}
   }
 
-  // Wire up vehicle type chips inside modal
-  document.querySelectorAll("#modal-veh-type-selector .veh-type-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      setVehicleTypeInModal(chip.dataset.type);
-    });
+  updateSchemesCountBadge();
+
+  // Modal event listeners
+  document.getElementById("btn-open-add-scheme-modal")?.addEventListener("click", () => {
+    openSchemeModalAdd();
   });
 
-  populateVehicleDropdown();
-
-  // Attach event listeners to all vehicle inputs
-  document.querySelectorAll(".veh-input").forEach(input => {
-    input.addEventListener("input", () => {
-      // If user edits price/fees, switch select to custom
-      const select = document.getElementById("vehicle-select");
-      if (select && select.value !== "custom") {
-        const curVeh = vehicleDatabase.find(v => v.id === select.value);
-        const p = parseInputNumber("veh-price", 0);
-        const r = parseInputNumber("veh-reg-fee", 0);
-        const ins = parseInputNumber("veh-insurance-fee", 0);
-        const dp = parseInputNumber("veh-down-payment", 0);
-        if (curVeh && (curVeh.price !== p || curVeh.regFee !== r || curVeh.vehicleInsurance !== ins || curVeh.downPayment !== dp)) {
-          select.value = "custom";
-        }
-      }
-      updateVehicleCalculation();
-    });
+  document.getElementById("btn-close-scheme-modal")?.addEventListener("click", () => {
+    document.getElementById("modal-add-scheme").style.display = "none";
   });
 
-  // Vehicle selector change
-  document.getElementById("vehicle-select")?.addEventListener("change", (e) => {
-    selectVehicle(e.target.value);
+  document.getElementById("btn-cancel-scheme-modal")?.addEventListener("click", () => {
+    document.getElementById("modal-add-scheme").style.display = "none";
   });
 
-  // Apply loan amount button
-  document.getElementById("btn-apply-veh-loan")?.addEventListener("click", () => {
-    applyVehicleLoanAmount(lastCalculatedVehicleLoanAmount);
+  // Search in schemes
+  document.getElementById("scheme-search-input")?.addEventListener("input", (e) => {
+    renderSchemesCards(e.target.value.trim().toLowerCase());
   });
 
-  // Helper: open modal in ADD mode
-  window.openVehicleModalAdd = function() {
-    document.getElementById("m-veh-edit-id").value = "";
-    document.getElementById("m-veh-name").value = "";
-    document.getElementById("m-veh-price").value = "";
-    document.getElementById("m-veh-reg").value = 15000;
-    document.getElementById("m-veh-insurance").value = 18000;
-    document.getElementById("m-veh-down").value = 200000;
-    setVehicleTypeInModal("bike");
-    document.getElementById("modal-title-text").textContent = "නව වාහනයක් ඇතුළත් කරන්න";
-    document.getElementById("btn-save-label").textContent = "සුරකින්න";
-    document.getElementById("btn-delete-vehicle").style.display = "none";
-    document.getElementById("modal-add-vehicle").style.display = "flex";
-    document.getElementById("m-veh-name").focus();
-  };
-
-  // Helper: open modal in EDIT mode with vehicle data pre-filled
-  window.openVehicleModalEdit = function(vehId) {
-    const veh = vehicleDatabase.find(v => v.id === vehId);
-    if (!veh) return;
-    document.getElementById("m-veh-edit-id").value = veh.id;
-    document.getElementById("m-veh-name").value = veh.name;
-    document.getElementById("m-veh-price").value = veh.price;
-    document.getElementById("m-veh-reg").value = veh.regFee;
-    document.getElementById("m-veh-insurance").value = veh.vehicleInsurance;
-    document.getElementById("m-veh-down").value = veh.downPayment;
-    setVehicleTypeInModal(veh.type || "bike");
-    document.getElementById("modal-title-text").textContent = `"${veh.name}" සංස්කරණය`;
-    document.getElementById("btn-save-label").textContent = "යාවත්කාලීන කරන්න";
-    document.getElementById("btn-delete-vehicle").style.display = "flex";
-    document.getElementById("modal-add-vehicle").style.display = "flex";
-    document.getElementById("m-veh-name").focus();
-  };
-
-  // + Add New button → Add mode
-  document.getElementById("btn-add-vehicle-modal")?.addEventListener("click", () => {
-    window.openVehicleModalAdd();
-  });
-
-  // ✏️ Edit button → Edit mode with currently selected vehicle
-  document.getElementById("btn-edit-vehicle-modal")?.addEventListener("click", () => {
-    const selectedId = document.getElementById("vehicle-select")?.value;
-    if (selectedId && selectedId !== "custom") {
-      window.openVehicleModalEdit(selectedId);
-    } else {
-      window.openVehicleModalAdd();
-    }
-  });
-
-  // Close / Cancel
-  document.getElementById("btn-close-modal")?.addEventListener("click", () => {
-    document.getElementById("modal-add-vehicle").style.display = "none";
-  });
-
-  document.getElementById("btn-cancel-modal")?.addEventListener("click", () => {
-    document.getElementById("modal-add-vehicle").style.display = "none";
-  });
-
-  // Click outside modal to close
-  document.getElementById("modal-add-vehicle")?.addEventListener("click", (e) => {
-    if (e.target === document.getElementById("modal-add-vehicle")) {
-      document.getElementById("modal-add-vehicle").style.display = "none";
-    }
-  });
-
-  // 🗑️ Delete Vehicle
-  document.getElementById("btn-delete-vehicle")?.addEventListener("click", () => {
-    const editId = document.getElementById("m-veh-edit-id").value;
-    if (!editId) return;
-    const veh = vehicleDatabase.find(v => v.id === editId);
-    if (!veh) return;
-    if (!confirm(`"${veh.name}" ඉවත් කිරීමට කැමතිද?`)) return;
-
-    const idx = vehicleDatabase.findIndex(v => v.id === editId);
-    if (idx !== -1) vehicleDatabase.splice(idx, 1);
-
-    // Re-save to localStorage (only custom ones)
-    const customOnly = vehicleDatabase.filter(v => v.id.startsWith("veh_"));
-    localStorage.setItem("gscs_custom_vehicles", JSON.stringify(customOnly));
-
-    document.getElementById("modal-add-vehicle").style.display = "none";
-    populateVehicleDropdown();
-
-    // Select first available vehicle
-    const firstId = vehicleDatabase[0]?.id;
-    if (firstId) {
-      selectVehicle(firstId);
-    }
-    updateVehicleCalculation();
-    showToast(`"${veh.name}" වාහනය සාර්ථකව ඉවත් කරන ලදී.`, "warning", "වාහනය ඉවත් කෙරිණි");
-  });
-
-  // 💾 Save (Add or Update)
-  document.getElementById("form-add-vehicle")?.addEventListener("submit", (e) => {
+  // Form Submit (Add or Edit Scheme)
+  document.getElementById("form-add-scheme")?.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = document.getElementById("m-veh-name").value.trim();
-    const type = getSelectedVehicleType();
-    const price = parseFloat(document.getElementById("m-veh-price").value) || 0;
-    const regFee = parseFloat(document.getElementById("m-veh-reg").value) || 0;
-    const vehicleInsurance = parseFloat(document.getElementById("m-veh-insurance").value) || 0;
-    const downPayment = parseFloat(document.getElementById("m-veh-down").value) || 0;
-    const editId = document.getElementById("m-veh-edit-id").value;
+    const editId = document.getElementById("m-scheme-edit-id").value;
+    const name = document.getElementById("m-scheme-name").value.trim();
+    const rate = parseFloat(document.getElementById("m-scheme-rate").value) || 18;
+    const period = parseInt(document.getElementById("m-scheme-period").value) || 24;
+    const method = document.getElementById("m-scheme-method").value || "reducing";
+    const category = document.getElementById("m-scheme-category").value.trim() || "සාමාන්‍ය";
 
-    if (!name || price <= 0) return;
+    if (!name) return;
 
     if (editId) {
-      // EDIT MODE: update existing entry in vehicleDatabase
-      const veh = vehicleDatabase.find(v => v.id === editId);
-      if (veh) {
-        veh.name = name;
-        veh.type = type;
-        veh.price = price;
-        veh.regFee = regFee;
-        veh.vehicleInsurance = vehicleInsurance;
-        veh.downPayment = downPayment;
+      // Edit mode
+      const item = loanSchemesDatabase.find(s => s.id === editId);
+      if (item) {
+        item.name = name;
+        item.rate = rate;
+        item.period = period;
+        item.method = method;
+        item.category = category;
       }
     } else {
-      // ADD MODE: create new entry
-      const newVeh = {
-        id: "veh_" + Date.now(),
-        name, type, price, regFee, vehicleInsurance, downPayment
+      // Add mode
+      const newScheme = {
+        id: "scheme_" + Date.now(),
+        name,
+        rate,
+        period,
+        method,
+        category,
+        isDefault: false
       };
-      vehicleDatabase.push(newVeh);
+      loanSchemesDatabase.push(newScheme);
     }
 
-    // Persist ALL custom-id vehicles
-    const customOnly = vehicleDatabase.filter(v => v.id.startsWith("veh_"));
-    localStorage.setItem("gscs_custom_vehicles", JSON.stringify(customOnly));
-
-    // Also save default vehicles if they were edited
-    const defaultEdited = vehicleDatabase.filter(v => !v.id.startsWith("veh_"));
-    localStorage.setItem("gscs_default_vehicles", JSON.stringify(defaultEdited));
-
-    populateVehicleDropdown();
-    const savedId = editId || vehicleDatabase[vehicleDatabase.length - 1].id;
-    selectVehicle(savedId);
-
-    document.getElementById("modal-add-vehicle").style.display = "none";
-    document.getElementById("form-add-vehicle").reset();
-    showToast(editId ? `"${name}" වාහනයේ විස්තර යාවත්කාලීන කරන ලදී.` : `"${name}" නව වාහනය සාර්ථකව එක් කරන ලදී.`, "success", "සුරකින ලදී");
+    saveLoanSchemesToStorage();
+    document.getElementById("modal-add-scheme").style.display = "none";
+    renderSchemesCards();
+    populateUniversalSchemeDropdown();
+    showToast(`"${name}" ණය වර්ගය සාර්ථකව සුරකින ලදී.`, "success", "සුරකින ලදී");
   });
-}
 
-function selectVehicle(id) {
-  const select = document.getElementById("vehicle-select");
-  if (select) select.value = id;
+  // Delete Scheme
+  document.getElementById("btn-delete-scheme")?.addEventListener("click", () => {
+    const editId = document.getElementById("m-scheme-edit-id").value;
+    if (!editId) return;
+    const item = loanSchemesDatabase.find(s => s.id === editId);
+    if (!item) return;
 
-  // Highlight selected tile
-  document.querySelectorAll(".vehicle-tile").forEach(tile => {
-    if (tile.dataset.id === id) {
-      tile.classList.add("active");
-    } else {
-      tile.classList.remove("active");
+    if (confirm(`"${item.name}" ණය වර්ගය ඉවත් කිරීමට සහතිකද?`)) {
+      loanSchemesDatabase = loanSchemesDatabase.filter(s => s.id !== editId);
+      saveLoanSchemesToStorage();
+      document.getElementById("modal-add-scheme").style.display = "none";
+      renderSchemesCards();
+      populateUniversalSchemeDropdown();
+      showToast(`"${item.name}" ණය වර්ගය ඉවත් කරන ලදී.`, "warning", "ඉවත් කෙරිණි");
     }
   });
-
-  if (id === "custom") {
-    updateVehicleCalculation();
-    return;
-  }
-
-  const veh = vehicleDatabase.find(v => v.id === id);
-  if (veh) {
-    document.getElementById("veh-price").value = veh.price;
-    document.getElementById("veh-reg-fee").value = veh.regFee;
-    document.getElementById("veh-insurance-fee").value = veh.vehicleInsurance;
-    document.getElementById("veh-down-payment").value = veh.downPayment;
-    updateVehicleCalculation();
-  }
 }
 
-function renderVehicleTiles(filterQuery = "") {
-  const container = document.getElementById("vehicle-tiles-container");
-  if (!container) return;
-
-  const select = document.getElementById("vehicle-select");
-  const selectedId = (select && select.value) ? select.value : (vehicleDatabase[0] ? vehicleDatabase[0].id : "");
-
-  // Filter by search query (case-insensitive match on name)
-  const q = filterQuery.trim().toLowerCase();
-  const filtered = q
-    ? vehicleDatabase.filter(v => v.name.toLowerCase().includes(q))
-    : vehicleDatabase;
-
-  let html = "";
-
-  if (filtered.length === 0) {
-    html = `<div class="veh-no-results">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <span>«${filterQuery}» සඳහා ප්‍රතිඵල නැත</span>
-    </div>`;
-  } else {
-    filtered.forEach(v => {
-      const isActive = v.id === selectedId;
-      const iconHtml = getVehicleIconHTML(v.type);
-      const typeLabel = { bike: "Bike", threewheel: "3-Wheel", car: "Car", van: "Van", bus: "Bus", lorry: "Lorry", other: "Other" }[v.type] || v.type;
-      html += `
-        <div class="vehicle-tile ${isActive ? 'active' : ''}" data-id="${v.id}" title="${v.name} තෝරන්න">
-          <div class="veh-tile-icon">
-            ${iconHtml}
-          </div>
-          <div class="veh-tile-info">
-            <div class="veh-tile-name">${v.name}</div>
-            <div class="veh-tile-price">${formatCurrency(v.price)}</div>
-            <div class="veh-tile-type">${typeLabel}</div>
-          </div>
-          <button class="btn-tile-edit" data-id="${v.id}" title="${v.name} සංස්කරණය කරන්න">
-            <i class="fa-solid fa-pen-to-square"></i>
-          </button>
-        </div>
-      `;
-    });
-  }
-
-  container.innerHTML = html;
-
-  // Click on tile to select vehicle
-  container.querySelectorAll(".vehicle-tile").forEach(tile => {
-    tile.addEventListener("click", (e) => {
-      if (e.target.closest(".btn-tile-edit")) return;
-      selectVehicle(tile.dataset.id);
-    });
-  });
-
-  // Click on edit button inside tile
-  container.querySelectorAll(".btn-tile-edit").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (window.openVehicleModalEdit) {
-        window.openVehicleModalEdit(btn.dataset.id);
-      }
-    });
-  });
-}
-
-function populateVehicleDropdown() {
-  const select = document.getElementById("vehicle-select");
-  if (select) {
-    const currentVal = select.value;
-    select.innerHTML = "";
-
-    vehicleDatabase.forEach(v => {
-      const opt = document.createElement("option");
-      opt.value = v.id;
-      opt.textContent = `${v.name} - ${formatCurrency(v.price)}`;
-      select.appendChild(opt);
-    });
-
-    const customOpt = document.createElement("option");
-    customOpt.value = "custom";
-    customOpt.textContent = i18n[currentLang]?.customVehicleOption || "වෙනත් / නියමිත නොවන වාහනයක් (Custom)";
-    select.appendChild(customOpt);
-
-    if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
-      select.value = currentVal;
-    }
-  }
-
-  // Wire search input (only once)
-  const searchInput = document.getElementById("vehicle-search-input");
-  if (searchInput && !searchInput._wired) {
-    searchInput._wired = true;
-    searchInput.addEventListener("input", () => {
-      renderVehicleTiles(searchInput.value);
-    });
-    // Clear search on Escape
-    searchInput.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        searchInput.value = "";
-        renderVehicleTiles();
-      }
-    });
-  }
-
-  // Render the interactive vehicle cards / tiles
-  renderVehicleTiles(searchInput?.value || "");
-}
-
-
-function renderVehicleCalculator() {
-  populateVehicleDropdown();
-  updateVehicleCalculation();
-}
-
-function updateVehicleCalculation() {
-  const dict = i18n[currentLang];
-
-  const price = parseInputNumber("veh-price", 0);
-  const regFee = parseInputNumber("veh-reg-fee", 0);
-  const vehInsurance = parseInputNumber("veh-insurance-fee", 0);
-  const downPayment = parseInputNumber("veh-down-payment", 0);
-
-  const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
-  const g1Shares = parseInputNumber("fee-guarantor1-shares", 0);
-  const g2Shares = parseInputNumber("fee-guarantor2-shares", 0);
-  const docFee = parseInputNumber("fee-doc", 0);
-  const serviceFund = parseInputNumber("fee-service-fund", 0);
-  const loanInsurance = parseInputNumber("fee-loan-insurance", 0);
-  const swashakthiFund = parseInputNumber("fee-swashakthi-fund", 0);
-  const buildingFund = parseInputNumber("fee-building-fund", 0);
-  const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
-
-  // Formula matching Excel sheet exact rows
-  const totalDocFees = borrowerShares + g1Shares + g2Shares + docFee + serviceFund + loanInsurance + swashakthiFund + buildingFund + borrowerDeposit + regFee + vehInsurance;
-  const totalVehCost = price + totalDocFees;
-  const rawLoanAmount = totalVehCost - downPayment;
-  const requiredLoanAmount = Math.max(0, rawLoanAmount);
-
-  lastCalculatedVehicleLoanAmount = requiredLoanAmount;
-
-  // Update summary metrics
-  const elDocFees = document.getElementById("veh-metric-doc-fees");
-  const elTotalCost = document.getElementById("veh-metric-total-cost");
-  const elDownPayment = document.getElementById("veh-metric-down-payment");
-  const elRequiredLoan = document.getElementById("veh-metric-required-loan");
-  const btnApply = document.getElementById("btn-apply-veh-loan");
-  const warningEl = document.getElementById("veh-downpayment-warning");
-  const warningTextEl = document.getElementById("veh-downpayment-warning-text");
-
-  if (elDocFees) elDocFees.textContent = formatCurrency(totalDocFees);
-  if (elTotalCost) elTotalCost.textContent = formatCurrency(totalVehCost);
-  if (elDownPayment) elDownPayment.textContent = formatCurrency(downPayment);
-  if (elRequiredLoan) elRequiredLoan.textContent = formatCurrency(requiredLoanAmount);
-
-  // Warning when Down Payment exceeds Total Cost
-  if (warningEl && warningTextEl) {
-    if (downPayment > totalVehCost && totalVehCost > 0) {
-      warningEl.style.display = "block";
-      warningTextEl.textContent = `මූලික ගෙවීම (${formatCurrency(downPayment)}) සම්පූර්ණ පිරිවැයට (${formatCurrency(totalVehCost)}) වඩා වැඩි බැවින් ණය මුදලක් අවශ්‍ය නොවේ. කරුණාකර මූලික ගෙවීම පරීක්ෂා කරන්න.`;
-    } else {
-      warningEl.style.display = "none";
-    }
-  }
-
-  if (btnApply) {
-    btnApply.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> ${dict.btnApplyLoan || 'මෙම ණය මුදල වාරික ගණකයට යොදන්න'} (${formatCurrency(requiredLoanAmount)})`;
-  }
-
-  // Re-render saved loans table
-  renderSavedLoansTable();
+function saveLoanSchemesToStorage() {
+  const customOnly = loanSchemesDatabase.filter(s => !s.isDefault);
+  localStorage.setItem("gscs_custom_loan_schemes", JSON.stringify(customOnly));
+  updateSchemesCountBadge();
   updateTopHeroStats();
 }
 
-function applyVehicleLoanAmount(amount) {
-  if (amount <= 0) return;
-
-  const loanInput = document.getElementById("loan-amount");
-  const loanSlider = document.getElementById("loan-amount-slider");
-
-  if (loanInput) loanInput.value = amount;
-  if (loanSlider) loanSlider.value = amount;
-
-  // Switch to Reducing Balance tab
-  document.querySelectorAll(".tab-btn").forEach(b => {
-    b.classList.remove("active");
-    if (b.dataset.mode === 'reducing') b.classList.add("active");
-  });
-  currentMode = 'reducing';
-
-  document.getElementById("single-calc-view").style.display = 'grid';
-  document.getElementById("compare-calc-view").style.display = 'none';
-  document.getElementById("vehicle-calc-view").style.display = 'none';
-  document.getElementById("repayment-schedule-section").style.display = 'block';
-
-  calculateAndRender();
-
-  // Scroll smoothly to Loan Amount section
-  document.getElementById("single-calc-view")?.scrollIntoView({ behavior: 'smooth' });
+function updateSchemesCountBadge() {
+  const count = loanSchemesDatabase.length;
+  const badge = document.getElementById("sidebar-schemes-count");
+  if (badge) badge.textContent = count;
 }
 
+function openSchemeModalAdd() {
+  document.getElementById("m-scheme-edit-id").value = "";
+  document.getElementById("m-scheme-name").value = "";
+  document.getElementById("m-scheme-rate").value = "18";
+  document.getElementById("m-scheme-period").value = "24";
+  document.getElementById("m-scheme-method").value = "reducing";
+  document.getElementById("m-scheme-category").value = "";
+  document.getElementById("scheme-modal-title").textContent = "නව ණය වර්ගයක් ඇතුළත් කරන්න (Add Loan Scheme)";
+  document.getElementById("btn-save-scheme-label").textContent = "සුරකින්න";
+  document.getElementById("btn-delete-scheme").style.display = "none";
+  document.getElementById("modal-add-scheme").style.display = "flex";
+  document.getElementById("m-scheme-name").focus();
+}
+
+function openSchemeModalEdit(id) {
+  const scheme = loanSchemesDatabase.find(s => s.id === id);
+  if (!scheme) return;
+
+  document.getElementById("m-scheme-edit-id").value = scheme.id;
+  document.getElementById("m-scheme-name").value = scheme.name;
+  document.getElementById("m-scheme-rate").value = scheme.rate;
+  document.getElementById("m-scheme-period").value = scheme.period;
+  document.getElementById("m-scheme-method").value = scheme.method || "reducing";
+  document.getElementById("m-scheme-category").value = scheme.category || "";
+  document.getElementById("scheme-modal-title").textContent = `"${scheme.name}" සංස්කරණය`;
+  document.getElementById("btn-save-scheme-label").textContent = "යාවත්කාලීන කරන්න";
+  document.getElementById("btn-delete-scheme").style.display = scheme.isDefault ? "none" : "block";
+  document.getElementById("modal-add-scheme").style.display = "flex";
+  document.getElementById("m-scheme-name").focus();
+}
+
+function renderSchemesCards(filterQuery = "") {
+  const container = document.getElementById("schemes-cards-container");
+  if (!container) return;
+
+  const filtered = filterQuery
+    ? loanSchemesDatabase.filter(s => s.name.toLowerCase().includes(filterQuery) || (s.category && s.category.toLowerCase().includes(filterQuery)))
+    : loanSchemesDatabase;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+        <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; opacity: 0.4; display:block; margin-bottom: 10px;"></i>
+        ණය වර්ග කිසිවක් හමු නොවීය.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map(scheme => `
+    <div class="scheme-card">
+      <div class="scheme-card-header">
+        <span class="scheme-badge ${scheme.isDefault ? 'badge-default' : 'badge-custom'}">
+          ${scheme.isDefault ? 'DEFAULT SCHEME' : 'CUSTOM SCHEME'}
+        </span>
+        <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">
+          ${scheme.category || 'සාමාන්‍ය'}
+        </span>
+      </div>
+
+      <div class="scheme-card-title">${scheme.name}</div>
+      <div class="scheme-card-desc">පදනම: ${scheme.method === 'flat' ? 'සමාන වාරික (Flat Rate)' : 'හීනවෙන ක්‍රමය (Reducing Balance)'}</div>
+
+      <div class="scheme-stats-grid">
+        <div class="scheme-stat-item">
+          <span class="scheme-stat-lbl">පෙරනිමි පොලිය</span>
+          <span class="scheme-stat-val text-gold">${scheme.rate}%</span>
+        </div>
+        <div class="scheme-stat-item">
+          <span class="scheme-stat-lbl">පෙරනිමි කාලය</span>
+          <span class="scheme-stat-val text-blue">${scheme.period} මාස</span>
+        </div>
+      </div>
+
+      <div class="scheme-card-actions">
+        <button class="btn-action btn-gold btn-use-scheme" data-id="${scheme.id}" title="මෙම ණය ක්‍රමය ගණකයට යොදන්න" style="padding: 6px 10px; font-size: 0.78rem;">
+          <i class="fa-solid fa-play"></i> යොදන්න
+        </button>
+        <button class="btn-action btn-edit-scheme" data-id="${scheme.id}" title="සංස්කරණය" style="padding: 6px 10px; font-size: 0.78rem;">
+          <i class="fa-solid fa-pen-to-square"></i> වෙනස් කරන්න
+        </button>
+      </div>
+    </div>
+  `).join("");
+
+  // Attach card event listeners
+  container.querySelectorAll(".btn-use-scheme").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const schemeId = btn.dataset.id;
+      switchAppMode('universal');
+      const select = document.getElementById("univ-loan-scheme");
+      if (select) select.value = schemeId;
+      applySchemeToUniversalCalculator(schemeId);
+    });
+  });
+
+  container.querySelectorAll(".btn-edit-scheme").forEach(btn => {
+    btn.addEventListener("click", () => {
+      openSchemeModalEdit(btn.dataset.id);
+    });
+  });
+}
 
 // ============================================================
-
+// 8. Centralized Saved Records Archive (Universal + Vehicles)
 // ============================================================
-//  Vehicle Loan Print Slip & Saved Records Management
-// ============================================================
-document.addEventListener("DOMContentLoaded", () => {
-  initSavedVehicleLoans();
-});
-
-// Helper to get saved loan records array
-function getSavedVehicleLoans() {
+function getAllSavedRecords() {
   try {
-    const raw = localStorage.getItem("gscs_saved_vehicle_loans");
-    return raw ? JSON.parse(raw) : [];
+    const raw = localStorage.getItem("gscs_saved_loan_records");
+    if (raw) return JSON.parse(raw);
+
+    // Fallback & Migrate legacy vehicle records if any
+    const legacyVeh = localStorage.getItem("gscs_saved_vehicle_loans");
+    if (legacyVeh) {
+      const parsedVeh = JSON.parse(legacyVeh);
+      if (Array.isArray(parsedVeh)) {
+        const migrated = parsedVeh.map(v => ({
+          id: v.id,
+          date: v.date,
+          timestamp: v.timestamp || Date.now(),
+          type: "vehicle",
+          schemeName: `ස්වශක්ති වාහන ණය (${v.vehicleName || 'Vehicle'})`,
+          memberId: v.memberId,
+          memberName: v.memberName,
+          g1Acc: v.g1Acc,
+          g2Acc: v.g2Acc,
+          grossLoan: v.vehPrice || 0,
+          rate: v.rate || 18,
+          period: v.period || 24,
+          method: "reducing",
+          totalDeductions: v.totalDocFees || 0,
+          netDisbursement: v.requiredLoan || 0,
+          emi: 0,
+          vehicleData: v
+        }));
+        localStorage.setItem("gscs_saved_loan_records", JSON.stringify(migrated));
+        return migrated;
+      }
+    }
+    return [];
   } catch(e) {
     return [];
   }
 }
 
-function saveVehicleLoansArray(arr) {
-  localStorage.setItem("gscs_saved_vehicle_loans", JSON.stringify(arr));
-  updateSavedLoansCountBadge();
+function saveAllRecordsArray(arr) {
+  localStorage.setItem("gscs_saved_loan_records", JSON.stringify(arr));
+  updateSavedRecordsBadge();
+  updateTopHeroStats();
 }
 
-function updateSavedLoansCountBadge() {
-  const count = getSavedVehicleLoans().length;
-  const badge = document.getElementById("saved-loans-count-badge");
-  if (badge) badge.textContent = count;
-  const sidebarBadge = document.getElementById("sidebar-saved-count");
-  if (sidebarBadge) sidebarBadge.textContent = count;
+function updateSavedRecordsBadge() {
+  const count = getAllSavedRecords().length;
+  const badge1 = document.getElementById("sidebar-saved-count");
+  if (badge1) badge1.textContent = count;
+  const badge2 = document.getElementById("saved-loans-count-badge");
+  if (badge2) badge2.textContent = count;
 }
 
-function initSavedVehicleLoans() {
-  updateSavedLoansCountBadge();
-  renderSavedLoansTable();
+function initRecordsArchive() {
+  updateSavedRecordsBadge();
 
-  const saveModal = document.getElementById("modal-save-veh-loan");
-  const listModal = document.getElementById("modal-saved-veh-loans-list");
-
-  // Open Save Modal
-  document.getElementById("btn-save-veh-loan-modal")?.addEventListener("click", () => {
-    const vehSelectEl = document.getElementById("vehicle-select");
-    const vehName = vehSelectEl?.options[vehSelectEl.selectedIndex]?.text?.split(" - ")[0] || "වාහනය";
-    const reqLoan = document.getElementById("veh-metric-required-loan")?.textContent || "–";
-
-    document.getElementById("save-modal-veh-name").textContent = vehName;
-    document.getElementById("save-modal-req-loan").textContent = reqLoan;
-
-    saveModal.style.display = "flex";
-    document.getElementById("save-member-id")?.focus();
+  // Search & Filter listeners
+  document.getElementById("archive-search-input")?.addEventListener("input", () => {
+    renderArchiveTable();
+  });
+  document.getElementById("archive-filter-scheme")?.addEventListener("change", () => {
+    renderArchiveTable();
+  });
+  document.getElementById("archive-sort-by")?.addEventListener("change", () => {
+    renderArchiveTable();
   });
 
-  // Close Save Modal
-  document.getElementById("btn-close-save-modal")?.addEventListener("click", () => {
-    saveModal.style.display = "none";
-  });
-  document.getElementById("btn-cancel-save-modal")?.addEventListener("click", () => {
-    saveModal.style.display = "none";
+  // Export CSV
+  document.getElementById("btn-export-all-loans-csv")?.addEventListener("click", () => {
+    exportArchiveToCSV();
   });
 
-  // Save Form Helper
-  function extractCurrentLoanRecord() {
-    const vehSelectEl = document.getElementById("vehicle-select");
-    const selectedVehName = vehSelectEl?.options[vehSelectEl.selectedIndex]?.text?.split(" - ")[0] || "–";
-
-    const memberId    = document.getElementById("save-member-id")?.value.trim() || "";
-    const memberName  = document.getElementById("save-member-name")?.value.trim() || "";
-    const loanType    = document.getElementById("save-loan-type")?.value.trim() || "ස්වශක්ති ණය 01";
-    const g1Acc       = document.getElementById("save-g1-account")?.value.trim() || "";
-    const g2Acc       = document.getElementById("save-g2-account")?.value.trim() || "";
-    const period      = parseInt(document.getElementById("save-loan-period")?.value) || 24;
-    const rate        = parseFloat(document.getElementById("save-loan-rate")?.value) || 18;
-
-    const vehPrice       = parseInputNumber("veh-price", 0);
-    const regFee         = parseInputNumber("veh-reg-fee", 0);
-    const vehIns         = parseInputNumber("veh-insurance-fee", 0);
-    const downPayment    = parseInputNumber("veh-down-payment", 0);
-    const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
-    const g1             = parseInputNumber("fee-guarantor1-shares", 0);
-    const g2             = parseInputNumber("fee-guarantor2-shares", 0);
-    const docFee         = parseInputNumber("fee-doc", 0);
-    const serviceFund    = parseInputNumber("fee-service-fund", 0);
-    const loanIns        = parseInputNumber("fee-loan-insurance", 0);
-    const swashakthi     = parseInputNumber("fee-swashakthi-fund", 0);
-    const building       = parseInputNumber("fee-building-fund", 0);
-    const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
-
-    const totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns;
-    const totalVehCost   = vehPrice + totalDocFees;
-    const requiredLoan   = Math.max(0, totalVehCost - downPayment);
-
-    const record = {
-      id: "saveloan_" + Date.now(),
-      date: new Date().toLocaleDateString('si-LK', { year:'numeric', month:'short', day:'numeric' }),
-      timestamp: Date.now(),
-      memberId,
-      memberName,
-      loanType,
-      g1Acc,
-      g2Acc,
-      period,
-      rate,
-      vehicleName: selectedVehName,
-      vehPrice,
-      regFee,
-      vehIns,
-      downPayment,
-      borrowerShares,
-      g1, g2,
-      docFee,
-      serviceFund,
-      loanIns,
-      swashakthi,
-      building,
-      borrowerDeposit,
-      totalDocFees,
-      totalVehCost,
-      requiredLoan
-    };
-
-    return record;
-  }
-
-  // Handle Save & Print on Form Submit
-  document.getElementById("form-save-veh-loan")?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const record = extractCurrentLoanRecord();
-    if (!record.memberId || !record.memberName) {
-      showToast("කරුණාකර සාමාජික අංකය සහ නම ඇතුළත් කරන්න.", "warning", "තොරතුරු අවශ්‍යයි");
-      return;
-    }
-
-    const saved = getSavedVehicleLoans();
-    saved.unshift(record);
-    saveVehicleLoansArray(saved);
-
-    saveModal.style.display = "none";
-    renderSavedLoansTable();
-    showToast(`"${record.memberName}" (${record.memberId}) ගේ වාහන ණය සුරැකි අතර Print Preview විවෘත වේ...`, "success", "සුරකින ලදී & Print");
-
-    // Trigger print with this record
-    printVehicleLoanSlip(record);
-  });
-
-  // Open Saved Loans List Modal
-  document.getElementById("btn-view-saved-veh-loans")?.addEventListener("click", () => {
-    renderSavedLoansTable();
-    listModal.style.display = "flex";
-  });
-
-  // Close Saved Loans List Modal
-  document.getElementById("btn-close-saved-list-modal")?.addEventListener("click", () => {
-    listModal.style.display = "none";
-  });
-
-  // Search in Saved Loans Table
-  document.getElementById("search-saved-loans")?.addEventListener("input", (e) => {
-    renderSavedLoansTable(e.target.value.trim().toLowerCase());
-  });
-
-  // Clear All Saved Loans
-  document.getElementById("btn-clear-all-saved-loans")?.addEventListener("click", () => {
-    if (getSavedVehicleLoans().length === 0) return;
-    if (confirm("සියලුම සුරකින ලද වාහන ණය වාර්තා ඉවත් කිරීමට ඔබට සහතිකද?")) {
-      saveVehicleLoansArray([]);
-      renderSavedLoansTable();
-      showToast("සියලුම සුරකින ලද වාර්තා ඉවත් කරන ලදී.", "warning", "මකා දැමිණි");
+  // Clear Archive
+  document.getElementById("btn-clear-archive")?.addEventListener("click", () => {
+    const records = getAllSavedRecords();
+    if (records.length === 0) return;
+    if (confirm("ලේඛනාගාරයේ ඇති සියලුම ණය වාර්තා ස්ථිරවම මකා දැමීමට සහතිකද?")) {
+      saveAllRecordsArray([]);
+      renderArchiveTable();
+      showToast("සියලුම වාර්තා මකා දමන ලදී.", "warning", "මකා දැමිණි");
     }
   });
-
-  // Close modals on clicking backdrop
-  window.addEventListener("click", (e) => {
-    if (e.target === saveModal) saveModal.style.display = "none";
-    if (e.target === listModal) listModal.style.display = "none";
-  });
 }
 
-function renderSavedLoansTable(filterQuery = "") {
-  const tbody = document.getElementById("saved-loans-tbody");
+function renderArchiveTable() {
+  const tbody = document.getElementById("archive-loans-tbody");
   if (!tbody) return;
 
-  const records = getSavedVehicleLoans();
-  const filtered = filterQuery
-    ? records.filter(r => 
-        (r.memberId && r.memberId.toLowerCase().includes(filterQuery)) ||
-        (r.memberName && r.memberName.toLowerCase().includes(filterQuery)) ||
-        (r.g1Acc && r.g1Acc.toLowerCase().includes(filterQuery)) ||
-        (r.g2Acc && r.g2Acc.toLowerCase().includes(filterQuery)) ||
-        (r.vehicleName && r.vehicleName.toLowerCase().includes(filterQuery))
-      )
-    : records;
+  const records = getAllSavedRecords();
+  const searchQ = document.getElementById("archive-search-input")?.value.trim().toLowerCase() || "";
+  const schemeFilter = document.getElementById("archive-filter-scheme")?.value || "all";
+  const sortBy = document.getElementById("archive-sort-by")?.value || "newest";
+
+  // Populate scheme filter options
+  const filterSelect = document.getElementById("archive-filter-scheme");
+  if (filterSelect && filterSelect.options.length <= 1) {
+    const uniqueSchemes = [...new Set(records.map(r => r.schemeName))];
+    uniqueSchemes.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      filterSelect.appendChild(opt);
+    });
+  }
+
+  let filtered = records.filter(r => {
+    const matchesSearch = !searchQ || 
+      (r.memberId && r.memberId.toLowerCase().includes(searchQ)) ||
+      (r.memberName && r.memberName.toLowerCase().includes(searchQ)) ||
+      (r.schemeName && r.schemeName.toLowerCase().includes(searchQ)) ||
+      (r.nic && r.nic.toLowerCase().includes(searchQ)) ||
+      (r.g1Acc && r.g1Acc.toLowerCase().includes(searchQ));
+
+    const matchesScheme = schemeFilter === "all" || r.schemeName === schemeFilter;
+    return matchesSearch && matchesScheme;
+  });
+
+  // Sort
+  if (sortBy === 'newest') {
+    filtered.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+  } else if (sortBy === 'oldest') {
+    filtered.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+  } else if (sortBy === 'amount-high') {
+    filtered.sort((a, b) => (b.grossLoan || b.netDisbursement || 0) - (a.grossLoan || a.netDisbursement || 0));
+  }
 
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="9" style="text-align: center; padding: 28px; color: var(--text-muted);">
-          <i class="fa-solid fa-folder-open" style="font-size: 2rem; margin-bottom: 8px; display:block; opacity: 0.5;"></i>
-          සුරකින ලද වාර්තා කිසිවක් හමු නොවීය
+        <td colspan="9" style="text-align: center; padding: 36px; color: var(--text-muted);">
+          <i class="fa-solid fa-folder-open" style="font-size: 2.4rem; opacity: 0.35; display:block; margin-bottom: 8px;"></i>
+          සුරකින ලද ණය වාර්තා කිසිවක් හමු නොවීය
         </td>
       </tr>
     `;
@@ -2241,25 +1168,27 @@ function renderSavedLoansTable(filterQuery = "") {
   tbody.innerHTML = filtered.map(r => `
     <tr>
       <td style="text-align: left;">
-        <div style="font-weight: 700; color: var(--text-primary);">${r.memberName}</div>
-        <div style="font-size: 0.75rem; color: var(--accent-blue); font-weight: 600;">${r.memberId}</div>
+        <div style="font-weight: 800; color: var(--text-main);">${r.memberName}</div>
+        <div style="font-size: 0.76rem; color: var(--accent-blue); font-weight: 700;">${r.memberId}</div>
       </td>
-      <td style="text-align: left; font-weight: 600;">${r.vehicleName}</td>
-      <td style="font-family: monospace; font-size: 0.82rem; font-weight: 600;">${r.g1Acc || '–'}</td>
-      <td style="font-family: monospace; font-size: 0.82rem; font-weight: 600;">${r.g2Acc || '–'}</td>
-      <td>${formatCurrency(r.vehPrice)}</td>
-      <td style="color: var(--accent-rose);">${formatCurrency(r.downPayment)}</td>
-      <td style="font-weight: 700; color: var(--accent-emerald); font-size: 0.95rem;">${formatCurrency(r.requiredLoan)}</td>
-      <td style="font-size: 0.8rem; color: var(--text-muted);">${r.date}</td>
+      <td style="text-align: left;">
+        <span class="record-type-pill">${r.schemeName}</span>
+      </td>
+      <td style="font-weight: 700; color: var(--accent-purple);">${formatCurrency(r.grossLoan || r.netDisbursement)}</td>
+      <td style="color: var(--accent-rose); font-weight: 600;">${formatCurrency(r.totalDeductions || 0)}</td>
+      <td style="font-weight: 800; color: var(--accent-emerald); font-size: 0.95rem;">${formatCurrency(r.netDisbursement)}</td>
+      <td style="font-weight: 700; color: var(--accent-gold);">${r.emi ? formatCurrency(r.emi) : '–'}</td>
+      <td style="font-size: 0.82rem; font-weight: 600;">${r.period} මාස (${r.rate}%)</td>
+      <td style="font-size: 0.78rem; color: var(--text-muted);">${r.date}</td>
       <td style="text-align: center;">
-        <div style="display: inline-flex; gap: 6px;">
-          <button class="btn-action btn-emerald btn-saved-print" data-id="${r.id}" title="A4 Print Slip (A5 පිටපත් 2)" style="padding: 4px 8px; font-size: 0.75rem;">
+        <div style="display: inline-flex; gap: 5px;">
+          <button class="btn-action btn-emerald btn-arch-print" data-id="${r.id}" title="A4 Print Slip (A5 පිටපත් 2)" style="padding: 5px 8px; font-size: 0.76rem;">
             <i class="fa-solid fa-print"></i>
           </button>
-          <button class="btn-action btn-blue btn-saved-load" data-id="${r.id}" title="ගණකයට ඇතුළත් කරන්න" style="padding: 4px 8px; font-size: 0.75rem;">
+          <button class="btn-action btn-blue btn-arch-load" data-id="${r.id}" title="ගණකයට නැවත ඇතුළත් කරන්න" style="padding: 5px 8px; font-size: 0.76rem;">
             <i class="fa-solid fa-arrow-up-right-from-square"></i>
           </button>
-          <button class="btn-action btn-saved-delete" data-id="${r.id}" title="මකන්න" style="padding: 4px 8px; font-size: 0.75rem; color: var(--accent-rose); border-color: rgba(244,63,94,0.3);">
+          <button class="btn-action btn-arch-delete" data-id="${r.id}" title="මකන්න" style="padding: 5px 8px; font-size: 0.76rem; color: var(--accent-rose); border-color: rgba(244,63,94,0.3);">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
@@ -2267,129 +1196,176 @@ function renderSavedLoansTable(filterQuery = "") {
     </tr>
   `).join("");
 
-  // Attach row action listeners
-  tbody.querySelectorAll(".btn-saved-print").forEach(btn => {
+  // Attach actions
+  tbody.querySelectorAll(".btn-arch-print").forEach(btn => {
     btn.addEventListener("click", () => {
-      const record = records.find(r => r.id === btn.dataset.id);
-      if (record) printVehicleLoanSlip(record);
-    });
-  });
-
-  tbody.querySelectorAll(".btn-saved-load").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const record = records.find(r => r.id === btn.dataset.id);
-      if (record) {
-        document.getElementById("veh-price").value = record.vehPrice;
-        document.getElementById("veh-reg-fee").value = record.regFee;
-        document.getElementById("veh-insurance-fee").value = record.vehIns;
-        document.getElementById("veh-down-payment").value = record.downPayment;
-        document.getElementById("fee-borrower-shares").value = record.borrowerShares;
-        document.getElementById("fee-guarantor1-shares").value = record.g1;
-        document.getElementById("fee-guarantor2-shares").value = record.g2;
-        document.getElementById("fee-doc").value = record.docFee;
-        document.getElementById("fee-service-fund").value = record.serviceFund;
-        document.getElementById("fee-loan-insurance").value = record.loanIns;
-        document.getElementById("fee-swashakthi-fund").value = record.swashakthi;
-        document.getElementById("fee-building-fund").value = record.building;
-        if (record.borrowerDeposit !== undefined) document.getElementById("fee-borrower-deposit").value = record.borrowerDeposit;
-
-        if (record.memberId) document.getElementById("save-member-id").value = record.memberId;
-        if (record.memberName) document.getElementById("save-member-name").value = record.memberName;
-        if (record.loanType) document.getElementById("save-loan-type").value = record.loanType;
-        if (record.g1Acc) document.getElementById("save-g1-account").value = record.g1Acc;
-        if (record.g2Acc) document.getElementById("save-g2-account").value = record.g2Acc;
-        if (record.period !== undefined) document.getElementById("save-loan-period").value = record.period;
-        if (record.rate !== undefined) document.getElementById("save-loan-rate").value = record.rate;
-
-        updateVehicleCalculation();
-        document.getElementById("modal-saved-veh-loans-list").style.display = "none";
-        showToast(`"${record.memberName}" ගේ දත්ත ගණකයට ඇතුළත් කරන ලදී.`, "info", "දත්ත ඇතුළත් විය");
+      const rec = records.find(r => r.id === btn.dataset.id);
+      if (rec) {
+        if (rec.type === 'vehicle' && rec.vehicleData) {
+          printVehicleLoanSlip(rec.vehicleData);
+        } else {
+          printUniversalLoanSlip(rec);
+        }
       }
     });
   });
 
-  tbody.querySelectorAll(".btn-saved-delete").forEach(btn => {
+  tbody.querySelectorAll(".btn-arch-load").forEach(btn => {
     btn.addEventListener("click", () => {
-      const record = records.find(r => r.id === btn.dataset.id);
-      if (record && confirm(`"${record.memberName}" (${record.memberId}) ගේ වාර්තාව මකා දැමීමට සහතිකද?`)) {
+      const rec = records.find(r => r.id === btn.dataset.id);
+      if (rec) loadRecordIntoCalculator(rec);
+    });
+  });
+
+  tbody.querySelectorAll(".btn-arch-delete").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const rec = records.find(r => r.id === btn.dataset.id);
+      if (rec && confirm(`"${rec.memberName}" ගේ වාර්තාව මකා දැමීමට සහතිකද?`)) {
         const updated = records.filter(r => r.id !== btn.dataset.id);
-        saveVehicleLoansArray(updated);
-        renderSavedLoansTable(document.getElementById("search-saved-loans")?.value.trim().toLowerCase());
-        showToast(`"${record.memberName}" ගේ වාර්තාව ඉවත් කරන ලදී.`, "warning", "වාර්තාව මකා දැමිණි");
+        saveAllRecordsArray(updated);
+        renderArchiveTable();
+        showToast("වාර්තාව සාර්ථකව ඉවත් කරන ලදී.", "warning", "මකා දැමිණි");
       }
     });
   });
 }
 
+function loadRecordIntoCalculator(rec) {
+  if (rec.type === 'vehicle') {
+    switchAppMode('vehicle');
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+    setVal("veh-member-id", rec.memberId || "");
+    setVal("veh-member-name", rec.memberName || "");
+    setVal("veh-loan-type", rec.loanType || "ස්වශක්ති ණය 01");
+    setVal("veh-g1-account", rec.g1Acc || "");
+    setVal("veh-g2-account", rec.g2Acc || "");
+    setVal("veh-loan-period", rec.period || 24);
+    setVal("veh-loan-rate", rec.rate || 18);
+    if (rec.vehPrice) setVal("veh-price", rec.vehPrice);
+    if (rec.regFee !== undefined) setVal("veh-reg-fee", rec.regFee);
+    if (rec.vehIns !== undefined) setVal("veh-insurance-fee", rec.vehIns);
+    if (rec.downPayment !== undefined) setVal("veh-down-payment", rec.downPayment);
 
-function printVehicleLoanSlip(customData = null) {
-  // Read values either from customData (saved record) or live inputs
-  let selectedVehName, vehPrice, regFee, vehIns, downPayment;
-  let borrowerShares, g1, g2, docFee, serviceFund, loanIns, swashakthi, building, borrowerDeposit;
-  let totalDocFees, totalVehCost, requiredLoan, today;
-  let memberId = "", memberName = "", loanType = "ස්වශක්ති ණය 01", g1Acc = "", g2Acc = "", period = 24, rate = 18;
+    if (rec.borrowerShares !== undefined) setVal("fee-borrower-shares", rec.borrowerShares);
+    if (rec.g1 !== undefined) setVal("fee-guarantor1-shares", rec.g1);
+    if (rec.g2 !== undefined) setVal("fee-guarantor2-shares", rec.g2);
+    if (rec.docFee !== undefined) setVal("fee-doc", rec.docFee);
+    if (rec.serviceFund !== undefined) setVal("fee-service-fund", rec.serviceFund);
+    if (rec.loanIns !== undefined) setVal("fee-loan-insurance", rec.loanIns);
+    if (rec.swashakthi !== undefined) setVal("fee-swashakthi-fund", rec.swashakthi);
+    if (rec.building !== undefined) setVal("fee-building-fund", rec.building);
+    if (rec.borrowerDeposit !== undefined) setVal("fee-borrower-deposit", rec.borrowerDeposit);
 
-  if (customData) {
-    selectedVehName = customData.vehicleName || "–";
-    vehPrice       = customData.vehPrice !== undefined ? customData.vehPrice : 0;
-    regFee         = customData.regFee !== undefined ? customData.regFee : 0;
-    vehIns         = customData.vehIns !== undefined ? customData.vehIns : 0;
-    downPayment    = customData.downPayment !== undefined ? customData.downPayment : 0;
-    borrowerShares = customData.borrowerShares !== undefined ? customData.borrowerShares : 0;
-    g1             = customData.g1 !== undefined ? customData.g1 : 0;
-    g2             = customData.g2 !== undefined ? customData.g2 : 0;
-    docFee         = customData.docFee !== undefined ? customData.docFee : 0;
-    serviceFund    = customData.serviceFund !== undefined ? customData.serviceFund : 0;
-    loanIns        = customData.loanIns !== undefined ? customData.loanIns : 0;
-    swashakthi     = customData.swashakthi !== undefined ? customData.swashakthi : 0;
-    building       = customData.building !== undefined ? customData.building : 0;
-    borrowerDeposit = customData.borrowerDeposit !== undefined ? customData.borrowerDeposit : 0;
-    totalDocFees   = customData.totalDocFees !== undefined ? customData.totalDocFees : (borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns);
-    totalVehCost   = customData.totalVehCost !== undefined ? customData.totalVehCost : (vehPrice + totalDocFees);
-    requiredLoan   = customData.requiredLoan !== undefined ? customData.requiredLoan : Math.max(0, totalVehCost - downPayment);
-    today          = customData.date || new Date().toLocaleDateString('si-LK', { year:'numeric', month:'long', day:'numeric' });
-    memberId       = customData.memberId || "";
-    memberName     = customData.memberName || "";
-    loanType       = customData.loanType || "ස්වශක්ති ණය 01";
-    g1Acc          = customData.g1Acc || "";
-    g2Acc          = customData.g2Acc || "";
-    period         = customData.period !== undefined ? customData.period : 24;
-    rate           = customData.rate !== undefined ? customData.rate : 18;
+    updateVehicleCalculation();
   } else {
-    const vehSelectEl = document.getElementById("vehicle-select");
-    selectedVehName = vehSelectEl?.options[vehSelectEl.selectedIndex]?.text?.split(" - ")[0] || "–";
-    vehPrice       = parseInputNumber("veh-price", 0);
-    regFee         = parseInputNumber("veh-reg-fee", 0);
-    vehIns         = parseInputNumber("veh-insurance-fee", 0);
-    downPayment    = parseInputNumber("veh-down-payment", 0);
-    borrowerShares = parseInputNumber("fee-borrower-shares", 0);
-    g1             = parseInputNumber("fee-guarantor1-shares", 0);
-    g2             = parseInputNumber("fee-guarantor2-shares", 0);
-    docFee         = parseInputNumber("fee-doc", 0);
-    serviceFund    = parseInputNumber("fee-service-fund", 0);
-    loanIns        = parseInputNumber("fee-loan-insurance", 0);
-    swashakthi     = parseInputNumber("fee-swashakthi-fund", 0);
-    building       = parseInputNumber("fee-building-fund", 0);
-    borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
-    totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns;
-    totalVehCost   = vehPrice + totalDocFees;
-    requiredLoan   = Math.max(0, totalVehCost - downPayment);
-    today          = new Date().toLocaleDateString('si-LK', { year:'numeric', month:'long', day:'numeric' });
-    memberId       = document.getElementById("save-member-id")?.value.trim() || "";
-    memberName     = document.getElementById("save-member-name")?.value.trim() || "";
-    loanType       = document.getElementById("save-loan-type")?.value.trim() || "ස්වශක්ති ණය 01";
-    g1Acc          = document.getElementById("save-g1-account")?.value.trim() || "";
-    g2Acc          = document.getElementById("save-g2-account")?.value.trim() || "";
-    period         = parseInt(document.getElementById("save-loan-period")?.value) || 24;
-    rate           = parseFloat(document.getElementById("save-loan-rate")?.value) || 18;
+    switchAppMode('universal');
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+    setVal("univ-member-id", rec.memberId || "");
+    setVal("univ-member-name", rec.memberName || "");
+    setVal("univ-g1-acc", rec.g1Acc || "");
+    setVal("univ-g2-acc", rec.g2Acc || "");
+    setVal("univ-loan-amount", rec.grossLoan || "");
+    setVal("univ-interest-rate", rec.rate || "");
+    setVal("univ-loan-tenure", rec.period || "");
+    setVal("univ-loan-remarks", rec.remarks || "");
+
+    if (rec.savings !== undefined) document.getElementById("univ-fee-savings").value = rec.savings;
+    if (rec.serviceFund !== undefined) document.getElementById("univ-fee-service").value = rec.serviceFund;
+    if (rec.buildingFund !== undefined) document.getElementById("univ-fee-building").value = rec.buildingFund;
+    if (rec.loanInsurance !== undefined) document.getElementById("univ-fee-insurance").value = rec.loanInsurance;
+    if (rec.memberShares !== undefined) document.getElementById("univ-fee-member-shares").value = rec.memberShares;
+    if (rec.securityDeposit !== undefined) document.getElementById("univ-fee-security").value = rec.securityDeposit;
+    if (rec.stationery !== undefined) document.getElementById("univ-fee-stationery").value = rec.stationery;
+    if (rec.welfareFund !== undefined) document.getElementById("univ-fee-welfare").value = rec.welfareFund;
+    if (rec.existingLoan !== undefined) document.getElementById("univ-fee-existing-loan").value = rec.existingLoan;
+    if (rec.existingInterest !== undefined) document.getElementById("univ-fee-existing-interest").value = rec.existingInterest;
+    if (rec.g1Shares !== undefined) document.getElementById("univ-fee-g1-shares").value = rec.g1Shares;
+    if (rec.g2Shares !== undefined) document.getElementById("univ-fee-g2-shares").value = rec.g2Shares;
+
+    updateUniversalCalculation();
+  }
+  showToast(`"${rec.memberName}" ගේ දත්ත ගණකයට ඇතුළත් කරන ලදී.`, "info", "දත්ත ඇතුළත් විය");
+}
+
+function exportArchiveToCSV() {
+  const records = getAllSavedRecords();
+  if (records.length === 0) {
+    showToast("අපනයනය කිරීමට වාර්තා කිසිවක් නැත.", "warning");
+    return;
   }
 
-  // Format rupees helper
-  const fmtR = v => "රු. " + Number(v).toLocaleString('en-LK', { minimumFractionDigits: 2 });
+  const headers = [
+    "ID", "Date", "Member ID", "Member Name", "NIC", "Phone", 
+    "Loan Scheme", "Gross Loan", "Total Deductions", "Net Disbursement", 
+    "Interest Rate %", "Period (Months)", "EMI", "Guarantor 1 A/C", "Guarantor 2 A/C"
+  ];
 
-  // ── Build full print HTML ──────────────────────────────────
+  const rows = records.map(r => [
+    r.id,
+    `"${r.date}"`,
+    `"${r.memberId || ''}"`,
+    `"${r.memberName || ''}"`,
+    `"${r.nic || ''}"`,
+    `"${r.phone || ''}"`,
+    `"${r.schemeName || ''}"`,
+    r.grossLoan || r.netDisbursement || 0,
+    r.totalDeductions || 0,
+    r.netDisbursement || 0,
+    r.rate || 0,
+    r.period || 0,
+    r.emi || 0,
+    `"${r.g1Acc || ''}"`,
+    `"${r.g2Acc || ''}"`
+  ]);
+
+  let csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `GSCS_Bank_Loans_Archive_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast("Excel / CSV ගොනුව සාර්ථකව බාගත කරන ලදී.", "success");
+}
+
+// ============================================================
+// 9. Top Hero Stats Live Synchronizer
+// ============================================================
+function updateTopHeroStats() {
+  const records = getAllSavedRecords();
+  const totalCount = records.length;
+  
+  let totalNetDisbursed = 0;
+  let totalDeductionsCollected = 0;
+
+  records.forEach(r => {
+    totalNetDisbursed += (r.netDisbursement || 0);
+    totalDeductionsCollected += (r.totalDeductions || 0);
+  });
+
+  const activeSchemesCount = loanSchemesDatabase.length;
+
+  const el1 = document.getElementById("stat-pill-1-val");
+  const el2 = document.getElementById("stat-pill-2-val");
+  const el3 = document.getElementById("stat-pill-3-val");
+  const el4 = document.getElementById("stat-pill-4-val");
+
+  if (el1) el1.textContent = `${totalCount} Records`;
+  if (el2) el2.textContent = formatCurrency(totalNetDisbursed);
+  if (el3) el3.textContent = formatCurrency(totalDeductionsCollected);
+  if (el4) el4.textContent = `${activeSchemesCount} Schemes`;
+}
+
+// ============================================================
+// 10. Universal Official Dual A4 Receipt Voucher Printing
+// ============================================================
+function printUniversalLoanSlip(record) {
+  const fmtR = v => "රු. " + Number(v || 0).toLocaleString('en-LK', { minimumFractionDigits: 2 });
+
   const printCSS = `
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap');
     @page { size: A4 portrait; margin: 3mm 5mm; }
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body {
@@ -2416,7 +1392,7 @@ function printVehicleLoanSlip(customData = null) {
       height: 139mm;
       max-height: 139mm;
       border: 1.2px solid #000;
-      padding: 2.5mm 5mm;
+      padding: 3.5mm 5.5mm;
       display: flex;
       flex-direction: column;
       page-break-inside: avoid;
@@ -2428,113 +1404,24 @@ function printVehicleLoanSlip(customData = null) {
       height: 100%;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
     }
-    .slip-body-top {
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── HEADER ── */
-    .slip-head { border-bottom: 1.5px solid #000; padding-bottom: 1.5mm; margin-bottom: 1.5mm; }
+    .slip-head { border-bottom: 1.5px solid #000; padding-bottom: 2mm; margin-bottom: 2mm; }
     .slip-head table { width: 100%; border-collapse: collapse; }
     .slip-head td { padding: 0; vertical-align: middle; }
     .slip-head td:last-child { text-align: right; }
-    .slip-bank { font-size: 11.5pt; font-weight: 800; color: #000; letter-spacing: -0.02em; line-height: 1.1; margin-top: 1px; }
-    .slip-sub  { font-size: 7.2pt; color: #000; margin-top: 1px; }
-    .slip-sub-en { font-size: 6.2pt; color: #333; }
-    .slip-date { font-size: 7.5pt; color: #000; font-weight: 600; }
+    .slip-bank { font-size: 12.5pt; font-weight: 900; color: #000; letter-spacing: -0.02em; line-height: 1.1; margin-top: 1px; }
+    .slip-sub  { font-size: 7.8pt; color: #000; margin-top: 1.5px; font-weight: 700; }
+    .slip-sub-en { font-size: 6.5pt; color: #333; }
+    .slip-date { font-size: 7.8pt; color: #000; font-weight: 600; }
     .slip-staff {
-      font-size: 6pt; font-weight: 700; color: #000;
+      font-size: 6.2pt; font-weight: 800; color: #000;
       border: 1.2px solid #000; border-radius: 10px;
-      padding: 1px 5px; display: inline-block; margin-top: 2px;
+      padding: 1.5px 7px; display: inline-block; margin-top: 2px;
     }
-
-    /* ── VEHICLE BADGE ── */
-    .slip-veh {
-      font-size: 8.5pt; font-weight: 700; color: #000;
-      border: 1.2px solid #000; display: inline-block;
-      padding: 1.5px 7px; margin-bottom: 1.5mm; align-self: flex-start;
-      background: #f4f4f4 !important;
-      -webkit-print-color-adjust: exact; print-color-adjust: exact;
-    }
-
-    /* ── MAIN CONTENT: 2 columns ── */
-    .content-grid { width: 100%; border-collapse: collapse; flex: 1; }
-    .content-grid > tbody > tr > td { vertical-align: top; padding: 0; }
-    .col-divider { width: 3.5mm; }
-
-    /* ── MANUAL & AUTO FIELDS ── */
-    .fields-block { margin-bottom: 1mm; }
-    .field-row { margin-bottom: 1.5mm; }
-    .field-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm; margin-bottom: 1.5mm; }
-    .field-lbl { font-size: 6.5pt; color: #000; font-weight: 700; display: block; margin-bottom: 0.3mm; }
-    .field-line {
-      border-bottom: 1px solid #000;
-      min-height: 4.2mm;
-      width: 100%;
-      display: block;
-      font-size: 7.2pt;
-      font-weight: 700;
-      color: #000;
-      line-height: 4.2mm;
-      padding-left: 2px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .val-text {
-      font-size: 7.2pt;
-      font-weight: 700;
-      color: #000;
-    }
-    .font-mono {
-      font-family: 'Inter', Consolas, Monaco, monospace, sans-serif;
-      font-weight: 800;
-      letter-spacing: 0.3px;
-    }
-    .check-box {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 3.2mm;
-      height: 3.2mm;
-      border: 1.1px solid #000;
-      border-radius: 1.5px;
-      vertical-align: -0.4mm;
-      margin-right: 3px;
-      background: #fff;
-      font-size: 6pt;
-      line-height: 1;
-      font-weight: 900;
-    }
-
-    /* ── FEE TABLE ── */
-    .fee-tbl { width: 100%; border-collapse: collapse; font-size: 7.2pt; color: #000; }
-    .fee-tbl thead th {
-      background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
-      color: #fff !important; padding: 2px 5px; font-weight: 700; font-size: 6.8pt;
-      border: 1px solid #000; text-align: left;
-    }
-    .fee-tbl tbody tr:nth-child(even) td {
-      background: #f4f4f4 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
-    }
-    .fee-tbl td { padding: 1.3px 5px; border: 1px solid #ccc; color: #000; font-size: 7.2pt; line-height: 1.2; }
-    .fee-tbl td.r { text-align: right; font-weight: 700; }
-
-    /* ── SUMMARY ── */
-    .sum-tbl { width: 100%; border-collapse: collapse; font-size: 7.2pt; margin-top: 1.5mm; }
-    .sum-tbl td { padding: 1.5px 5px; border: 1px solid #ccc; color: #000; }
-    .sum-tbl td.r { text-align: right; font-weight: 700; }
-    .sum-tbl tr.hl td {
-      background: #dcdcdc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
-      border-top: 1.5px solid #000; font-weight: 800; font-size: 7.8pt; padding: 2px 5px;
-    }
-    .sum-tbl tr.hl td.r { font-size: 9.8pt; font-weight: 900; }
-
-    /* COPY TYPE BADGE */
     .slip-copy-badge {
       display: inline-block;
-      font-size: 6.5pt;
+      font-size: 6.8pt;
       font-weight: 800;
       letter-spacing: 0.4px;
       color: #000;
@@ -2542,26 +1429,76 @@ function printVehicleLoanSlip(customData = null) {
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
       border: 1.2px solid #000;
       border-radius: 3px;
-      padding: 1px 6px;
+      padding: 1.5px 7px;
       margin-bottom: 2px;
     }
+    .slip-veh {
+      font-size: 9.2pt; font-weight: 800; color: #000;
+      border: 1.2px solid #000; display: inline-block;
+      padding: 2px 9px; margin-bottom: 2.5mm; align-self: flex-start;
+      background: #f4f4f4 !important;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .content-grid { width: 100%; border-collapse: collapse; flex: 1; }
+    .content-grid > tbody > tr > td { vertical-align: top; padding: 0; }
+    .col-divider { width: 4.5mm; }
 
-    /* ── SIGNATURE ROW ── */
+    .field-row { margin-bottom: 2.8mm; }
+    .field-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm; margin-bottom: 2.8mm; }
+    .field-lbl { font-size: 6.8pt; color: #000; font-weight: 700; display: block; margin-bottom: 0.8mm; }
+    .field-line {
+      border-bottom: 1px solid #000;
+      min-height: 5.5mm;
+      width: 100%;
+      display: block;
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #000;
+      line-height: 5.5mm;
+      padding-left: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .font-mono {
+      font-family: 'Inter', Consolas, monospace, sans-serif;
+      font-weight: 800;
+    }
+    .fee-tbl { width: 100%; border-collapse: collapse; font-size: 7.4pt; color: #000; }
+    .fee-tbl thead th {
+      background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      color: #fff !important; padding: 3px 6px; font-weight: 700; font-size: 7.2pt;
+      border: 1px solid #000; text-align: left;
+    }
+    .fee-tbl tbody tr:nth-child(even) td {
+      background: #f4f4f4 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .fee-tbl td { padding: 2.7px 6px; border: 1px solid #ccc; color: #000; font-size: 7.4pt; line-height: 1.35; }
+    .fee-tbl td.r { text-align: right; font-weight: 700; }
+
+    .sum-tbl { width: 100%; border-collapse: collapse; font-size: 8pt; margin-top: 5mm; }
+    .sum-tbl td { padding: 4px 6px; border: 1px solid #ccc; color: #000; }
+    .sum-tbl td.r { text-align: right; font-weight: 700; }
+    .sum-tbl tr.hl td {
+      background: #dcdcdc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      border-top: 1.5px solid #000; font-weight: 900; font-size: 9pt; padding: 5px 6px;
+    }
+    .sum-tbl tr.hl td.r { font-size: 11pt; font-weight: 900; }
+
     .slip-sign-row {
       width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8mm;
       margin-top: auto;
-      padding-top: 3mm;
-      padding-bottom: 0.5mm;
+      padding-top: 6mm;
+      padding-bottom: 1.5mm;
     }
-    .sign-box { width: 46%; }
-    .sign-line { border-bottom: 1.1px dotted #000; width: 42mm; min-height: 8mm; }
-    .sign-lbl { font-size: 6.5pt; font-weight: 700; color: #000; margin-top: 0.8mm; line-height: 1.1; }
-    .sign-sub { font-size: 5.5pt; color: #555; }
+    .sign-box { text-align: center; }
+    .sign-line { border-bottom: 1.2px dotted #000; width: 100%; min-height: 16mm; }
+    .sign-lbl { font-size: 7.5pt; font-weight: 800; color: #000; margin-top: 1.8mm; line-height: 1.1; }
+    .sign-sub { font-size: 6.2pt; color: #555; margin-top: 0.5mm; }
 
-    /* CUT LINE */
     .cut-line {
       width: 100%;
       display: flex;
@@ -2576,14 +1513,8 @@ function printVehicleLoanSlip(customData = null) {
     .cut-label { font-size: 6.5pt; font-weight: 700; letter-spacing: 1px; }
   `;
 
-  function createSlipHTML(copyName) {
-    const isType01 = loanType.includes("01") || loanType === "ස්වශක්ති ණය 01";
-    const isType02 = loanType.includes("02") || loanType === "ස්වශක්ති ණය 02";
-
-    let memberDisplay = "";
-    if (memberName) {
-      memberDisplay = memberId ? `${memberName} (${memberId})` : memberName;
-    }
+  function createUniversalSlipHTML(copyName) {
+    const methodText = record.method === 'flat' ? 'සමාන වාරික (Flat Rate)' : 'හීනවෙන ක්‍රමය (Reducing)';
 
     return `
     <div class="slip">
@@ -2595,126 +1526,112 @@ function printVehicleLoanSlip(customData = null) {
             <table><tr>
               <td>
                 <div class="slip-copy-badge">${copyName}</div>
-                <div class="slip-bank">GSCS BANK</div>
-                <div class="slip-sub">ස්වශක්ති වාහන ණය – ගාස්තු ගණනය කිරීමේ සටහන</div>
-                <div class="slip-sub-en">Swashakthi Vehicle Loan – Fee Calculation Slip</div>
+                <div class="slip-bank">GSCS BANK – ණය නිකුත් කිරීමේ අංශය</div>
+                <div class="slip-sub">ණය මුදල් නිකුත් කිරීම සහ අරමුදල් අයකිරීම් කුවිතාන්සිය</div>
+                <div class="slip-sub-en">Loan Disbursement &amp; Fund Deductions Voucher Slip</div>
               </td>
               <td>
-                <div class="slip-date">${today}</div>
-                <div class="slip-staff">FOR STAFF USE ONLY</div>
+                <div class="slip-date">${record.date}</div>
+                <div class="slip-staff">ASST. MANAGER SYSTEM</div>
               </td>
             </tr></table>
           </div>
 
-          <!-- Vehicle name badge -->
-          <div class="slip-veh">&#x1F3CD;&nbsp; ${selectedVehName}</div>
+          <!-- Scheme Name Badge -->
+          <div class="slip-veh">&#x1F4B3;&nbsp; ${record.schemeName}</div>
 
-          <!-- Two column layout: manual fields LEFT | fee table RIGHT -->
+          <!-- Two Column Layout -->
           <table class="content-grid"><tbody><tr>
-
-            <!-- LEFT: Details fields -->
-            <td style="width:42%;">
-              <div class="fields-block">
-
-                <div class="field-row">
-                  <span class="field-lbl">ස්වශක්ති ණය වර්ගය / Loan Type:</span>
-                  <div style="display: flex; gap: 10px; margin-top: 2px; font-size: 7.2pt; font-weight: 700;">
-                    <span style="display: inline-flex; align-items: center;"><span class="check-box">${isType01 ? '&#10004;' : ''}</span> ස්වශක්ති ණය 01</span>
-                    <span style="display: inline-flex; align-items: center;"><span class="check-box">${isType02 ? '&#10004;' : ''}</span> ස්වශක්ති ණය 02</span>
-                  </div>
+            
+            <!-- LEFT: Member & Loan Info + Final Summary -->
+            <td style="width: 44%;">
+              <div class="field-row-grid">
+                <div>
+                  <span class="field-lbl">සාමාජික අංකය (Member A/C):</span>
+                  <span class="field-line font-mono" style="font-size: 10.5pt; font-weight: 900; color: #000; letter-spacing: 0.5px;">${record.memberId || '–'}</span>
                 </div>
-
-                <div class="field-row">
-                  <span class="field-lbl">සාමාජිකයා / Member:</span>
-                  <span class="field-line">${memberDisplay ? `<span class="val-text">${memberDisplay}</span>` : ''}</span>
+                <div>
+                  <span class="field-lbl">සාමාජිකයා (Member Name):</span>
+                  <span class="field-line" style="font-size: 8.5pt; font-weight: 800; color: #000;">${record.memberName || '–'}</span>
                 </div>
-
-                <div class="field-row">
-                  <span class="field-lbl">ණය ගිණුම් අංකය / Loan A/C No:</span>
-                  <span class="field-line"></span>
-                </div>
-
-                <div class="field-row">
-                  <span class="field-lbl">ඇපකරු 1 ගිණුම් අංකය / Guarantor 1 A/C:</span>
-                  <span class="field-line">${g1Acc ? `<span class="val-text font-mono">${g1Acc}</span>` : ''}</span>
-                </div>
-
-                <div class="field-row">
-                  <span class="field-lbl">ඇපකරු 2 ගිණුම් අංකය / Guarantor 2 A/C:</span>
-                  <span class="field-line">${g2Acc ? `<span class="val-text font-mono">${g2Acc}</span>` : ''}</span>
-                </div>
-
-                <div class="field-row-grid">
-                  <div>
-                    <span class="field-lbl">කාලය / Period:</span>
-                    <span class="field-line">${period !== undefined && period !== "" ? `<span class="val-text">${period} මාස</span>` : ''}</span>
-                  </div>
-                  <div>
-                    <span class="field-lbl">පොලී / Rate:</span>
-                    <span class="field-line">${rate !== undefined && rate !== "" ? `<span class="val-text">${rate}%</span>` : ''}</span>
-                  </div>
-                </div>
-
               </div>
 
-              <!-- Summary below fields -->
+              <div class="field-row-grid">
+                <div>
+                  <span class="field-lbl">ඇපකරු 1 A/C:</span>
+                  <span class="field-line font-mono" style="font-size: 10pt; font-weight: 900; color: #000; letter-spacing: 0.5px;">${record.g1Acc || '–'}</span>
+                </div>
+                <div>
+                  <span class="field-lbl">ඇපකරු 2 A/C:</span>
+                  <span class="field-line font-mono" style="font-size: 10pt; font-weight: 900; color: #000; letter-spacing: 0.5px;">${record.g2Acc || '–'}</span>
+                </div>
+              </div>
+
+              <div class="field-row-grid">
+                <div>
+                  <span class="field-lbl">කාලය / Period:</span>
+                  <span class="field-line">${record.period} මාස (${record.rate}%)</span>
+                </div>
+                <div>
+                  <span class="field-lbl">වාරික ක්‍රමය:</span>
+                  <span class="field-line" style="font-size: 6.8pt;">${methodText}</span>
+                </div>
+              </div>
+
+
+              <!-- Summary Table -->
               <table class="sum-tbl">
-                <tr><td>ලිපි ලේඛන ගාස්තු</td><td class="r">${fmtR(totalDocFees)}</td></tr>
-                <tr><td>සම්පූර්ණ පිරිවැය</td><td class="r">${fmtR(totalVehCost)}</td></tr>
-                <tr><td>මූලික ගෙවීම</td><td class="r">${fmtR(downPayment)}</td></tr>
-                <tr class="hl"><td>අවශ්‍ය ණය මුදල</td><td class="r">${fmtR(requiredLoan)}</td></tr>
+                <tr><td>අනුමත ණය මුදල (Gross)</td><td class="r">${fmtR(record.grossLoan)}</td></tr>
+                <tr><td>මුළු අයකිරීම් එකතුව (Deductions)</td><td class="r" style="color: #000;">(${fmtR(record.totalDeductions)})</td></tr>
+                <tr class="hl"><td>නිකුත් කරන ශුද්ධ මුදල (Net)</td><td class="r">${fmtR(record.netDisbursement)}</td></tr>
               </table>
             </td>
 
             <td class="col-divider"></td>
 
-            <!-- RIGHT: Fee breakdown table -->
-            <td style="width:54%;">
+            <!-- RIGHT: Complete 12 Deductions Breakdown Table -->
+            <td style="width: 52%;">
               <table class="fee-tbl">
                 <thead>
-                  <tr><th>විස්තරය</th><th style="text-align:right;">මුදල (Rs.)</th></tr>
+                  <tr><th>අයකිරීම් විස්තරය (Deduction Item)</th><th style="text-align:right;">මුදල (Rs.)</th></tr>
                 </thead>
                 <tbody>
-                  <tr><td>වාහනයේ මිල</td><td class="r">${fmtR(vehPrice)}</td></tr>
-                  <tr><td>ණයකරු කොටස්</td><td class="r">${fmtR(borrowerShares)}</td></tr>
-                  <tr><td>ඇපකරු 1 කොටස්</td><td class="r">${fmtR(g1)}</td></tr>
-                  <tr><td>ඇපකරු 2 කොටස්</td><td class="r">${fmtR(g2)}</td></tr>
-                  <tr><td>ගොඩනැගිලි අරමුදල</td><td class="r">${fmtR(building)}</td></tr>
-                  <tr><td>ලියාපදිංචි ගාස්තු</td><td class="r">${fmtR(regFee)}</td></tr>
-                  <tr><td>වාහන රක්ෂණ ගාස්තු</td><td class="r">${fmtR(vehIns)}</td></tr>
-                  <tr><td>සමිති දායකත්වය</td><td class="r">${fmtR(swashakthi)}</td></tr>
-                  <tr><td>ලිපි ගාස්තු</td><td class="r">${fmtR(docFee)}</td></tr>
-                  <tr><td>සේවා අරමුදල</td><td class="r">${fmtR(serviceFund)}</td></tr>
-                  <tr><td>ණය රක්ෂණය</td><td class="r">${fmtR(loanIns)}</td></tr>
-                  <tr><td>ණයකරු තැන්පතු</td><td class="r">${fmtR(borrowerDeposit)}</td></tr>
-                  <tr><td>මූලික ගෙවීම</td><td class="r">(${fmtR(downPayment)})</td></tr>
+                  <tr><td>1. ඉතිරිකිරීම් තැන්පතු (Savings Deposit)</td><td class="r">${fmtR(record.savings)}</td></tr>
+                  <tr><td>2. සේවා අරමුදල (Service Fund)</td><td class="r">${fmtR(record.serviceFund)}</td></tr>
+                  <tr><td>3. ගොඩනැගිලි අරමුදල (Building Fund)</td><td class="r">${fmtR(record.buildingFund)}</td></tr>
+                  <tr><td>4. ණය රක්ෂණය (Loan Insurance)</td><td class="r">${fmtR(record.loanInsurance)}</td></tr>
+                  <tr><td>5. සාමාජික කොටස් (Member Shares)</td><td class="r">${fmtR(record.memberShares)}</td></tr>
+                  <tr><td>6. සුරැකුම් තැන්පතු (Security Deposit)</td><td class="r">${fmtR(record.securityDeposit)}</td></tr>
+                  <tr><td>7. ලිපි ද්‍රව්‍ය ගාස්තු (Stationery Fee)</td><td class="r">${fmtR(record.stationery)}</td></tr>
+                  <tr><td>8. සුබසාධන අරමුදල (Welfare Fund)</td><td class="r">${fmtR(record.welfareFund)}</td></tr>
+                  <tr><td>9. ගෙවීමට ඇති ණය (Existing Loan)</td><td class="r">${fmtR(record.existingLoan)}</td></tr>
+                  <tr><td>10. ගෙවීමට ඇති පොලිය (Interest Due)</td><td class="r">${fmtR(record.existingInterest)}</td></tr>
+                  <tr><td>11. ඇපකරු 1 කොටස් (G1 Shares)</td><td class="r">${fmtR(record.g1Shares)}</td></tr>
+                  <tr><td>12. ඇපකරු 2 කොටස් (G2 Shares)</td><td class="r">${fmtR(record.g2Shares)}</td></tr>
                 </tbody>
               </table>
             </td>
 
           </tr></tbody></table>
 
-          <!-- SMS & Mobile App Note (directly beneath the tables) -->
-          <div style="margin-top: 1.5mm; padding: 1mm 2.2mm; border: 1px dashed #555; border-radius: 2px; background: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; display: flex; align-items: flex-start; gap: 2mm;">
-            <span style="font-size: 7pt; color: #000; flex-shrink: 0; margin-top: 0.1mm;">&#9432;</span>
-            <div style="font-size: 5.8pt; color: #000; line-height: 1.35;">
-              <strong>සටහන:</strong> ස්වයංක්රීය කෙටි පණිවිඩ සේවාව සහ Mobile App සක්රිය කිරීමට <strong>ණය අංශය</strong> වෙත එම අයදුම්පත්ර යොමු කරන්න.&ensp;<em style="color: #555; font-size: 5.2pt;">To activate Automatic SMS Service &amp; Mobile App, submit the relevant application to the Loan Department.</em>
-            </div>
-          </div>
-
         </div>
 
-        <!-- Footer Signatures Row -->
+        <!-- 3 Official Signature Blocks -->
         <div class="slip-sign-row">
-          <div class="sign-box" style="text-align: left;">
+          <div class="sign-box">
             <div class="sign-line"></div>
-            <div class="sign-lbl">පරීක්ෂා කළ නිලධාරියාගේ අත්සන</div>
-            <div class="sign-sub">Checked by Officer</div>
+            <div class="sign-lbl">ණය නිකුත් කළ නිලධාරී</div>
+            <div class="sign-sub">Loan Issuing Officer</div>
           </div>
-          <div class="sign-box" style="text-align: right;">
-            <div class="sign-line" style="margin-left: auto;"></div>
-            <div class="sign-lbl">සකස් කළ නිලධාරියාගේ අත්සන</div>
-            <div class="sign-sub">Prepared by Officer Signature</div>
+          <div class="sign-box">
+            <div class="sign-line"></div>
+            <div class="sign-lbl">පරීක්ෂා කළ නිලධාරී</div>
+            <div class="sign-sub">Checking Officer</div>
+          </div>
+          <div class="sign-box">
+            <div class="sign-line"></div>
+            <div class="sign-lbl">මුදල් අයකැමි (Cashier)</div>
+            <div class="sign-sub">Cashier</div>
           </div>
         </div>
 
@@ -2723,36 +1640,34 @@ function printVehicleLoanSlip(customData = null) {
     `;
   }
 
-  const slipCashier = createSlipHTML("CASHIER COPY");
-  const slipCustomer = createSlipHTML("CUSTOMER FILE COPY");
+  const slipCashier = createUniversalSlipHTML("CASHIER COPY / මුදල් අයකැමි පිටපත");
+  const slipCustomer = createUniversalSlipHTML("CUSTOMER / OFFICE FILE COPY");
 
   const fullHTML = `<!DOCTYPE html>
 <html lang="si">
 <head>
   <meta charset="UTF-8">
-  <title>GSCS BANK – Vehicle Loan Slip</title>
+  <title>GSCS BANK – Loan Disbursement Voucher Slip</title>
   <style>${printCSS}</style>
 </head>
 <body>
   <div class="wrap">
     ${slipCashier}
-    <div class="cut-line"><hr> <span class="cut-label">✂ CUT HERE ✂</span> <hr></div>
+    <div class="cut-line"><hr> <span class="cut-label">✂ CUT HERE (මෙහිදී වෙන් කරන්න) ✂</span> <hr></div>
     ${slipCustomer}
   </div>
 </body>
 </html>`;
 
-  // ── Print via hidden iframe (no new tab, native print dialog) ──
-  let iframe = document.getElementById("_veh_print_frame");
+  let iframe = document.getElementById("_univ_print_frame");
   if (!iframe) {
     iframe = document.createElement("iframe");
-    iframe.id = "_veh_print_frame";
+    iframe.id = "_univ_print_frame";
     iframe.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;";
     document.body.appendChild(iframe);
   }
 
   iframe.srcdoc = fullHTML;
-
   iframe.onload = () => {
     setTimeout(() => {
       iframe.contentWindow.focus();
@@ -2761,4 +1676,1034 @@ function printVehicleLoanSlip(customData = null) {
   };
 }
 
+// ============================================================
+// 11. Swashakthi Vehicle Loan Calculator & Dual-Slip Printing
+// ============================================================
+function initVehicleCalculator() {
+  loadSavedVehicles();
+  populateVehicleDropdown();
 
+  // Attach event listeners to all vehicle inputs
+  document.querySelectorAll(".veh-input").forEach(input => {
+    input.addEventListener("input", () => {
+      updateVehicleCalculation();
+    });
+  });
+
+  document.getElementById("vehicle-select")?.addEventListener("change", (e) => {
+    selectVehicle(e.target.value);
+  });
+
+  document.getElementById("btn-apply-veh-loan")?.addEventListener("click", () => {
+    applyVehicleLoanAmount(lastCalculatedVehicleLoanAmount);
+  });
+
+  // Modal event listeners (Add & Edit Vehicle)
+  document.getElementById("btn-add-vehicle-modal")?.addEventListener("click", () => {
+    openVehicleModalAdd();
+  });
+
+
+  document.getElementById("btn-close-modal")?.addEventListener("click", () => {
+    document.getElementById("modal-add-vehicle").style.display = "none";
+  });
+
+  document.getElementById("btn-cancel-modal")?.addEventListener("click", () => {
+    document.getElementById("modal-add-vehicle").style.display = "none";
+  });
+
+  // Delete vehicle handler
+  document.getElementById("btn-delete-vehicle")?.addEventListener("click", () => {
+    const editId = document.getElementById("m-veh-edit-id")?.value;
+    if (!editId) return;
+    const v = vehicleDatabase.find(x => x.id === editId);
+    const vName = v ? v.name : "මෙම වාහනය";
+    if (!confirm(`«${vName}» වාහනය පද්ධතියෙන් ඉවත් කිරීමට ඔබට විශ්වාසද?`)) return;
+
+    vehicleDatabase = vehicleDatabase.filter(x => x.id !== editId);
+    saveVehiclesToStorage();
+    populateVehicleDropdown();
+    if (vehicleDatabase.length > 0) {
+      selectVehicle(vehicleDatabase[0].id);
+    }
+    const modal = document.getElementById("modal-add-vehicle");
+    if (modal) modal.style.display = "none";
+    showToast(`«${vName}» වාහනය සාර්ථකව ඉවත් කරන ලදී.`, "info", "ඉවත් කෙරිණි");
+  });
+
+  // Vehicle type icon picker — click to select
+  document.querySelectorAll(".veh-type-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const selectedType = btn.dataset.type;
+      const selectedIcon = btn.dataset.icon;
+
+      // Update hidden field
+      const typeHidden = document.getElementById("m-veh-type");
+      if (typeHidden) typeHidden.value = selectedType;
+
+      // Update button styles
+      document.querySelectorAll(".veh-type-btn").forEach(b => {
+        const active = b.dataset.type === selectedType;
+        b.style.border = active ? "2px solid var(--accent-amber)" : "2px solid var(--border-color)";
+        b.style.background = active ? "var(--accent-amber)" : "var(--bg-input)";
+        b.style.color = active ? "#fff" : "var(--text-primary)";
+      });
+
+      // Update modal header icon
+      const modalIcon = document.querySelector("#modal-title i");
+      if (modalIcon) {
+        modalIcon.className = `fa-solid ${selectedIcon}`;
+        modalIcon.style.color = "var(--accent-amber)";
+      }
+    });
+  });
+
+  document.getElementById("form-add-vehicle")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const editId = document.getElementById("m-veh-edit-id")?.value;
+    const name = document.getElementById("m-veh-name")?.value.trim();
+    const price = parseFloat(document.getElementById("m-veh-price")?.value) || 0;
+    const regFee = parseFloat(document.getElementById("m-veh-reg")?.value) || 0;
+    const vehicleInsurance = parseFloat(document.getElementById("m-veh-insurance")?.value) || 0;
+    const downPayment = parseFloat(document.getElementById("m-veh-down")?.value) || 0;
+    const vehType = document.getElementById("m-veh-type")?.value || "bike";
+
+    if (!name || price <= 0) {
+      showToast("කරුණාකර වලංගු වාහනයේ නම සහ මිලක් ඇතුළත් කරන්න.", "warning");
+      return;
+    }
+
+    if (editId) {
+      const v = vehicleDatabase.find(x => x.id === editId);
+      if (v) {
+        v.name = name;
+        v.type = vehType;
+        v.price = price;
+        v.regFee = regFee;
+        v.vehicleInsurance = vehicleInsurance;
+        v.downPayment = downPayment;
+      }
+    } else {
+      const newVeh = {
+        id: "veh_" + Date.now(),
+        name,
+        type: vehType,
+        price,
+        regFee,
+        vehicleInsurance,
+        downPayment
+      };
+      vehicleDatabase.unshift(newVeh);
+    }
+
+    saveVehiclesToStorage();
+    populateVehicleDropdown();
+    selectVehicle(editId || vehicleDatabase[0].id);
+
+    const modal = document.getElementById("modal-add-vehicle");
+    if (modal) modal.style.display = "none";
+    if (editId) {
+      showToast(`"${name}" වාහනයේ විස්තර සාර්ථකව යාවත්කාලීන කරන ලදී.`, "success", "යාවත්කාලීනයි");
+    } else {
+      showToast(`"${name}" වාහනය සාර්ථකව පද්ධතියට එක් කරන ලදී.`, "success", "සාර්ථකයි");
+    }
+  });
+
+  // Direct Save & Print Vehicle Loan (no modal needed)
+  document.getElementById("btn-save-veh-loan-modal")?.addEventListener("click", () => {
+    saveAndPrintVehicleLoanDirect();
+  });
+
+  updateVehicleCalculation();
+}
+
+function saveAndPrintVehicleLoanDirect() {
+  const vehSelectEl = document.getElementById("vehicle-select");
+  const selectedVehName = vehSelectEl?.options[vehSelectEl.selectedIndex]?.text?.split(" - ")[0] || "වාහනය";
+  const memberId    = document.getElementById("veh-member-id")?.value.trim() || "";
+  const memberName  = document.getElementById("veh-member-name")?.value.trim() || "";
+  const loanType    = document.getElementById("veh-loan-type")?.value.trim() || "ස්වශක්ති ණය 01";
+  const g1Acc       = document.getElementById("veh-g1-account")?.value.trim() || "";
+  const g2Acc       = document.getElementById("veh-g2-account")?.value.trim() || "";
+  const period      = parseInt(document.getElementById("veh-loan-period")?.value) || 24;
+  const rate        = parseFloat(document.getElementById("veh-loan-rate")?.value) || 18;
+
+  if (!memberName) {
+    showToast("කරුණාකර සාමාජිකයාගේ නම ඇතුළත් කරන්න.", "warning", "අවශ්‍යයි");
+    document.getElementById("veh-member-name")?.focus();
+    return;
+  }
+
+  const vehPrice       = parseInputNumber("veh-price", 0);
+  const regFee         = parseInputNumber("veh-reg-fee", 0);
+  const vehIns         = parseInputNumber("veh-insurance-fee", 0);
+  const downPayment    = parseInputNumber("veh-down-payment", 0);
+  const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
+  const g1             = parseInputNumber("fee-guarantor1-shares", 0);
+  const g2             = parseInputNumber("fee-guarantor2-shares", 0);
+  const docFee         = parseInputNumber("fee-doc", 0);
+  const serviceFund    = parseInputNumber("fee-service-fund", 0);
+  const loanIns        = parseInputNumber("fee-loan-insurance", 0);
+  const swashakthi     = parseInputNumber("fee-swashakthi-fund", 0);
+  const building       = parseInputNumber("fee-building-fund", 0);
+  const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
+
+  const totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns;
+  const totalVehCost   = vehPrice + totalDocFees;
+  const requiredLoan   = Math.max(0, totalVehCost - downPayment);
+
+  const vehRecord = {
+    id: "saveloan_" + Date.now(),
+    date: new Date().toLocaleDateString('si-LK', { year:'numeric', month:'short', day:'numeric' }),
+    timestamp: Date.now(),
+    type: "vehicle",
+    schemeName: `${loanType} (${selectedVehName})`,
+    memberId,
+    memberName,
+    loanType,
+    g1Acc,
+    g2Acc,
+    period,
+    rate,
+    grossLoan: totalVehCost,
+    totalDeductions: downPayment,
+    netDisbursement: requiredLoan,
+    vehicleName: selectedVehName,
+    vehPrice,
+    regFee,
+    vehIns,
+    downPayment,
+    borrowerShares,
+    g1, g2,
+    docFee,
+    serviceFund,
+    loanIns,
+    swashakthi,
+    building,
+    borrowerDeposit,
+    totalDocFees,
+    totalVehCost,
+    requiredLoan
+  };
+
+  const archive = getAllSavedRecords();
+  archive.unshift(vehRecord);
+  saveAllRecordsArray(archive);
+
+  showToast(`"${vehRecord.memberName}" ගේ වාහන ණය සුරැකි අතර Print Preview විවෘත වේ...`, "success", "සුරකින ලදී & Print");
+  printVehicleLoanSlip(vehRecord);
+}
+
+function selectVehicle(id) {
+  const select = document.getElementById("vehicle-select");
+  if (select) select.value = id;
+
+  document.querySelectorAll(".vehicle-tile").forEach(tile => {
+    if (tile.dataset.id === id) {
+      tile.classList.add("active");
+    } else {
+      tile.classList.remove("active");
+    }
+  });
+
+  const veh = vehicleDatabase.find(v => v.id === id);
+  if (veh) {
+    document.getElementById("veh-price").value = veh.price;
+    document.getElementById("veh-reg-fee").value = veh.regFee;
+    document.getElementById("veh-insurance-fee").value = veh.vehicleInsurance;
+    document.getElementById("veh-down-payment").value = veh.downPayment;
+    updateVehicleCalculation();
+  }
+}
+
+function getVehicleIconClass(type) {
+  switch (type) {
+    case 'bike':
+    case 'motorcycle':
+      return 'fa-solid fa-motorcycle';
+    case 'threewheel':
+    case 'three-wheeler':
+      return 'fa-solid fa-truck-pickup';
+    case 'car':
+      return 'fa-solid fa-car';
+    case 'van':
+      return 'fa-solid fa-van-shuttle';
+    case 'bus':
+      return 'fa-solid fa-bus';
+    case 'lorry':
+    case 'truck':
+      return 'fa-solid fa-truck';
+    case 'other':
+    default:
+      return 'fa-solid fa-shapes';
+  }
+}
+
+function renderVehicleTiles(filterQuery = "") {
+  const container = document.getElementById("vehicle-tiles-container");
+  if (!container) return;
+
+  const select = document.getElementById("vehicle-select");
+  const selectedId = (select && select.value) ? select.value : (vehicleDatabase[0] ? vehicleDatabase[0].id : "");
+
+  const q = filterQuery.trim().toLowerCase();
+  const filtered = q
+    ? vehicleDatabase.filter(v => v.name.toLowerCase().includes(q))
+    : vehicleDatabase;
+
+  let html = "";
+  if (filtered.length === 0) {
+    html = `<div class="veh-no-results"><i class="fa-solid fa-magnifying-glass"></i> <span>«${filterQuery}» සඳහා වාහන නැත</span></div>`;
+  } else {
+    filtered.forEach(v => {
+      const isActive = v.id === selectedId;
+      const typeLabel = { bike: "Bike", threewheel: "3-Wheel", car: "Car", van: "Van", bus: "Bus", lorry: "Lorry", other: "Other" }[v.type] || v.type;
+      html += `
+        <div class="vehicle-tile ${isActive ? 'active' : ''}" data-id="${v.id}" title="${v.name} තෝරන්න" style="position: relative;">
+          <button type="button" class="btn-tile-edit" data-id="${v.id}" title="${v.name} සංස්කරණය කරන්න"
+            style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.06); border: none; border-radius: 6px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all .2s; z-index: 2;">
+            <i class="fa-solid fa-pen-to-square" style="font-size: 11px;"></i>
+          </button>
+          <div class="veh-tile-icon">
+            <i class="${getVehicleIconClass(v.type)}"></i>
+          </div>
+          <div class="veh-tile-info">
+            <div class="veh-tile-name" style="padding-right: 22px;">${v.name}</div>
+            <div class="veh-tile-price">${formatCurrency(v.price)}</div>
+            <div class="veh-tile-type">${typeLabel}</div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  container.innerHTML = html;
+
+  // Tile selection click
+  container.querySelectorAll(".vehicle-tile").forEach(tile => {
+    tile.addEventListener("click", () => {
+      selectVehicle(tile.dataset.id);
+    });
+  });
+
+  // Tile edit button click
+  container.querySelectorAll(".btn-tile-edit").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openVehicleModalEdit(btn.dataset.id);
+    });
+  });
+}
+
+function openVehicleModalAdd() {
+  const editIdInput = document.getElementById("m-veh-edit-id");
+  if (editIdInput) editIdInput.value = "";
+  const nameInput = document.getElementById("m-veh-name");
+  if (nameInput) nameInput.value = "";
+  const priceInput = document.getElementById("m-veh-price");
+  if (priceInput) priceInput.value = "";
+  const regInput = document.getElementById("m-veh-reg");
+  if (regInput) regInput.value = "15000";
+  const insInput = document.getElementById("m-veh-insurance");
+  if (insInput) insInput.value = "18000";
+  const downInput = document.getElementById("m-veh-down");
+  if (downInput) downInput.value = "200000";
+
+  // Hide delete button for new vehicle
+  const deleteBtn = document.getElementById("btn-delete-vehicle");
+  if (deleteBtn) deleteBtn.style.display = "none";
+
+  // Reset vehicle type picker to Bike
+  const typeHidden = document.getElementById("m-veh-type");
+  if (typeHidden) typeHidden.value = "bike";
+  document.querySelectorAll(".veh-type-btn").forEach(btn => {
+    const isSelected = btn.dataset.type === "bike";
+    btn.style.border = isSelected ? "2px solid var(--accent-amber)" : "2px solid var(--border-color)";
+    btn.style.background = isSelected ? "var(--accent-amber)" : "var(--bg-input)";
+    btn.style.color = isSelected ? "#fff" : "var(--text-primary)";
+  });
+
+  // Update modal header icon to bike
+  const modalIcon = document.querySelector("#modal-title i");
+  if (modalIcon) { modalIcon.className = "fa-solid fa-motorcycle"; modalIcon.style.color = "var(--accent-amber)"; }
+
+  const titleText = document.getElementById("modal-title-text");
+  if (titleText) titleText.textContent = "නව වාහනයක් ඇතුළත් කරන්න (Add Vehicle)";
+  const saveLabel = document.getElementById("btn-save-label");
+  if (saveLabel) saveLabel.textContent = "සුරකින්න";
+
+  const modal = document.getElementById("modal-add-vehicle");
+  if (modal) modal.style.display = "flex";
+  nameInput?.focus();
+}
+
+function openVehicleModalEdit(vehicleId) {
+  const v = vehicleDatabase.find(x => x.id === vehicleId);
+  if (!v) return;
+
+  const editIdInput = document.getElementById("m-veh-edit-id");
+  if (editIdInput) editIdInput.value = v.id;
+  const nameInput = document.getElementById("m-veh-name");
+  if (nameInput) nameInput.value = v.name || "";
+  const priceInput = document.getElementById("m-veh-price");
+  if (priceInput) priceInput.value = v.price || "";
+  const regInput = document.getElementById("m-veh-reg");
+  if (regInput) regInput.value = v.regFee !== undefined ? v.regFee : "15000";
+  const insInput = document.getElementById("m-veh-insurance");
+  if (insInput) insInput.value = v.vehicleInsurance !== undefined ? v.vehicleInsurance : "18000";
+  const downInput = document.getElementById("m-veh-down");
+  if (downInput) downInput.value = v.downPayment !== undefined ? v.downPayment : "200000";
+
+  // Show delete button when editing
+  const deleteBtn = document.getElementById("btn-delete-vehicle");
+  if (deleteBtn) deleteBtn.style.display = "inline-flex";
+
+  // Match vehicle type and update picker buttons
+  const vehType = v.type || "bike";
+  const typeHidden = document.getElementById("m-veh-type");
+  if (typeHidden) typeHidden.value = vehType;
+
+  let chosenIcon = "fa-motorcycle";
+  document.querySelectorAll(".veh-type-btn").forEach(btn => {
+    const isSelected = btn.dataset.type === vehType;
+    if (isSelected) chosenIcon = btn.dataset.icon || "fa-motorcycle";
+    btn.style.border = isSelected ? "2px solid var(--accent-amber)" : "2px solid var(--border-color)";
+    btn.style.background = isSelected ? "var(--accent-amber)" : "var(--bg-input)";
+    btn.style.color = isSelected ? "#fff" : "var(--text-primary)";
+  });
+
+  const modalIcon = document.querySelector("#modal-title i");
+  if (modalIcon) {
+    modalIcon.className = `fa-solid ${chosenIcon}`;
+    modalIcon.style.color = "var(--accent-amber)";
+  }
+
+  const titleText = document.getElementById("modal-title-text");
+  if (titleText) titleText.textContent = "වාහන තොරතුරු සංස්කරණය (Edit Vehicle)";
+  const saveLabel = document.getElementById("btn-save-label");
+  if (saveLabel) saveLabel.textContent = "වෙනස්කම් සුරකින්න";
+
+  const modal = document.getElementById("modal-add-vehicle");
+  if (modal) modal.style.display = "flex";
+  nameInput?.focus();
+}
+
+function saveVehiclesToStorage() {
+  localStorage.setItem("gscs_vehicle_database", JSON.stringify(vehicleDatabase));
+}
+
+function loadSavedVehicles() {
+  const savedAll = localStorage.getItem("gscs_vehicle_database");
+  if (savedAll) {
+    try {
+      const parsed = JSON.parse(savedAll);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        vehicleDatabase = parsed;
+        return;
+      }
+    } catch(e) {}
+  }
+  const savedCustom = localStorage.getItem("gscs_custom_vehicles");
+  if (savedCustom) {
+    try {
+      const parsed = JSON.parse(savedCustom);
+      if (Array.isArray(parsed)) {
+        parsed.forEach(v => {
+          if (!vehicleDatabase.some(existing => existing.id === v.id)) {
+            vehicleDatabase.unshift(v);
+          }
+        });
+      }
+    } catch(e) {}
+  }
+}
+
+function populateVehicleDropdown() {
+  const select = document.getElementById("vehicle-select");
+  if (select) {
+    select.innerHTML = "";
+    vehicleDatabase.forEach(v => {
+      const opt = document.createElement("option");
+      opt.value = v.id;
+      opt.textContent = `${v.name} - ${formatCurrency(v.price)}`;
+      select.appendChild(opt);
+    });
+  }
+
+  const searchInput = document.getElementById("vehicle-search-input");
+  if (searchInput && !searchInput._wired) {
+    searchInput._wired = true;
+    searchInput.addEventListener("input", () => {
+      renderVehicleTiles(searchInput.value);
+    });
+  }
+
+  renderVehicleTiles(searchInput?.value || "");
+}
+
+function updateVehicleCalculation() {
+  const price = parseInputNumber("veh-price", 0);
+  const regFee = parseInputNumber("veh-reg-fee", 0);
+  const vehInsurance = parseInputNumber("veh-insurance-fee", 0);
+  const downPayment = parseInputNumber("veh-down-payment", 0);
+
+  const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
+  const g1Shares = parseInputNumber("fee-guarantor1-shares", 0);
+  const g2Shares = parseInputNumber("fee-guarantor2-shares", 0);
+  const docFee = parseInputNumber("fee-doc", 0);
+  const serviceFund = parseInputNumber("fee-service-fund", 0);
+  const loanInsurance = parseInputNumber("fee-loan-insurance", 0);
+  const swashakthiFund = parseInputNumber("fee-swashakthi-fund", 0);
+  const buildingFund = parseInputNumber("fee-building-fund", 0);
+  const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
+
+  const totalDocFees = borrowerShares + g1Shares + g2Shares + docFee + serviceFund + loanInsurance + swashakthiFund + buildingFund + borrowerDeposit + regFee + vehInsurance;
+  const totalVehCost = price + totalDocFees;
+  const rawLoanAmount = totalVehCost - downPayment;
+  const requiredLoanAmount = Math.max(0, rawLoanAmount);
+
+  lastCalculatedVehicleLoanAmount = requiredLoanAmount;
+
+  const elDocFees = document.getElementById("veh-metric-doc-fees");
+  const elTotalCost = document.getElementById("veh-metric-total-cost");
+  const elDownPayment = document.getElementById("veh-metric-down-payment");
+  const elRequiredLoan = document.getElementById("veh-metric-required-loan");
+  const btnApply = document.getElementById("btn-apply-veh-loan");
+  const warningEl = document.getElementById("veh-downpayment-warning");
+
+  if (elDocFees) elDocFees.textContent = formatCurrency(totalDocFees);
+  if (elTotalCost) elTotalCost.textContent = formatCurrency(totalVehCost);
+  if (elDownPayment) elDownPayment.textContent = formatCurrency(downPayment);
+  if (elRequiredLoan) elRequiredLoan.textContent = formatCurrency(requiredLoanAmount);
+
+  if (warningEl) {
+    warningEl.style.display = (downPayment > totalVehCost && totalVehCost > 0) ? "block" : "none";
+  }
+
+  if (btnApply) {
+    btnApply.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> මෙම ණය මුදල වාරික ගණකයට යොදන්න (${formatCurrency(requiredLoanAmount)})`;
+  }
+}
+
+function applyVehicleLoanAmount(amount) {
+  if (amount <= 0) return;
+  document.getElementById("loan-amount").value = amount;
+  document.getElementById("loan-amount-slider").value = amount;
+  switchAppMode('reducing');
+  calculateAndRender();
+}
+
+function printVehicleLoanSlip(customData) {
+  // Use universal print engine with vehicle data wrapper
+  const grossLoan = customData.totalVehCost || (customData.vehPrice + (customData.totalDocFees || 0));
+  const record = {
+    date: customData.date || new Date().toLocaleDateString('si-LK', { year:'numeric', month:'short', day:'numeric' }),
+    schemeName: `ස්වශක්ති වාහන ණය (${customData.vehicleName || 'Vehicle'})`,
+    memberId: customData.memberId || '',
+    memberName: customData.memberName || '',
+    nic: customData.nic || '',
+    phone: customData.phone || '',
+    g1Acc: customData.g1Acc || '',
+    g2Acc: customData.g2Acc || '',
+    period: customData.period || 24,
+    rate: customData.rate || 18,
+    method: 'reducing',
+    grossLoan: grossLoan,
+    totalDeductions: customData.downPayment || 0,
+    netDisbursement: customData.requiredLoan || Math.max(0, grossLoan - (customData.downPayment || 0)),
+    savings: customData.borrowerDeposit || 0,
+    serviceFund: customData.serviceFund || 0,
+    buildingFund: customData.building || 0,
+    loanInsurance: customData.loanIns || 0,
+    memberShares: customData.borrowerShares || 0,
+    securityDeposit: customData.swashakthi || 0,
+    stationery: customData.docFee || 0,
+    welfareFund: (customData.regFee || 0) + (customData.vehIns || 0),
+    existingLoan: 0,
+    existingInterest: 0,
+    g1Shares: customData.g1 || 0,
+    g2Shares: customData.g2 || 0,
+    emi: 0
+  };
+
+  printUniversalLoanSlip(record);
+}
+
+// ============================================================
+// 12. Single Loan Calculator & Amortization Repayment Engine
+// ============================================================
+function initSingleCalculator() {
+  const inputs = ["loan-amount", "interest-rate", "loan-tenure", "insurance-rate"];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    const slider = document.getElementById(id + "-slider");
+    if (el) {
+      el.addEventListener("input", () => {
+        if (slider) slider.value = el.value;
+        calculateAndRender();
+      });
+    }
+    if (slider) {
+      slider.addEventListener("input", () => {
+        if (el) el.value = slider.value;
+        calculateAndRender();
+      });
+    }
+  });
+
+  document.querySelectorAll('.presets-row .preset-chip').forEach(chip => {
+    chip.addEventListener("click", () => {
+      const forId = chip.dataset.for;
+      if (!forId || forId === "univ-loan-amount") return;
+      const targetInput = document.getElementById(forId);
+      const targetSlider = document.getElementById(forId + "-slider");
+      if (targetInput) {
+        targetInput.value = chip.dataset.value;
+        if (targetSlider) targetSlider.value = chip.dataset.value;
+        chip.parentElement.querySelectorAll('.preset-chip').forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        calculateAndRender();
+      }
+    });
+  });
+
+  document.querySelectorAll('input[name="tenure-unit"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+      calculateAndRender();
+    });
+  });
+
+  document.getElementById("search-month")?.addEventListener("input", (e) => {
+    filterScheduleTable(e.target.value.trim().toLowerCase());
+  });
+
+  document.getElementById("rows-per-page")?.addEventListener("change", (e) => {
+    scheduleCurrentPage = 1;
+    renderScheduleTable();
+  });
+
+  document.getElementById("btn-print")?.addEventListener("click", () => {
+    window.print();
+  });
+
+  document.getElementById("btn-export-csv")?.addEventListener("click", () => {
+    exportScheduleToCSV();
+  });
+
+  document.getElementById("btn-export-pdf")?.addEventListener("click", () => {
+    window.print();
+  });
+
+  calculateAndRender();
+}
+
+function calculateAndRender() {
+  const loanAmount = parseInputNumber("loan-amount", 400000);
+  const annualRate = parseInputNumber("interest-rate", 18);
+  let tenure = parseInt(document.getElementById("loan-tenure")?.value) || 60;
+  const tenureUnit = document.querySelector('input[name="tenure-unit"]:checked')?.value || 'months';
+  if (tenureUnit === 'years') tenure = tenure * 12;
+
+  const insuranceRate = parseInputNumber("insurance-rate", 0.06);
+
+  let schedule = [];
+  let totalInterest = 0;
+  let totalInsurance = 0;
+  let totalPayable = 0;
+  let firstMonthPayment = 0;
+  let lastMonthPayment = 0;
+
+  if (currentMode === 'flat') {
+    // Flat Rate calculation
+    totalInterest = loanAmount * (annualRate / 100) * (tenure / 12);
+    totalInsurance = (loanAmount * (insuranceRate / 100)) * (tenure / 12);
+    totalPayable = loanAmount + totalInterest + totalInsurance;
+    const monthlyPrincipal = loanAmount / tenure;
+    const monthlyInterest = totalInterest / tenure;
+    const monthlyInsurance = totalInsurance / tenure;
+    const monthlyTotal = monthlyPrincipal + monthlyInterest + monthlyInsurance;
+    firstMonthPayment = monthlyTotal;
+    lastMonthPayment = monthlyTotal;
+
+    let balance = loanAmount;
+    for (let m = 1; m <= tenure; m++) {
+      const startBal = balance;
+      balance = Math.max(0, balance - monthlyPrincipal);
+      schedule.push({
+        month: m,
+        date: getMonthDateString(m),
+        startBal,
+        principal: monthlyPrincipal,
+        interest: monthlyInterest,
+        insurance: monthlyInsurance,
+        total: monthlyTotal,
+        endBal: balance
+      });
+    }
+  } else {
+    // Reducing Balance Day-Count 365
+    const monthlyPrincipal = loanAmount / tenure;
+    let balance = loanAmount;
+    for (let m = 1; m <= tenure; m++) {
+      const startBal = balance;
+      const daysInMonth = getDaysInSpecificMonth(m);
+      const monthInterest = (balance * (annualRate / 100) * daysInMonth) / 365;
+      const monthInsurance = (balance * (insuranceRate / 100) * daysInMonth) / 365;
+      const monthTotal = monthlyPrincipal + monthInterest + monthInsurance;
+
+      balance = Math.max(0, balance - monthlyPrincipal);
+      totalInterest += monthInterest;
+      totalInsurance += monthInsurance;
+
+      if (m === 1) firstMonthPayment = monthTotal;
+      if (m === tenure) lastMonthPayment = monthTotal;
+
+      schedule.push({
+        month: m,
+        date: getMonthDateString(m),
+        startBal,
+        principal: monthlyPrincipal,
+        interest: monthInterest,
+        insurance: monthInsurance,
+        total: monthTotal,
+        endBal: balance
+      });
+    }
+    totalPayable = loanAmount + totalInterest + totalInsurance;
+  }
+
+  currentScheduleRows = schedule;
+
+  // Update Metric Cards
+  const elInst = document.getElementById("metric-installment");
+  const elInstSub = document.getElementById("metric-installment-sub");
+  const elInt = document.getElementById("metric-interest");
+  const elIns = document.getElementById("metric-insurance");
+  const elPay = document.getElementById("metric-total-payable");
+
+  if (elInst) {
+    elInst.textContent = (currentMode === 'reducing') ? formatCurrency(firstMonthPayment) : formatCurrency(firstMonthPayment);
+  }
+  if (elInstSub) {
+    elInstSub.textContent = (currentMode === 'reducing') ? `පළමු මාසය: ${formatCurrency(firstMonthPayment)} | අවසන්: ${formatCurrency(lastMonthPayment)}` : "ස්ථාවර මාසික වාරිකය";
+  }
+  if (elInt) elInt.textContent = formatCurrency(totalInterest);
+  if (elIns) elIns.textContent = formatCurrency(totalInsurance);
+  if (elPay) elPay.textContent = formatCurrency(totalPayable);
+
+  renderScheduleTable();
+  renderCharts(loanAmount, totalInterest, totalInsurance, schedule);
+}
+
+function renderScheduleTable() {
+  const tbody = document.getElementById("schedule-tbody");
+  const tfoot = document.getElementById("schedule-tfoot");
+  if (!tbody) return;
+
+  const rowsPerPage = parseInt(document.getElementById("rows-per-page")?.value) || 12;
+  const totalRows = currentScheduleRows.length;
+
+  let pageRows = currentScheduleRows;
+  if (rowsPerPage > 0) {
+    const startIdx = (scheduleCurrentPage - 1) * rowsPerPage;
+    pageRows = currentScheduleRows.slice(startIdx, startIdx + rowsPerPage);
+  }
+
+  tbody.innerHTML = pageRows.map(r => `
+    <tr>
+      <td>${r.month}</td>
+      <td>${r.date}</td>
+      <td>${formatCurrency(r.startBal)}</td>
+      <td style="color: var(--accent-blue); font-weight: 700;">${formatCurrency(r.principal)}</td>
+      <td style="color: var(--accent-gold);">${formatCurrency(r.interest)}</td>
+      <td style="color: var(--accent-emerald);">${formatCurrency(r.insurance)}</td>
+      <td style="font-weight: 800; color: var(--accent-purple);">${formatCurrency(r.total)}</td>
+      <td>${formatCurrency(r.endBal)}</td>
+    </tr>
+  `).join("");
+
+  // Totals in tfoot
+  const sumPrincipal = currentScheduleRows.reduce((a, b) => a + b.principal, 0);
+  const sumInterest = currentScheduleRows.reduce((a, b) => a + b.interest, 0);
+  const sumInsurance = currentScheduleRows.reduce((a, b) => a + b.insurance, 0);
+  const sumTotal = currentScheduleRows.reduce((a, b) => a + b.total, 0);
+
+  if (tfoot) {
+    tfoot.innerHTML = `
+      <tr style="font-weight: 800; background: var(--bg-card-hover);">
+        <td colspan="3" style="text-align: center;">එකතුව (Total)</td>
+        <td style="color: var(--accent-blue);">${formatCurrency(sumPrincipal)}</td>
+        <td style="color: var(--accent-gold);">${formatCurrency(sumInterest)}</td>
+        <td style="color: var(--accent-emerald);">${formatCurrency(sumInsurance)}</td>
+        <td style="color: var(--accent-purple); font-size: 0.95rem;">${formatCurrency(sumTotal)}</td>
+        <td>Rs. 0.00</td>
+      </tr>
+    `;
+  }
+}
+
+function filterScheduleTable(query) {
+  if (!query) {
+    renderScheduleTable();
+    return;
+  }
+  const tbody = document.getElementById("schedule-tbody");
+  if (!tbody) return;
+
+  const matched = currentScheduleRows.filter(r => r.month.toString().includes(query) || r.date.toLowerCase().includes(query));
+  tbody.innerHTML = matched.map(r => `
+    <tr>
+      <td>${r.month}</td>
+      <td>${r.date}</td>
+      <td>${formatCurrency(r.startBal)}</td>
+      <td style="color: var(--accent-blue); font-weight: 700;">${formatCurrency(r.principal)}</td>
+      <td style="color: var(--accent-gold);">${formatCurrency(r.interest)}</td>
+      <td style="color: var(--accent-emerald);">${formatCurrency(r.insurance)}</td>
+      <td style="font-weight: 800; color: var(--accent-purple);">${formatCurrency(r.total)}</td>
+      <td>${formatCurrency(r.endBal)}</td>
+    </tr>
+  `).join("");
+}
+
+function renderCharts(principal, interest, insurance, schedule) {
+  const ctxBreakdown = document.getElementById("chart-breakdown")?.getContext("2d");
+  const ctxTrend = document.getElementById("chart-trend")?.getContext("2d");
+
+  if (ctxBreakdown) {
+    if (chartBreakdown) chartBreakdown.destroy();
+    chartBreakdown = new Chart(ctxBreakdown, {
+      type: 'doughnut',
+      data: {
+        labels: ['මුල මුදල (Principal)', 'මුළු පොලිය (Interest)', 'ණය රක්ෂණය (Insurance)'],
+        datasets: [{
+          data: [principal, interest, insurance],
+          backgroundColor: ['#3b82f6', '#f59e0b', '#10b981'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: document.body.classList.contains('light-theme') ? '#0f172a' : '#f9fafb', font: { family: 'Noto Sans Sinhala, Inter' } } }
+        }
+      }
+    });
+  }
+
+  if (ctxTrend && schedule.length > 0) {
+    if (chartTrend) chartTrend.destroy();
+    const labels = schedule.map(r => `M${r.month}`);
+    const balances = schedule.map(r => r.endBal);
+    chartTrend = new Chart(ctxTrend, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'ණය ශේෂය (Loan Balance)',
+          data: balances,
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.12)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { ticks: { color: '#9ca3af' } },
+          y: { ticks: { color: '#9ca3af' } }
+        }
+      }
+    });
+  }
+}
+
+function renderComparisonView() {
+  const container = document.getElementById("compare-calc-view");
+  if (!container) return;
+
+  const loanAmount = parseInputNumber("loan-amount", 400000);
+  const annualRate = parseInputNumber("interest-rate", 18);
+  let tenure = parseInt(document.getElementById("loan-tenure")?.value) || 60;
+
+  // Reducing
+  const redInterest = (loanAmount * (annualRate / 100) * (tenure + 1)) / 24;
+  const redPayable = loanAmount + redInterest;
+  const redFirst = (loanAmount / tenure) + ((loanAmount * (annualRate / 100)) / 12);
+  const redLast = (loanAmount / tenure) + (((loanAmount / tenure) * (annualRate / 100)) / 12);
+
+  // Flat
+  const flatInterest = loanAmount * (annualRate / 100) * (tenure / 12);
+  const flatPayable = loanAmount + flatInterest;
+  const flatEmi = flatPayable / tenure;
+
+  const savings = flatInterest - redInterest;
+
+  container.innerHTML = `
+    <div class="glass-card" style="border-top: 4px solid var(--accent-gold);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 class="card-title" style="color: var(--accent-gold); margin-bottom: 0;">හීනවෙන ක්‍රමය (Reducing Balance)</h3>
+        <span class="badge-tag" style="background: rgba(245,158,11,0.15); color: var(--accent-gold); font-weight: 800;">වඩාත් වාසිදායකයි</span>
+      </div>
+      <div class="metric-value text-gold" style="font-size: 1.8rem; margin-bottom: 6px;">${formatCurrency(redFirst)} → ${formatCurrency(redLast)}</div>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">මාසික වාරිකය ක්‍රමයෙන් අඩු වේ.</p>
+      <div style="font-size: 0.88rem; line-height: 1.8;">
+        <div>මුළු පොලිය: <strong>${formatCurrency(redInterest)}</strong></div>
+        <div>ගෙවිය යුතු මුළු මුදල: <strong>${formatCurrency(redPayable)}</strong></div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="border-top: 4px solid var(--accent-blue);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 class="card-title" style="color: var(--accent-blue); margin-bottom: 0;">සමාන වාරික ක්‍රමය (Flat Rate)</h3>
+        <span class="badge-tag" style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">ස්ථාවර වාරික</span>
+      </div>
+      <div class="metric-value text-blue" style="font-size: 1.8rem; margin-bottom: 6px;">${formatCurrency(flatEmi)}</div>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">සෑම මාසයකම එකම වාරිකය ගෙවිය යුතුය.</p>
+      <div style="font-size: 0.88rem; line-height: 1.8;">
+        <div>මුළු පොලිය: <strong>${formatCurrency(flatInterest)}</strong></div>
+        <div>ගෙවිය යුතු මුළු මුදල: <strong>${formatCurrency(flatPayable)}</strong></div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="grid-column: 1 / -1; background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.3); text-align: center; padding: 20px;">
+      <h3 style="color: var(--accent-emerald); font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">
+        <i class="fa-solid fa-piggy-bank"></i> හීනවෙන ක්‍රමය තෝරාගැනීමෙන් ඔබ ලබන ඉතිරිය: ${formatCurrency(savings)}
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">සැබෑ බැංකු පොලී ක්‍රමය අනුව ණය ශේෂයට පමණක් පොලිය ගණනය වන බැවින් ගනුදෙනුකරුට උපරිම වාසියක් අත්වේ.</p>
+    </div>
+  `;
+}
+
+function exportScheduleToCSV() {
+  if (currentScheduleRows.length === 0) return;
+  const headers = ["Month", "Date", "Start Balance", "Principal", "Interest", "Insurance", "Monthly Installment", "Ending Balance"];
+  const rows = currentScheduleRows.map(r => [r.month, `"${r.date}"`, r.startBal, r.principal, r.interest, r.insurance, r.total, r.endBal]);
+  let csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `GSCS_Repayment_Schedule.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast("කාලසටහන CSV ගොනුවක් ලෙස බාගත කරන ලදී.", "success");
+}
+
+// ============================================================
+// 13. UI Helper Utilities (Theme, Language, Sidebar, Currency)
+// ============================================================
+function parseInputNumber(id, defaultVal = 0) {
+  const el = document.getElementById(id);
+  if (!el) return defaultVal;
+  const parsed = parseFloat(el.value);
+  return isNaN(parsed) ? defaultVal : parsed;
+}
+
+function formatCurrency(num) {
+  return "Rs. " + Number(num || 0).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function getDaysInSpecificMonth(monthOffset) {
+  const d = new Date();
+  d.setMonth(d.getMonth() + monthOffset);
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+}
+
+function getMonthDateString(monthOffset) {
+  const d = new Date();
+  d.setMonth(d.getMonth() + monthOffset);
+  return d.toLocaleDateString('si-LK', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function initTheme() {
+  const btnTheme = document.getElementById("btn-theme");
+  const savedTheme = localStorage.getItem("gscs_theme") || "light";
+  
+  if (savedTheme === "dark") {
+    document.body.classList.remove("light-theme");
+    btnTheme.innerHTML = '<i class="fa-solid fa-moon"></i>';
+  } else {
+    document.body.classList.add("light-theme");
+    btnTheme.innerHTML = '<i class="fa-solid fa-sun"></i>';
+  }
+
+  btnTheme?.addEventListener("click", () => {
+    const isLight = document.body.classList.toggle("light-theme");
+    localStorage.setItem("gscs_theme", isLight ? "light" : "dark");
+    btnTheme.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    if (chartBreakdown) calculateAndRender();
+  });
+}
+
+function initLanguage() {
+  const btnLang = document.getElementById("btn-lang");
+  const langName = document.getElementById("lang-name");
+  
+  btnLang?.addEventListener("click", () => {
+    currentLang = (currentLang === 'si') ? 'en' : 'si';
+    langName.textContent = (currentLang === 'si') ? 'English' : 'සිංහල';
+    applyLanguage(currentLang);
+  });
+}
+
+function applyLanguage(lang) {
+  const dict = i18n[lang];
+  if (!dict) return;
+
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.dataset.i18n;
+    if (dict[key]) {
+      el.textContent = dict[key];
+    }
+  });
+}
+
+function initSidebar() {
+  const toggleBtn = document.getElementById("btn-sidebar-toggle");
+  const backdrop = document.getElementById("sidebar-backdrop");
+  const sidebar = document.querySelector(".dashboard-sidebar");
+
+  toggleBtn?.addEventListener("click", () => {
+    sidebar?.classList.toggle("open");
+    backdrop?.classList.toggle("active");
+  });
+
+  backdrop?.addEventListener("click", () => {
+    closeMobileSidebar();
+  });
+}
+
+function closeMobileSidebar() {
+  document.querySelector(".dashboard-sidebar")?.classList.remove("open");
+  document.getElementById("sidebar-backdrop")?.classList.remove("active");
+}
+
+function openCustomerSupportModal() {
+  const modal = document.getElementById("modal-customer-service");
+  if (modal) modal.style.display = "flex";
+}
+
+document.getElementById("btn-close-support-modal")?.addEventListener("click", () => {
+  const modal = document.getElementById("modal-customer-service");
+  if (modal) modal.style.display = "none";
+});
+
+// Global modal close on clicking backdrop
+window.addEventListener("click", (e) => {
+  const supportModal = document.getElementById("modal-customer-service");
+  const schemeModal = document.getElementById("modal-add-scheme");
+  const saveVehModal = document.getElementById("modal-save-veh-loan");
+  const addVehModal = document.getElementById("modal-add-vehicle");
+
+  if (e.target === supportModal) supportModal.style.display = "none";
+  if (e.target === schemeModal) schemeModal.style.display = "none";
+  if (e.target === saveVehModal) saveVehModal.style.display = "none";
+  if (e.target === addVehModal) addVehModal.style.display = "none";
+});
