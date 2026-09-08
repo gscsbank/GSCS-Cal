@@ -1201,8 +1201,8 @@ function renderArchiveTable() {
     btn.addEventListener("click", () => {
       const rec = records.find(r => r.id === btn.dataset.id);
       if (rec) {
-        if (rec.type === 'vehicle' && rec.vehicleData) {
-          printVehicleLoanSlip(rec.vehicleData);
+        if (rec.type === 'vehicle') {
+          printVehicleLoanSlip(rec.vehicleData || rec);
         } else {
           printUniversalLoanSlip(rec);
         }
@@ -1476,14 +1476,14 @@ function printUniversalLoanSlip(record) {
     .fee-tbl td { padding: 2.7px 6px; border: 1px solid #ccc; color: #000; font-size: 7.4pt; line-height: 1.35; }
     .fee-tbl td.r { text-align: right; font-weight: 700; }
 
-    .sum-tbl { width: 100%; border-collapse: collapse; font-size: 8pt; margin-top: 5mm; }
-    .sum-tbl td { padding: 4px 6px; border: 1px solid #ccc; color: #000; }
+    .sum-tbl { width: 100%; border-collapse: collapse; font-size: 7.6pt; margin-top: 3.5mm; }
+    .sum-tbl td { padding: 3px 6px; border: 1px solid #ccc; color: #000; }
     .sum-tbl td.r { text-align: right; font-weight: 700; }
     .sum-tbl tr.hl td {
       background: #dcdcdc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
-      border-top: 1.5px solid #000; font-weight: 900; font-size: 9pt; padding: 5px 6px;
+      border-top: 1.5px solid #000; font-weight: 900; font-size: 8.6pt; padding: 4px 6px;
     }
-    .sum-tbl tr.hl td.r { font-size: 11pt; font-weight: 900; }
+    .sum-tbl tr.hl td.r { font-size: 10.5pt; font-weight: 900; }
 
     .slip-sign-row {
       width: 100%;
@@ -1491,11 +1491,11 @@ function printUniversalLoanSlip(record) {
       grid-template-columns: 1fr 1fr 1fr;
       gap: 8mm;
       margin-top: auto;
-      padding-top: 6mm;
+      padding-top: 5mm;
       padding-bottom: 1.5mm;
     }
     .sign-box { text-align: center; }
-    .sign-line { border-bottom: 1.2px dotted #000; width: 100%; min-height: 16mm; }
+    .sign-line { border-bottom: 1.2px dotted #000; width: 100%; min-height: 15mm; }
     .sign-lbl { font-size: 7.5pt; font-weight: 800; color: #000; margin-top: 1.8mm; line-height: 1.1; }
     .sign-sub { font-size: 6.2pt; color: #555; margin-top: 0.5mm; }
 
@@ -1514,7 +1514,72 @@ function printUniversalLoanSlip(record) {
   `;
 
   function createUniversalSlipHTML(copyName) {
+    const isVehicle = record.type === 'vehicle';
     const methodText = record.method === 'flat' ? 'සමාන වාරික (Flat Rate)' : 'හීනවෙන ක්‍රමය (Reducing)';
+    const bankTitle = isVehicle ? 'GSCS BANK – ස්වශක්ති වාහන ණය අංශය' : 'GSCS BANK – ණය නිකුත් කිරීමේ අංශය';
+    const subTitle = isVehicle ? 'ස්වශක්ති වාහන ණය සහ අයකිරීම් කුවිතාන්සිය' : 'ණය මුදල් නිකුත් කිරීම සහ අරමුදල් අයකිරීම් කුවිතාන්සිය';
+    const subTitleEn = isVehicle ? 'Swashakthi Vehicle Loan &amp; Fund Deductions Voucher Slip' : 'Loan Disbursement &amp; Fund Deductions Voucher Slip';
+    const schemeBadge = isVehicle ? `&#x1F3CD;&nbsp; ${record.schemeName}` : `&#x1F4B3;&nbsp; ${record.schemeName}`;
+
+    // Left summary table
+    const summaryTableHTML = isVehicle ? `
+              <table class="sum-tbl">
+                <tr><td>වාහනයේ මිල (Vehicle Price)</td><td class="r">${fmtR(record.vehPrice)}</td></tr>
+                <tr><td>ලේඛන ගාස්තු එකතුව (Total Fees)</td><td class="r">${fmtR(record.totalDocFees)}</td></tr>
+                <tr><td>සම්පූර්ණ පිරිවැය (Total Cost)</td><td class="r">${fmtR(record.totalVehCost)}</td></tr>
+                <tr><td>අඩු කළ මූලික ගෙවීම (Down Payment)</td><td class="r">(${fmtR(record.downPayment)})</td></tr>
+                <tr class="hl"><td>අවශ්‍ය ණය මුදල (Net Loan)</td><td class="r">${fmtR(record.requiredLoan || record.netDisbursement)}</td></tr>
+              </table>
+    ` : `
+              <table class="sum-tbl">
+                <tr><td>අනුමත ණය මුදල (Gross)</td><td class="r">${fmtR(record.grossLoan)}</td></tr>
+                <tr><td>මුළු අයකිරීම් එකතුව (Deductions)</td><td class="r" style="color: #000;">(${fmtR(record.totalDeductions)})</td></tr>
+                <tr class="hl"><td>නිකුත් කරන ශුද්ධ මුදල (Net)</td><td class="r">${fmtR(record.netDisbursement)}</td></tr>
+              </table>
+    `;
+
+    // Right deductions table
+    const deductionsTableHTML = isVehicle ? `
+              <table class="fee-tbl">
+                <thead>
+                  <tr><th>අයකිරීම් විස්තරය (Deduction Item)</th><th style="text-align:right;">මුදල (Rs.)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>1. ණයකරු කොටස් (Borrower Shares)</td><td class="r">${fmtR(record.borrowerShares)}</td></tr>
+                  <tr><td>2. ණයකරු තැන්පතු (Borrower Deposit)</td><td class="r">${fmtR(record.borrowerDeposit)}</td></tr>
+                  <tr><td>3. ඇපකරු 1 කොටස් (Guarantor 1 Shares)</td><td class="r">${fmtR(record.g1)}</td></tr>
+                  <tr><td>4. ඇපකරු 2 කොටස් (Guarantor 2 Shares)</td><td class="r">${fmtR(record.g2)}</td></tr>
+                  <tr><td>5. ගොඩනැගිලි අරමුදල (Building Fund)</td><td class="r">${fmtR(record.building)}</td></tr>
+                  <tr><td>6. සමිති දායකත්වය (Swashakthi Fund)</td><td class="r">${fmtR(record.swashakthi)}</td></tr>
+                  <tr><td>7. ලිපි ගාස්තු (Documentation Fee)</td><td class="r">${fmtR(record.docFee)}</td></tr>
+                  <tr><td>8. සේවා අරමුදල (Service Fund)</td><td class="r">${fmtR(record.serviceFund)}</td></tr>
+                  <tr><td>9. ණය රක්ෂණය (Loan Insurance)</td><td class="r">${fmtR(record.loanIns)}</td></tr>
+                  <tr><td>10. වාහන ලියාපදිංචි ගාස්තු (Reg. Fee)</td><td class="r">${fmtR(record.regFee)}</td></tr>
+                  <tr><td>11. වාහන රක්ෂණ ගාස්තු (Vehicle Insurance)</td><td class="r">${fmtR(record.vehIns)}</td></tr>
+                  <tr style="font-weight: 800; background: #e8f5e9 !important;"><td>මුළු ගාස්තු එකතුව (Total Fees)</td><td class="r font-mono" style="font-weight: 900;">${fmtR(record.totalDocFees)}</td></tr>
+                </tbody>
+              </table>
+    ` : `
+              <table class="fee-tbl">
+                <thead>
+                  <tr><th>අයකිරීම් විස්තරය (Deduction Item)</th><th style="text-align:right;">මුදල (Rs.)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>1. ඉතිරිකිරීම් තැන්පතු (Savings Deposit)</td><td class="r">${fmtR(record.savings)}</td></tr>
+                  <tr><td>2. සේවා අරමුදල (Service Fund)</td><td class="r">${fmtR(record.serviceFund)}</td></tr>
+                  <tr><td>3. ගොඩනැගිලි අරමුදල (Building Fund)</td><td class="r">${fmtR(record.buildingFund)}</td></tr>
+                  <tr><td>4. ණය රක්ෂණය (Loan Insurance)</td><td class="r">${fmtR(record.loanInsurance)}</td></tr>
+                  <tr><td>5. සාමාජික කොටස් (Member Shares)</td><td class="r">${fmtR(record.memberShares)}</td></tr>
+                  <tr><td>6. සුරැකුම් තැන්පතු (Security Deposit)</td><td class="r">${fmtR(record.securityDeposit)}</td></tr>
+                  <tr><td>7. ලිපි ද්‍රව්‍ය ගාස්තු (Stationery Fee)</td><td class="r">${fmtR(record.stationery)}</td></tr>
+                  <tr><td>8. සුබසාධන අරමුදල (Welfare Fund)</td><td class="r">${fmtR(record.welfareFund)}</td></tr>
+                  <tr><td>9. ගෙවීමට ඇති ණය (Existing Loan)</td><td class="r">${fmtR(record.existingLoan)}</td></tr>
+                  <tr><td>10. ගෙවීමට ඇති පොලිය (Interest Due)</td><td class="r">${fmtR(record.existingInterest)}</td></tr>
+                  <tr><td>11. ඇපකරු 1 කොටස් (G1 Shares)</td><td class="r">${fmtR(record.g1Shares)}</td></tr>
+                  <tr><td>12. ඇපකරු 2 කොටස් (G2 Shares)</td><td class="r">${fmtR(record.g2Shares)}</td></tr>
+                </tbody>
+              </table>
+    `;
 
     return `
     <div class="slip">
@@ -1526,9 +1591,9 @@ function printUniversalLoanSlip(record) {
             <table><tr>
               <td>
                 <div class="slip-copy-badge">${copyName}</div>
-                <div class="slip-bank">GSCS BANK – ණය නිකුත් කිරීමේ අංශය</div>
-                <div class="slip-sub">ණය මුදල් නිකුත් කිරීම සහ අරමුදල් අයකිරීම් කුවිතාන්සිය</div>
-                <div class="slip-sub-en">Loan Disbursement &amp; Fund Deductions Voucher Slip</div>
+                <div class="slip-bank">${bankTitle}</div>
+                <div class="slip-sub">${subTitle}</div>
+                <div class="slip-sub-en">${subTitleEn}</div>
               </td>
               <td>
                 <div class="slip-date">${record.date}</div>
@@ -1538,7 +1603,7 @@ function printUniversalLoanSlip(record) {
           </div>
 
           <!-- Scheme Name Badge -->
-          <div class="slip-veh">&#x1F4B3;&nbsp; ${record.schemeName}</div>
+          <div class="slip-veh">${schemeBadge}</div>
 
           <!-- Two Column Layout -->
           <table class="content-grid"><tbody><tr>
@@ -1578,38 +1643,15 @@ function printUniversalLoanSlip(record) {
                 </div>
               </div>
 
-
               <!-- Summary Table -->
-              <table class="sum-tbl">
-                <tr><td>අනුමත ණය මුදල (Gross)</td><td class="r">${fmtR(record.grossLoan)}</td></tr>
-                <tr><td>මුළු අයකිරීම් එකතුව (Deductions)</td><td class="r" style="color: #000;">(${fmtR(record.totalDeductions)})</td></tr>
-                <tr class="hl"><td>නිකුත් කරන ශුද්ධ මුදල (Net)</td><td class="r">${fmtR(record.netDisbursement)}</td></tr>
-              </table>
+              ${summaryTableHTML}
             </td>
 
             <td class="col-divider"></td>
 
-            <!-- RIGHT: Complete 12 Deductions Breakdown Table -->
+            <!-- RIGHT: Deductions Breakdown Table -->
             <td style="width: 52%;">
-              <table class="fee-tbl">
-                <thead>
-                  <tr><th>අයකිරීම් විස්තරය (Deduction Item)</th><th style="text-align:right;">මුදල (Rs.)</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>1. ඉතිරිකිරීම් තැන්පතු (Savings Deposit)</td><td class="r">${fmtR(record.savings)}</td></tr>
-                  <tr><td>2. සේවා අරමුදල (Service Fund)</td><td class="r">${fmtR(record.serviceFund)}</td></tr>
-                  <tr><td>3. ගොඩනැගිලි අරමුදල (Building Fund)</td><td class="r">${fmtR(record.buildingFund)}</td></tr>
-                  <tr><td>4. ණය රක්ෂණය (Loan Insurance)</td><td class="r">${fmtR(record.loanInsurance)}</td></tr>
-                  <tr><td>5. සාමාජික කොටස් (Member Shares)</td><td class="r">${fmtR(record.memberShares)}</td></tr>
-                  <tr><td>6. සුරැකුම් තැන්පතු (Security Deposit)</td><td class="r">${fmtR(record.securityDeposit)}</td></tr>
-                  <tr><td>7. ලිපි ද්‍රව්‍ය ගාස්තු (Stationery Fee)</td><td class="r">${fmtR(record.stationery)}</td></tr>
-                  <tr><td>8. සුබසාධන අරමුදල (Welfare Fund)</td><td class="r">${fmtR(record.welfareFund)}</td></tr>
-                  <tr><td>9. ගෙවීමට ඇති ණය (Existing Loan)</td><td class="r">${fmtR(record.existingLoan)}</td></tr>
-                  <tr><td>10. ගෙවීමට ඇති පොලිය (Interest Due)</td><td class="r">${fmtR(record.existingInterest)}</td></tr>
-                  <tr><td>11. ඇපකරු 1 කොටස් (G1 Shares)</td><td class="r">${fmtR(record.g1Shares)}</td></tr>
-                  <tr><td>12. ඇපකරු 2 කොටස් (G2 Shares)</td><td class="r">${fmtR(record.g2Shares)}</td></tr>
-                </tbody>
-              </table>
+              ${deductionsTableHTML}
             </td>
 
           </tr></tbody></table>
@@ -1885,6 +1927,7 @@ function saveAndPrintVehicleLoanDirect() {
     totalVehCost,
     requiredLoan
   };
+  vehRecord.vehicleData = vehRecord;
 
   const archive = getAllSavedRecords();
   archive.unshift(vehRecord);
@@ -2194,35 +2237,65 @@ function applyVehicleLoanAmount(amount) {
 }
 
 function printVehicleLoanSlip(customData) {
-  // Use universal print engine with vehicle data wrapper
-  const grossLoan = customData.totalVehCost || (customData.vehPrice + (customData.totalDocFees || 0));
+  if (!customData) return;
+  const v = customData.vehicleData || customData;
+  const regFee = Number(v.regFee) || 0;
+  const vehIns = Number(v.vehIns || v.vehicleInsurance) || 0;
+  const borrowerShares = Number(v.borrowerShares) || 0;
+  const borrowerDeposit = Number(v.borrowerDeposit) || 0;
+  const g1 = Number(v.g1 || v.g1Shares) || 0;
+  const g2 = Number(v.g2 || v.g2Shares) || 0;
+  const building = Number(v.building || v.buildingFund) || 0;
+  const swashakthi = Number(v.swashakthi || v.swashakthiFund) || 0;
+  const docFee = Number(v.docFee) || 0;
+  const serviceFund = Number(v.serviceFund) || 0;
+  const loanIns = Number(v.loanIns || v.loanInsurance) || 0;
+
+  const calculatedDocFees = borrowerShares + borrowerDeposit + g1 + g2 + building + swashakthi + docFee + serviceFund + loanIns + regFee + vehIns;
+  const totalDocFees = (v.totalDocFees !== undefined && v.totalDocFees !== null) ? Number(v.totalDocFees) : calculatedDocFees;
+  const vehPrice = Number(v.vehPrice) || 0;
+  const totalVehCost = (v.totalVehCost !== undefined && v.totalVehCost !== null) ? Number(v.totalVehCost) : (vehPrice + totalDocFees);
+  const downPayment = Number(v.downPayment) || 0;
+  const requiredLoan = (v.requiredLoan !== undefined && v.requiredLoan !== null) ? Number(v.requiredLoan) : Math.max(0, totalVehCost - downPayment);
+
+  const vehName = v.vehicleName || 'Vehicle';
+  const loanType = v.loanType || 'ස්වශක්ති වාහන ණය';
+
   const record = {
-    date: customData.date || new Date().toLocaleDateString('si-LK', { year:'numeric', month:'short', day:'numeric' }),
-    schemeName: `ස්වශක්ති වාහන ණය (${customData.vehicleName || 'Vehicle'})`,
-    memberId: customData.memberId || '',
-    memberName: customData.memberName || '',
-    nic: customData.nic || '',
-    phone: customData.phone || '',
-    g1Acc: customData.g1Acc || '',
-    g2Acc: customData.g2Acc || '',
-    period: customData.period || 24,
-    rate: customData.rate || 18,
+    id: v.id || ("veh_" + Date.now()),
+    date: v.date || new Date().toLocaleDateString('si-LK', { year:'numeric', month:'short', day:'numeric' }),
+    type: 'vehicle',
+    schemeName: v.schemeName || `${loanType} (${vehName})`,
+    vehicleName: vehName,
+    loanType: loanType,
+    memberId: v.memberId || '',
+    memberName: v.memberName || '',
+    nic: v.nic || '',
+    phone: v.phone || '',
+    g1Acc: v.g1Acc || '',
+    g2Acc: v.g2Acc || '',
+    period: v.period || 24,
+    rate: v.rate || 18,
     method: 'reducing',
-    grossLoan: grossLoan,
-    totalDeductions: customData.downPayment || 0,
-    netDisbursement: customData.requiredLoan || Math.max(0, grossLoan - (customData.downPayment || 0)),
-    savings: customData.borrowerDeposit || 0,
-    serviceFund: customData.serviceFund || 0,
-    buildingFund: customData.building || 0,
-    loanInsurance: customData.loanIns || 0,
-    memberShares: customData.borrowerShares || 0,
-    securityDeposit: customData.swashakthi || 0,
-    stationery: customData.docFee || 0,
-    welfareFund: (customData.regFee || 0) + (customData.vehIns || 0),
-    existingLoan: 0,
-    existingInterest: 0,
-    g1Shares: customData.g1 || 0,
-    g2Shares: customData.g2 || 0,
+    vehPrice,
+    regFee,
+    vehIns,
+    downPayment,
+    borrowerShares,
+    borrowerDeposit,
+    g1,
+    g2,
+    building,
+    swashakthi,
+    docFee,
+    serviceFund,
+    loanIns,
+    totalDocFees,
+    totalVehCost,
+    requiredLoan,
+    grossLoan: totalVehCost,
+    totalDeductions: downPayment,
+    netDisbursement: requiredLoan,
     emi: 0
   };
 
