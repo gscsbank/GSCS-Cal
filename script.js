@@ -1712,35 +1712,35 @@ function printUniversalLoanSlip(record) {
   iframe.style.cssText = "position:fixed;right:0;bottom:0;width:10px;height:10px;border:none;opacity:0.01;pointer-events:none;z-index:-999;";
   document.body.appendChild(iframe);
 
+  let printed = false;
+  const doPrint = () => {
+    if (printed) return;
+    printed = true;
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch(err) {
+      console.warn("Direct iframe print failed, trying window.open", err);
+      const win = window.open("", "_blank");
+      if (win) {
+        win.document.write(fullHTML);
+        win.document.close();
+        win.focus();
+        win.print();
+      }
+    }
+  };
+
   try {
     const doc = iframe.contentWindow.document;
     doc.open();
     doc.write(fullHTML);
     doc.close();
-
-    setTimeout(() => {
-      try {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-      } catch(err) {
-        console.warn("Iframe print blocked, falling back to window.open", err);
-        const win = window.open("", "_blank");
-        if (win) {
-          win.document.write(fullHTML);
-          win.document.close();
-          win.focus();
-          win.print();
-        }
-      }
-    }, 350);
+    setTimeout(doPrint, 350);
   } catch(e) {
+    iframe.onload = () => setTimeout(doPrint, 350);
     iframe.srcdoc = fullHTML;
-    iframe.onload = () => {
-      setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-      }, 350);
-    };
+    setTimeout(doPrint, 700);
   }
 }
 
@@ -1886,83 +1886,92 @@ function initVehicleCalculator() {
 }
 
 function saveAndPrintVehicleLoanDirect() {
-  const vehSelectEl = document.getElementById("vehicle-select");
-  const selectedVehName = vehSelectEl?.options[vehSelectEl.selectedIndex]?.text?.split(" - ")[0] || "වාහනය";
-  const memberId    = document.getElementById("veh-member-id")?.value.trim() || "";
-  const memberName  = document.getElementById("veh-member-name")?.value.trim() || "";
-  const loanType    = document.getElementById("veh-loan-type")?.value.trim() || "ස්වශක්ති ණය 01";
-  const g1Acc       = document.getElementById("veh-g1-account")?.value.trim() || "";
-  const g2Acc       = document.getElementById("veh-g2-account")?.value.trim() || "";
-  const period      = parseInt(document.getElementById("veh-loan-period")?.value) || 24;
-  const rate        = parseFloat(document.getElementById("veh-loan-rate")?.value) || 18;
+  try {
+    const vehSelectEl = document.getElementById("vehicle-select");
+    const selectedVehName = vehSelectEl?.options[vehSelectEl.selectedIndex]?.text?.split(" - ")[0] || "වාහනය";
+    const memberId    = document.getElementById("veh-member-id")?.value.trim() || "";
+    const memberName  = document.getElementById("veh-member-name")?.value.trim() || "";
+    const loanType    = document.getElementById("veh-loan-type")?.value.trim() || "ස්වශක්ති ණය 01";
+    const g1Acc       = document.getElementById("veh-g1-account")?.value.trim() || "";
+    const g2Acc       = document.getElementById("veh-g2-account")?.value.trim() || "";
+    const period      = parseInt(document.getElementById("veh-loan-period")?.value) || 24;
+    const rate        = parseFloat(document.getElementById("veh-loan-rate")?.value) || 18;
 
-  const finalMemberName = memberName || "සාමාජිකයා (නම සඳහන් කර නැත)";
-  const finalMemberId   = memberId || "–";
+    const finalMemberName = memberName || "සාමාජිකයා (නම සඳහන් කර නැත)";
+    const finalMemberId   = memberId || "–";
 
-  const vehPrice       = parseInputNumber("veh-price", 0);
-  const regFee         = parseInputNumber("veh-reg-fee", 0);
-  const vehIns         = parseInputNumber("veh-insurance-fee", 0);
-  const downPayment    = parseInputNumber("veh-down-payment", 0);
-  const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
-  const g1             = parseInputNumber("fee-guarantor1-shares", 0);
-  const g2             = parseInputNumber("fee-guarantor2-shares", 0);
-  const docFee         = parseInputNumber("fee-doc", 0);
-  const serviceFund    = parseInputNumber("fee-service-fund", 0);
-  const loanIns        = parseInputNumber("fee-loan-insurance", 0);
-  const swashakthi     = parseInputNumber("fee-swashakthi-fund", 0);
-  const building       = parseInputNumber("fee-building-fund", 0);
-  const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
+    const vehPrice       = parseInputNumber("veh-price", 0);
+    const regFee         = parseInputNumber("veh-reg-fee", 0);
+    const vehIns         = parseInputNumber("veh-insurance-fee", 0);
+    const downPayment    = parseInputNumber("veh-down-payment", 0);
+    const borrowerShares = parseInputNumber("fee-borrower-shares", 0);
+    const g1             = parseInputNumber("fee-guarantor1-shares", 0);
+    const g2             = parseInputNumber("fee-guarantor2-shares", 0);
+    const docFee         = parseInputNumber("fee-doc", 0);
+    const serviceFund    = parseInputNumber("fee-service-fund", 0);
+    const loanIns        = parseInputNumber("fee-loan-insurance", 0);
+    const swashakthi     = parseInputNumber("fee-swashakthi-fund", 0);
+    const building       = parseInputNumber("fee-building-fund", 0);
+    const borrowerDeposit = parseInputNumber("fee-borrower-deposit", 0);
 
-  const totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns;
-  const totalVehCost   = vehPrice + totalDocFees;
-  const requiredLoan   = Math.max(0, totalVehCost - downPayment);
+    const totalDocFees   = borrowerShares + g1 + g2 + docFee + serviceFund + loanIns + swashakthi + building + borrowerDeposit + regFee + vehIns;
+    const totalVehCost   = vehPrice + totalDocFees;
+    const requiredLoan   = Math.max(0, totalVehCost - downPayment);
 
-  const vehRecord = {
-    id: "saveloan_" + Date.now(),
-    date: new Date().toLocaleDateString('si-LK', { year:'numeric', month:'short', day:'numeric' }),
-    timestamp: Date.now(),
-    type: "vehicle",
-    schemeName: `${loanType} (${selectedVehName})`,
-    memberId: finalMemberId,
-    memberName: finalMemberName,
-    loanType,
-    g1Acc,
-    g2Acc,
-    period,
-    rate,
-    grossLoan: totalVehCost,
-    totalDeductions: downPayment,
-    netDisbursement: requiredLoan,
-    vehicleName: selectedVehName,
-    vehPrice,
-    regFee,
-    vehIns,
-    downPayment,
-    borrowerShares,
-    borrowerDeposit,
-    g1, g2,
-    docFee,
-    serviceFund,
-    loanIns,
-    swashakthi,
-    building,
-    totalDocFees,
-    totalVehCost,
-    requiredLoan
-  };
-  vehRecord.vehicleData = vehRecord;
+    const vehRecord = {
+      id: "saveloan_" + Date.now(),
+      date: new Date().toLocaleDateString('si-LK', { year:'numeric', month:'short', day:'numeric' }),
+      timestamp: Date.now(),
+      type: "vehicle",
+      schemeName: `${loanType} (${selectedVehName})`,
+      memberId: finalMemberId,
+      memberName: finalMemberName,
+      loanType,
+      g1Acc,
+      g2Acc,
+      period,
+      rate,
+      grossLoan: totalVehCost,
+      totalDeductions: downPayment,
+      netDisbursement: requiredLoan,
+      vehicleName: selectedVehName,
+      vehPrice,
+      regFee,
+      vehIns,
+      downPayment,
+      borrowerShares,
+      borrowerDeposit,
+      g1, g2,
+      docFee,
+      serviceFund,
+      loanIns,
+      swashakthi,
+      building,
+      totalDocFees,
+      totalVehCost,
+      requiredLoan
+    };
 
-  const archive = getAllSavedRecords();
-  archive.unshift(vehRecord);
-  saveAllRecordsArray(archive);
+    try {
+      const archive = getAllSavedRecords();
+      archive.unshift(vehRecord);
+      saveAllRecordsArray(archive);
+    } catch(err) {
+      console.warn("Error saving vehicle record to archive:", err);
+    }
 
-  if (!memberName) {
-    showToast(`නම ඇතුළත් කර නොමැති බැවින් කෙටුම්පතක් ලෙස Print වේ...`, "info", "Print Slip");
-  } else {
-    showToast(`"${finalMemberName}" ගේ වාහන ණය සුරැකි අතර Print Preview විවෘත වේ...`, "success", "සුරකින ලදී & Print");
+    if (!memberName) {
+      showToast(`නම ඇතුළත් කර නොමැති බැවින් කෙටුම්පතක් ලෙස Print වේ...`, "info", "Print Slip");
+    } else {
+      showToast(`"${finalMemberName}" ගේ වාහන ණය සුරැකි අතර Print Preview විවෘත වේ...`, "success", "සුරකින ලදී & Print");
+    }
+    printVehicleLoanSlip(vehRecord);
+  } catch(err) {
+    console.error("Critical error in saveAndPrintVehicleLoanDirect:", err);
+    alert("මුද්‍රණය කිරීමේදී දෝෂයක් සිදු විය: " + err.message);
   }
-  printVehicleLoanSlip(vehRecord);
 }
+window.saveAndPrintVehicleLoanDirect = saveAndPrintVehicleLoanDirect;
 
 function selectVehicle(id) {
   const select = document.getElementById("vehicle-select");
