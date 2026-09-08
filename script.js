@@ -773,9 +773,11 @@ function extractUniversalLoanRecord() {
 
 function saveAndPrintUniversalLoan() {
   const record = extractUniversalLoanRecord();
-  if (!record.memberId || !record.memberName) {
-    showToast("කරුණාකර සාමාජික අංකය සහ නම ඇතුළත් කරන්න.", "warning", "තොරතුරු අවශ්‍යයි");
-    return;
+  if (!record.memberName) {
+    record.memberName = "සාමාජිකයා (නම සඳහන් කර නැත)";
+  }
+  if (!record.memberId) {
+    record.memberId = "–";
   }
   if (record.grossLoan <= 0) {
     showToast("කරුණාකර වලංගු අනුමත ණය මුදලක් ඇතුළත් කරන්න.", "warning", "අගය අවශ්‍යයි");
@@ -1702,20 +1704,44 @@ function printUniversalLoanSlip(record) {
 </html>`;
 
   let iframe = document.getElementById("_univ_print_frame");
-  if (!iframe) {
-    iframe = document.createElement("iframe");
-    iframe.id = "_univ_print_frame";
-    iframe.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;";
-    document.body.appendChild(iframe);
+  if (iframe) {
+    try { iframe.remove(); } catch(e) {}
   }
+  iframe = document.createElement("iframe");
+  iframe.id = "_univ_print_frame";
+  iframe.style.cssText = "position:fixed;right:0;bottom:0;width:10px;height:10px;border:none;opacity:0.01;pointer-events:none;z-index:-999;";
+  document.body.appendChild(iframe);
 
-  iframe.srcdoc = fullHTML;
-  iframe.onload = () => {
+  try {
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(fullHTML);
+    doc.close();
+
     setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-    }, 500);
-  };
+      try {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      } catch(err) {
+        console.warn("Iframe print blocked, falling back to window.open", err);
+        const win = window.open("", "_blank");
+        if (win) {
+          win.document.write(fullHTML);
+          win.document.close();
+          win.focus();
+          win.print();
+        }
+      }
+    }, 350);
+  } catch(e) {
+    iframe.srcdoc = fullHTML;
+    iframe.onload = () => {
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      }, 350);
+    };
+  }
 }
 
 // ============================================================
@@ -1870,11 +1896,8 @@ function saveAndPrintVehicleLoanDirect() {
   const period      = parseInt(document.getElementById("veh-loan-period")?.value) || 24;
   const rate        = parseFloat(document.getElementById("veh-loan-rate")?.value) || 18;
 
-  if (!memberName) {
-    showToast("කරුණාකර සාමාජිකයාගේ නම ඇතුළත් කරන්න.", "warning", "අවශ්‍යයි");
-    document.getElementById("veh-member-name")?.focus();
-    return;
-  }
+  const finalMemberName = memberName || "සාමාජිකයා (නම සඳහන් කර නැත)";
+  const finalMemberId   = memberId || "–";
 
   const vehPrice       = parseInputNumber("veh-price", 0);
   const regFee         = parseInputNumber("veh-reg-fee", 0);
@@ -1900,8 +1923,8 @@ function saveAndPrintVehicleLoanDirect() {
     timestamp: Date.now(),
     type: "vehicle",
     schemeName: `${loanType} (${selectedVehName})`,
-    memberId,
-    memberName,
+    memberId: finalMemberId,
+    memberName: finalMemberName,
     loanType,
     g1Acc,
     g2Acc,
@@ -1916,13 +1939,13 @@ function saveAndPrintVehicleLoanDirect() {
     vehIns,
     downPayment,
     borrowerShares,
+    borrowerDeposit,
     g1, g2,
     docFee,
     serviceFund,
     loanIns,
     swashakthi,
     building,
-    borrowerDeposit,
     totalDocFees,
     totalVehCost,
     requiredLoan
@@ -1933,7 +1956,11 @@ function saveAndPrintVehicleLoanDirect() {
   archive.unshift(vehRecord);
   saveAllRecordsArray(archive);
 
-  showToast(`"${vehRecord.memberName}" ගේ වාහන ණය සුරැකි අතර Print Preview විවෘත වේ...`, "success", "සුරකින ලදී & Print");
+  if (!memberName) {
+    showToast(`නම ඇතුළත් කර නොමැති බැවින් කෙටුම්පතක් ලෙස Print වේ...`, "info", "Print Slip");
+  } else {
+    showToast(`"${finalMemberName}" ගේ වාහන ණය සුරැකි අතර Print Preview විවෘත වේ...`, "success", "සුරකින ලදී & Print");
+  }
   printVehicleLoanSlip(vehRecord);
 }
 
